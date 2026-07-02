@@ -138,6 +138,56 @@
     .cat-section__image { flex: 1; position: relative; overflow: hidden; }
     .cat-section__image-inner { position: absolute; inset: 0; }
 
+    /* ─── MOBILE IMAGE MODAL ── */
+    .img-modal {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.25em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .28s ease;
+    }
+    .img-modal.is-open { opacity: 1; pointer-events: auto; }
+    .img-modal__backdrop {
+      position: absolute; inset: 0;
+      background: rgba(3,9,13,.88);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .img-modal__card {
+      position: relative; width: 100%; max-width: 340px;
+      border-radius: 1.125em; overflow: hidden;
+      transform: scale(.9) translateY(20px);
+      transition: transform .38s cubic-bezier(0.34,1.42,0.64,1);
+      z-index: 1;
+      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    }
+    .img-modal.is-open .img-modal__card { transform: scale(1) translateY(0); }
+    .img-modal__img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+    .img-modal__info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 3em 1.25em 1.375em;
+      background: linear-gradient(to top, rgba(3,9,13,.8) 0%, transparent 100%);
+    }
+    .img-modal__name {
+      font-family: var(--font-primary); font-size: 1.125em; font-weight: 400;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+      margin-bottom: .2em;
+    }
+    .img-modal__price {
+      font-family: var(--font-primary); font-size: 0.75em;
+      letter-spacing: 0.08em; color: var(--gold);
+    }
+    .img-modal__close {
+      position: absolute; top: .75em; right: .75em;
+      width: 2.25em; height: 2.25em; border-radius: 50%;
+      background: rgba(3,9,13,.55); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; z-index: 2;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      transition: background .2s;
+    }
+    .img-modal__close:active { background: rgba(3,9,13,.8); }
+    .img-modal__close svg { width: 1em; height: 1em; stroke: #fff; stroke-width: 2.5; fill: none; }
+
     /* ─── HOVER IMAGE LAYERS ── */
     .cat-img-overlay {
       position: absolute; inset: 0;
@@ -397,6 +447,21 @@
           <a href="#">Kullanım Koşulları</a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Mobile image modal (in DOM before script so getElementById works) -->
+  <div class="img-modal" id="imgModal" role="dialog" aria-modal="true">
+    <div class="img-modal__backdrop" id="imgModalBackdrop"></div>
+    <div class="img-modal__card">
+      <img class="img-modal__img" id="imgModalImg" src="" alt="">
+      <div class="img-modal__info">
+        <div class="img-modal__name" id="imgModalName"></div>
+        <div class="img-modal__price" id="imgModalPrice"></div>
+      </div>
+      <button class="img-modal__close" id="imgModalClose" aria-label="Kapat">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
   </div>
 
@@ -752,7 +817,6 @@
      HOVER / TAP IMAGE LOGIC
   ════════════════════════════════════════ */
   const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
-  let tapTimers = {};
 
   function bindHoverEvents(container) {
     container.querySelectorAll('.menu-item[data-img]').forEach(item => {
@@ -773,29 +837,11 @@
           overlay.classList.remove('is-visible');
         });
       } else {
-        /* Mobile tap */
+        /* Mobile tap → full-screen modal */
         item.addEventListener('click', () => {
-          const isSameActive = overlay.classList.contains('is-visible') &&
-                               overlay.style.backgroundImage.includes(encodeURI(imgUrl).replace(/[()]/g, m => `\\${m}`).replace(/,/g, '\\,') || imgUrl);
-          // Clear all overlays in this panel
-          document.querySelectorAll('.cat-img-overlay').forEach(o => {
-            if (o.id === 'overlay-' + catId) {
-              o.classList.remove('is-visible');
-              clearTimeout(tapTimers[catId]);
-            }
-          });
-          // Remove tap highlight
-          container.querySelectorAll('.menu-item.is-tapped').forEach(el => el.classList.remove('is-tapped'));
-
-          if (!isSameActive) {
-            overlay.style.backgroundImage = `url(${imgUrl})`;
-            overlay.classList.add('is-visible');
-            item.classList.add('is-tapped');
-            tapTimers[catId] = setTimeout(() => {
-              overlay.classList.remove('is-visible');
-              item.classList.remove('is-tapped');
-            }, 4000);
-          }
+          const name  = item.querySelector('.menu-item__name')?.textContent  || '';
+          const price = item.querySelector('.menu-item__price')?.textContent || '';
+          openImgModal(imgUrl, name, price);
         });
       }
     });
@@ -905,6 +951,38 @@
     document.querySelectorAll('[data-reveal]:not(.is-visible)').forEach(el => revealObs.observe(el));
   }
   observeReveals();
+
+  /* ════════════════════════════════════════
+     MOBILE IMAGE MODAL
+  ════════════════════════════════════════ */
+  const imgModal      = document.getElementById('imgModal');
+  const imgModalImg   = document.getElementById('imgModalImg');
+  const imgModalName  = document.getElementById('imgModalName');
+  const imgModalPrice = document.getElementById('imgModalPrice');
+
+  function openImgModal(url, name, price) {
+    imgModalImg.src = url;
+    imgModalName.textContent = name;
+    imgModalPrice.textContent = price || '';
+    imgModal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeImgModal() {
+    imgModal.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setTimeout(() => { imgModalImg.src = ''; }, 300);
+  }
+
+  document.getElementById('imgModalBackdrop').addEventListener('click', closeImgModal);
+  document.getElementById('imgModalClose').addEventListener('click', closeImgModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgModal(); });
+
+  /* Swipe-down to close */
+  let touchStartY = 0;
+  imgModal.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  imgModal.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) closeImgModal();
+  }, { passive: true });
 
   init();
   </script>
