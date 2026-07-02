@@ -732,9 +732,18 @@
         <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hero Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Preloader Sol Yazı</label><input id="hp-phraseLeft" placeholder="A Place To"></div>
+              <div class="form-group"><label>Preloader Sağ Yazı</label><input id="hp-phraseRight" placeholder="Slow Down"></div>
+            </div>
             <div class="form-group"><label>Küçük Üst Yazı (eyebrow)</label><input id="hp-eyebrow" placeholder="Istanbul · 2019"></div>
             <div class="form-group"><label>Ana Başlık (satır 1)</label><input id="hp-title1" placeholder="A Place"></div>
             <div class="form-group"><label>Ana Başlık (satır 2)</label><input id="hp-title2" placeholder="To Belong"></div>
+            <div class="contact-grid">
+              <div class="form-group"><label>CTA Buton Yazısı</label><input id="hp-heroCtaText" placeholder="Menüyü Keşfet"></div>
+              <div class="form-group"><label>CTA Buton Linki</label><input id="hp-heroCtaLink" placeholder="menu.html"></div>
+            </div>
+            <div class="form-group"><label>Scroll Etiketi</label><input id="hp-scrollLabel" placeholder="Scroll to Explore"></div>
             <div class="form-group">
               <label>Hero Görseli / Videosu</label>
               <div style="display:flex;gap:.5em;align-items:center">
@@ -776,6 +785,10 @@
                 <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-menuImg','homepage/menu')"></label>
               </div>
             </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="hp-menuCtaText" placeholder="View Menu"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="hp-menuCtaLink" placeholder="menu.html"></div>
+            </div>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -784,6 +797,10 @@
             <div class="form-group"><label>Üst Etiket</label><input id="hp-spaceLabel" placeholder="The Space"></div>
             <div class="form-group"><label>Başlık</label><input id="hp-spaceTitle" placeholder="A corner of calm in the heart of the city"></div>
             <div class="form-group"><label>Açıklama Metni</label><textarea id="hp-spaceText" placeholder="Our space was designed with…"></textarea></div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="hp-spaceCtaText" placeholder="Reserve a Spot"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="hp-spaceCtaLink" placeholder="#reserve"></div>
+            </div>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -818,6 +835,10 @@
                 <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-craftImg','homepage/craft')"></label>
               </div>
             </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="hp-craftCtaText" placeholder="Discover Our Process"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="hp-craftCtaLink" placeholder="#craft"></div>
+            </div>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -835,6 +856,7 @@
         <div class="card">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Slider / Galeri Görselleri</span></div></div>
           <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Slider Başlığı</label><input id="hp-sliderTitle" placeholder="Explore Everything POD Has to Offer"></div>
             <p style="font-size:.8125em;color:var(--muted);margin-bottom:1em">Her satıra bir görsel URL veya yükle — virgülle ayır ya da alt alta ekle</p>
             <div id="sliderImagesContainer"></div>
             <button class="btn btn-ghost btn-sm" onclick="addSliderRow()" style="margin-top:.75em">+ Görsel Ekle</button>
@@ -2024,28 +2046,40 @@ async function loadHomepage() {
   if (!doc.exists) return;
   const d = doc.data();
   const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
-  v('hp-eyebrow',    d.eyebrow);
-  v('hp-title1',     d.title1);
-  v('hp-title2',     d.title2);
-  v('hp-heroMedia',  d.heroMedia);
-  v('hp-storyLabel', d.storyLabel);
-  v('hp-storyText',  d.storyText);
-  v('hp-storyImg',   d.storyImg);
-  v('hp-menuLabel',  d.menuLabel);
-  v('hp-menuTitle',  d.menuTitle);
-  v('hp-menuText',   d.menuText);
-  v('hp-menuImg',    d.menuImg);
-  v('hp-spaceLabel', d.spaceLabel);
-  v('hp-spaceTitle', d.spaceTitle);
-  v('hp-spaceText',  d.spaceText);
-  v('hp-fullImg',    d.fullImg);
-  v('hp-craftLabel', d.craftLabel);
-  v('hp-craftTitle', d.craftTitle);
-  v('hp-craftText',  d.craftText);
-  v('hp-craftImg',   d.craftImg);
-  v('hp-cardImg',    d.cardImg);
-  v('hp-bigText1',   d.bigText1);
-  v('hp-bigText2',   d.bigText2);
+  v('hp-phraseLeft',   d.phraseLeft);
+  v('hp-phraseRight',  d.phraseRight);
+  v('hp-eyebrow',      d.eyebrow);
+  v('hp-title1',       d.title1);
+  v('hp-title2',       d.title2);
+  v('hp-heroCtaText',  d.heroCtaText);
+  v('hp-heroCtaLink',  d.heroCtaLink);
+  v('hp-scrollLabel',  d.scrollLabel);
+  v('hp-heroMedia',    d.heroMedia);
+  v('hp-storyLabel',   d.storyLabel);
+  v('hp-storyText',    d.storyText);
+  v('hp-storyImg',     d.storyImg);
+  v('hp-menuLabel',    d.menuLabel);
+  v('hp-menuTitle',    d.menuTitle);
+  v('hp-menuText',     d.menuText);
+  v('hp-menuImg',      d.menuImg);
+  v('hp-menuCtaText',  d.menuCtaText);
+  v('hp-menuCtaLink',  d.menuCtaLink);
+  v('hp-spaceLabel',   d.spaceLabel);
+  v('hp-spaceTitle',   d.spaceTitle);
+  v('hp-spaceText',    d.spaceText);
+  v('hp-spaceCtaText', d.spaceCtaText);
+  v('hp-spaceCtaLink', d.spaceCtaLink);
+  v('hp-fullImg',      d.fullImg);
+  v('hp-sliderTitle',  d.sliderTitle);
+  v('hp-craftLabel',   d.craftLabel);
+  v('hp-craftTitle',   d.craftTitle);
+  v('hp-craftText',    d.craftText);
+  v('hp-craftImg',     d.craftImg);
+  v('hp-craftCtaText', d.craftCtaText);
+  v('hp-craftCtaLink', d.craftCtaLink);
+  v('hp-cardImg',      d.cardImg);
+  v('hp-bigText1',     d.bigText1);
+  v('hp-bigText2',     d.bigText2);
   document.getElementById('sliderImagesContainer').innerHTML = '';
   sliderImageCount = 0;
   (d.sliderImages || []).forEach(url => addSliderRow(url));
@@ -2056,28 +2090,40 @@ async function saveHomepage() {
   const sliderImages = [];
   document.querySelectorAll('[id^="sliderImg-"]').forEach(el => { if(el.value.trim()) sliderImages.push(el.value.trim()); });
   await db.collection('siteConfig').doc('homepage').set({
-    eyebrow:    g('hp-eyebrow'),
-    title1:     g('hp-title1'),
-    title2:     g('hp-title2'),
-    heroMedia:  g('hp-heroMedia'),
-    storyLabel: g('hp-storyLabel'),
-    storyText:  g('hp-storyText'),
-    storyImg:   g('hp-storyImg'),
-    menuLabel:  g('hp-menuLabel'),
-    menuTitle:  g('hp-menuTitle'),
-    menuText:   g('hp-menuText'),
-    menuImg:    g('hp-menuImg'),
-    spaceLabel: g('hp-spaceLabel'),
-    spaceTitle: g('hp-spaceTitle'),
-    spaceText:  g('hp-spaceText'),
-    fullImg:    g('hp-fullImg'),
-    craftLabel: g('hp-craftLabel'),
-    craftTitle: g('hp-craftTitle'),
-    craftText:  g('hp-craftText'),
-    craftImg:   g('hp-craftImg'),
-    cardImg:    g('hp-cardImg'),
-    bigText1:   g('hp-bigText1'),
-    bigText2:   g('hp-bigText2'),
+    phraseLeft:   g('hp-phraseLeft'),
+    phraseRight:  g('hp-phraseRight'),
+    eyebrow:      g('hp-eyebrow'),
+    title1:       g('hp-title1'),
+    title2:       g('hp-title2'),
+    heroCtaText:  g('hp-heroCtaText'),
+    heroCtaLink:  g('hp-heroCtaLink'),
+    scrollLabel:  g('hp-scrollLabel'),
+    heroMedia:    g('hp-heroMedia'),
+    storyLabel:   g('hp-storyLabel'),
+    storyText:    g('hp-storyText'),
+    storyImg:     g('hp-storyImg'),
+    menuLabel:    g('hp-menuLabel'),
+    menuTitle:    g('hp-menuTitle'),
+    menuText:     g('hp-menuText'),
+    menuImg:      g('hp-menuImg'),
+    menuCtaText:  g('hp-menuCtaText'),
+    menuCtaLink:  g('hp-menuCtaLink'),
+    spaceLabel:   g('hp-spaceLabel'),
+    spaceTitle:   g('hp-spaceTitle'),
+    spaceText:    g('hp-spaceText'),
+    spaceCtaText: g('hp-spaceCtaText'),
+    spaceCtaLink: g('hp-spaceCtaLink'),
+    fullImg:      g('hp-fullImg'),
+    sliderTitle:  g('hp-sliderTitle'),
+    craftLabel:   g('hp-craftLabel'),
+    craftTitle:   g('hp-craftTitle'),
+    craftText:    g('hp-craftText'),
+    craftImg:     g('hp-craftImg'),
+    craftCtaText: g('hp-craftCtaText'),
+    craftCtaLink: g('hp-craftCtaLink'),
+    cardImg:      g('hp-cardImg'),
+    bigText1:     g('hp-bigText1'),
+    bigText2:     g('hp-bigText2'),
     sliderImages,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
