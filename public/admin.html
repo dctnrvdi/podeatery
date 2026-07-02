@@ -467,6 +467,10 @@
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
           Mekan Sayfası
         </button>
+        <button class="nav-item" data-section="legal" onclick="showSection(this,'legal')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          Sözleşmeler
+        </button>
         <button class="nav-item" data-section="settings" onclick="showSection(this,'settings')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
           Ayarlar
@@ -911,6 +915,32 @@
         </div>
       </div>
 
+      <!-- LEGAL -->
+      <div class="section" id="section-legal">
+        <div class="section-header">
+          <h2>Sözleşmeler</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveLegal()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Gizlilik Politikası</span><a href="privacy.html" target="_blank" style="font-size:.75em;opacity:.5;margin-left:.75em">Sayfayı Gör ↗</a></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>İçerik (düz metin, paragraflar için boş satır bırakın)</label>
+              <textarea id="legal-privacy" rows="14" placeholder="Gizlilik politikası metninizi buraya yazın..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Kullanım Koşulları</span><a href="terms.html" target="_blank" style="font-size:.75em;opacity:.5;margin-left:.75em">Sayfayı Gör ↗</a></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>İçerik (düz metin, paragraflar için boş satır bırakın)</label>
+              <textarea id="legal-terms" rows="14" placeholder="Kullanım koşulları metninizi buraya yazın..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- SETTINGS -->
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
@@ -1209,7 +1239,7 @@ function doLogout() {
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
-const topbarTitles = { dashboard:'Dashboard', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', homepage:'Ana Sayfa', spacepage:'Mekan Sayfası', settings:'Ayarlar' };
+const topbarTitles = { dashboard:'Dashboard', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', homepage:'Ana Sayfa', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
 
 function showSection(btn, id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1224,7 +1254,7 @@ function showSection(btn, id) {
 ════════════════════════════════════════ */
 async function loadAll() {
   loadCldConfig();
-  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadSpacepage(), loadDashboard()]);
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadSpacepage(), loadLegal(), loadDashboard()]);
 }
 
 /* ════════════════════════════════════════
@@ -1479,6 +1509,25 @@ async function loadContact() {
   const h = d.hours || {};
   v('h-mon', h.mon); v('h-tue', h.tue); v('h-wed', h.wed); v('h-thu', h.thu);
   v('h-fri', h.fri); v('h-sat', h.sat); v('h-sun', h.sun);
+}
+
+async function loadLegal() {
+  const doc = await db.collection('siteConfig').doc('legal').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const el1 = document.getElementById('legal-privacy');
+  const el2 = document.getElementById('legal-terms');
+  if (el1 && d.privacyContent) el1.value = d.privacyContent;
+  if (el2 && d.termsContent)   el2.value = d.termsContent;
+}
+
+async function saveLegal() {
+  await db.collection('siteConfig').doc('legal').set({
+    privacyContent: document.getElementById('legal-privacy')?.value.trim() || '',
+    termsContent:   document.getElementById('legal-terms')?.value.trim()   || '',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Sözleşmeler kaydedildi', 'success');
 }
 
 async function saveContact() {

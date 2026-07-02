@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kullanım Koşulları — POD Coffee &amp; Eatery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c1: #F8F2E5; --c2: #03090D; --c3: #C2644F; --c4: #779580; --c8: #D3CFC5;
+      --fp: 'Josefin Sans', sans-serif; --fs: 'Jost', sans-serif;
+      --size-font: calc(min(100vw, 1728px) / 108);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+
+    html { font-size: var(--size-font); }
+    html.lenis { height: auto; }
+    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    .eyebrow { font-family: var(--fp); font-size: .6875em; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--c8); display: inline-block; }
+
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 5.5em; background: #fff; z-index: 999; }
+    .block-header { position: fixed; top: 1em; left: 0; right: 0; margin: 0 auto; max-width: 45em; height: 3.75em; background: rgba(3,9,13,.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: .375em; padding: 0 .875em; z-index: 1000; display: flex; align-items: center; justify-content: space-between; }
+    .block-header__book-btn { font-family: var(--fp); font-size: .75em; font-weight: 500; letter-spacing: .09em; text-transform: uppercase; color: #FFFEFD; border: 1px solid rgba(255,254,253,.32); border-radius: .3em; padding: .6em 1.2em; background: transparent; transition: background .25s; }
+    .block-header__book-btn:hover { background: rgba(255,254,253,.1); }
+    .block-header__logo { position: absolute; left: 50%; transform: translateX(-50%); }
+    .block-header__logo-text { font-family: var(--fp); font-size: 1.125em; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #FFFEFD; }
+    .block-header__toggle { display: flex; flex-direction: column; gap: 4px; padding: .4em; }
+    .block-header__toggle span { display: block; width: 22px; height: 1.5px; background: #FFFEFD; border-radius: 1px; transition: transform .3s, opacity .3s; transform-origin: center; }
+    .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .block-header__toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .block-header__toggle.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+    .block-header__menu { position: fixed; top: calc(1em + 3.75em + .5em); left: 0; right: 0; margin: 0 auto; max-width: 45em; background: #FFFEFD; border-radius: .375em; overflow: hidden; pointer-events: none; opacity: 0; transform: translateY(-8px); transition: opacity .3s, transform .3s; z-index: 999; }
+    .block-header__menu.is-open { pointer-events: auto; opacity: 1; transform: translateY(0); }
+    .block-header__menu-nav { display: flex; flex-direction: column; align-items: center; padding: 2.25em 1.5em 1.5em; gap: 1.1em; }
+    .block-header__menu-nav a { font-family: var(--fp); font-size: 1.375em; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; color: var(--c2); opacity: 0; transform: translateY(20px); transition: transform .35s, opacity .35s, color .2s; }
+    .block-header__menu.is-open .block-header__menu-nav a { opacity: 1; transform: translateY(0); }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(1) { transition-delay: .06s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(2) { transition-delay: .12s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(3) { transition-delay: .18s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(4) { transition-delay: .24s; }
+    .block-header__menu-nav a:hover { color: var(--c3); }
+    .block-header__menu-social { display: flex; justify-content: center; gap: 2em; padding: 1em 1.5em 1.75em; border-top: 1px solid rgba(3,9,13,.08); }
+    .block-header__menu-social a { font-family: var(--fp); font-size: .75em; letter-spacing: .09em; text-transform: uppercase; color: var(--c8); transition: color .2s; }
+    .block-header__menu-social a:hover { color: var(--c3); }
+
+    .page-intro { padding: 9em 4em 3.5em; border-bottom: 1px solid #ebebeb; display: flex; align-items: flex-end; justify-content: space-between; gap: 2em; }
+    .page-intro__title { font-family: var(--fp); font-size: 4.5em; font-weight: 300; letter-spacing: .04em; text-transform: uppercase; line-height: 1; }
+    .page-intro__desc { font-size: .875em; color: #999; max-width: 20em; line-height: 1.6; text-align: right; }
+
+    .legal-body { max-width: 52em; margin: 0 auto; padding: 4em 4em 8em; }
+    .legal-body .eyebrow { margin-bottom: 2em; display: block; }
+    .legal-content { font-size: 1em; line-height: 1.8; color: #444; white-space: pre-wrap; }
+
+    .block-footer-simple { border-top: 1px solid #ebebeb; padding: 2em 4em; display: flex; align-items: center; justify-content: space-between; }
+    .block-footer-simple__logo { font-family: var(--fp); font-size: 1em; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+    .block-footer-simple__links { display: flex; gap: 2em; }
+    .block-footer-simple__links a { font-family: var(--fp); font-size: .6875em; letter-spacing: .09em; text-transform: uppercase; color: var(--c8); transition: color .2s; }
+    .block-footer-simple__links a:hover { color: var(--c2); }
+
+    @media (max-width: 700px) {
+      .block-header, .block-header__menu { max-width: calc(100% - 2em); }
+      .page-intro { flex-direction: column; align-items: flex-start; padding: 8em 1.5em 2.5em; }
+      .page-intro__desc { text-align: left; }
+      .legal-body { padding: 2.5em 1.5em 5em; }
+      .block-footer-simple { flex-direction: column; gap: 1em; text-align: center; padding: 2em 1.5em; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="block-header">
+    <a href="pod.html#reserve" class="block-header__book-btn">Reserve</a>
+    <div class="block-header__logo">
+      <a href="pod.html" class="block-header__logo-text">POD</a>
+    </div>
+    <button class="block-header__toggle" id="menuToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
+    <div class="block-header__menu-nav">
+      <a href="pod.html#story">Our Story</a>
+      <a href="menu.html">Menu</a>
+      <a href="space.html">The Space</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="block-header__menu-social">
+      <a href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
+      <a href="mailto:hello@podcoffee.com">hello@podcoffee.com</a>
+    </div>
+  </nav>
+
+  <div class="page-intro">
+    <h1 class="page-intro__title">Kullanım<br>Koşulları</h1>
+    <p class="page-intro__desc">Sitemizi kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız.</p>
+  </div>
+
+  <div class="legal-body">
+    <span class="eyebrow">Son güncelleme: 2024</span>
+    <div class="legal-content" id="termsContent">Bu alan yakında güncellenecektir.
+
+POD Coffee &amp; Eatery web sitesini kullanarak bu kullanım koşullarını kabul etmiş sayılırsınız. Site içeriği yalnızca bilgilendirme amaçlıdır.
+
+Sitedeki tüm içerik POD Coffee &amp; Eatery'e aittir ve izinsiz kullanılamaz.</div>
+  </div>
+
+  <footer class="block-footer-simple">
+    <div class="block-footer-simple__logo">POD</div>
+    <div class="block-footer-simple__links">
+      <a href="terms.html">Kullanım Koşulları</a>
+      <a href="privacy.html">Gizlilik Politikası</a>
+      <a href="contact.html">İletişim</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script>
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      this.classList.toggle('is-open');
+      const menu = document.getElementById('headerMenu');
+      menu.classList.toggle('is-open');
+      menu.setAttribute('aria-hidden', !menu.classList.contains('is-open'));
+    });
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+  (async function() {
+    try {
+      const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      const db = firebase.firestore();
+      const doc = await db.collection('siteConfig').doc('legal').get();
+      if (doc.exists && doc.data().termsContent) {
+        document.getElementById('termsContent').textContent = doc.data().termsContent;
+      }
+    } catch(e) { console.warn('[POD] Legal içerik yüklenemedi:', e.message); }
+  })();
+  </script>
+</body>
+</html>
