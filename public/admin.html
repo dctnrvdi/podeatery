@@ -581,6 +581,15 @@
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Google Harita</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Embed URL <span style="font-size:.8em;opacity:.6;font-weight:400">(Google Maps → Paylaş → Haritayı yerleştir → iframe src)</span></label>
+              <input id="c-mapEmbedUrl" placeholder="https://www.google.com/maps/embed?pb=...">
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">İletişim Bilgileri</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
@@ -1619,6 +1628,7 @@ async function loadContact() {
   v('c-visitLine2',      d.visitLine2);
   v('c-getInTouchText',  d.getInTouchText);
   v('c-getInTouchUrl',   d.getInTouchUrl);
+  v('c-mapEmbedUrl',     d.mapEmbedUrl);
   v('c-phone',     d.phone);
   v('c-email',     d.email);
   v('c-address',   d.address);
@@ -1655,6 +1665,7 @@ async function saveContact() {
     visitLine2:     g('c-visitLine2'),
     getInTouchText: g('c-getInTouchText'),
     getInTouchUrl:  g('c-getInTouchUrl'),
+    mapEmbedUrl:    g('c-mapEmbedUrl'),
     phone:     g('c-phone'),
     email:     g('c-email'),
     address:   g('c-address'),

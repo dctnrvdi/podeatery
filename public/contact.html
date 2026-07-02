@@ -368,10 +368,12 @@
         <div class="map-label__addr" id="mapLabelAddr">Karaköy, Istanbul, Türkiye</div>
       </div>
       <iframe
+        id="contactMap"
         title="POD Coffee &amp; Eatery harita"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=28.9100%2C40.9950%2C29.0500%2C41.0600&layer=mapnik&marker=41.0228%2C28.9743"
+        src="https://maps.google.com/maps?q=POD+Coffee+%26+Eatery+Bornova+%C4%B0zmir&output=embed&z=16"
         allowfullscreen
-        loading="lazy">
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
       </iframe>
     </div>
 
@@ -535,6 +537,10 @@
         if (c.address) {
           set('contactAddress', c.address);
           set('mapLabelAddr', c.address + ', Türkiye');
+        }
+        if (c.mapEmbedUrl) {
+          const mapEl = document.getElementById('contactMap');
+          if (mapEl) mapEl.src = c.mapEmbedUrl;
         }
         if (c.instagram) {
           set('contactIgText', c.instagram);
