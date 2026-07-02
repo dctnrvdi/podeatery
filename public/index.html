@@ -999,8 +999,8 @@
       <div class="block-card-content-box" data-reveal>
         <div class="block-card-content-box__left">
           <div>
-            <span class="eyebrow">Visit Us</span>
-            <h2 class="title-s">Find Us<br>in Istanbul</h2>
+            <span class="eyebrow" id="visitEyebrow">Visit Us</span>
+            <h2 class="title-s" id="visitTitle">Find Us<br>in Istanbul</h2>
           </div>
           <a href="mailto:hello@podcoffee.com" class="link" style="color:var(--color-1)">
             <span>Get in Touch</span>
@@ -1358,6 +1358,11 @@
       /* ── CONTACT → hours & location on card ── */
       if (contactDoc.exists) {
         const c = contactDoc.data();
+        if (c.visitEyebrow) setTxt('visitEyebrow', c.visitEyebrow);
+        if (c.visitLine1 || c.visitLine2) {
+          const el = document.getElementById('visitTitle');
+          if (el) el.innerHTML = [c.visitLine1, c.visitLine2].filter(Boolean).join('<br>');
+        }
         const h = c.hours || {};
         const hoursEl = document.querySelector('.block-card-content-box__hours');
         if (hoursEl && Object.keys(h).length) {

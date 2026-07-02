@@ -561,6 +561,16 @@
           <button class="btn btn-primary btn-sm" onclick="saveContact()">Kaydet</button>
         </div>
         <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">"Visit Us" Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Eyebrow Yazısı</label><input id="c-visitEyebrow" placeholder="Visit Us"></div>
+              <div class="form-group"><label>Başlık 1. Satır</label><input id="c-visitLine1" placeholder="Find Us"></div>
+              <div class="form-group"><label>Başlık 2. Satır</label><input id="c-visitLine2" placeholder="in Istanbul"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">İletişim Bilgileri</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
@@ -1455,6 +1465,9 @@ async function loadContact() {
   if (!doc.exists) return;
   const d = doc.data();
   const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('c-visitEyebrow', d.visitEyebrow);
+  v('c-visitLine1',   d.visitLine1);
+  v('c-visitLine2',   d.visitLine2);
   v('c-phone',     d.phone);
   v('c-email',     d.email);
   v('c-address',   d.address);
@@ -1467,6 +1480,9 @@ async function loadContact() {
 async function saveContact() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   await db.collection('siteConfig').doc('contact').set({
+    visitEyebrow: g('c-visitEyebrow'),
+    visitLine1:   g('c-visitLine1'),
+    visitLine2:   g('c-visitLine2'),
     phone:     g('c-phone'),
     email:     g('c-email'),
     address:   g('c-address'),
