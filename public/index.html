@@ -557,6 +557,7 @@
       left: 1.5em; right: 1.5em;
       z-index: 2;
     }
+    .slider-dots-mobile { display: none; }
     .swiper-slide__content .eyebrow { color: rgba(248,242,229,.65); margin-bottom: 0.45em; }
     .swiper-slide__title {
       font-family: var(--font-primary);
@@ -830,12 +831,42 @@
       .block-text-image { padding: 2em 1.5em 3em; }
       .block-slider__header { padding: 0 1.5em; }
       .block-slider { overflow: visible; padding: 3em 0 3.5em; }
-      .podSwiper { padding: 0 1.5em !important; }
+      .podSwiper { padding: 0 1.5em !important; position: relative !important; }
       .swiper-slide {
         width: 72vw !important;
         height: 86vw !important;
       }
       .block-slider__nav { display: none; }
+      .slider-dots-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        position: absolute;
+        left: 0.45em;
+        top: 0;
+        bottom: 0;
+        z-index: 20;
+        pointer-events: none;
+      }
+      .slider-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(248,242,229,.2);
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        pointer-events: auto;
+        transition: background .3s ease, transform .3s ease, box-shadow .3s ease;
+        flex-shrink: 0;
+      }
+      .slider-dot.is-active {
+        background: #F8F2E5;
+        transform: scale(1.9);
+        box-shadow: 0 0 7px rgba(248,242,229,.55);
+      }
     }
     @media (max-width: 480px) {
       .title-xl { font-size: 2.1em; }
@@ -974,6 +1005,7 @@
         </div>
       </div>
       <div class="swiper podSwiper">
+        <div class="slider-dots-mobile" aria-hidden="true"></div>
         <div class="swiper-wrapper">
           <div class="swiper-slide">
             <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=85&auto=format&fit=crop" alt="Menu">
@@ -1191,7 +1223,7 @@
 
     /* ── SWIPER ── */
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
-    new Swiper('.podSwiper', {
+    const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
       spaceBetween: isMobile ? 16 : 20,
       grabCursor: !isMobile,
@@ -1201,9 +1233,27 @@
           const bar = document.getElementById('swiperBar');
           if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
+          if (isMobile) updateDots(sw.activeIndex);
         }
       }
     });
+
+    if (isMobile) {
+      const dotsEl = document.querySelector('.slider-dots-mobile');
+      const slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
+      for (let i = 0; i < slideCount; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
+        btn.setAttribute('aria-label', (i + 1) + '. slayt');
+        btn.addEventListener('click', () => podSwiper.slideTo(i));
+        dotsEl.appendChild(btn);
+      }
+    }
+
+    function updateDots(idx) {
+      document.querySelectorAll('.slider-dot').forEach((d, i) =>
+        d.classList.toggle('is-active', i === idx));
+    }
   </script>
 
   <!-- Firebase -->
