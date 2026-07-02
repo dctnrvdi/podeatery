@@ -567,6 +567,8 @@
               <div class="form-group"><label>Eyebrow Yazısı</label><input id="c-visitEyebrow" placeholder="Visit Us"></div>
               <div class="form-group"><label>Başlık 1. Satır</label><input id="c-visitLine1" placeholder="Find Us"></div>
               <div class="form-group"><label>Başlık 2. Satır</label><input id="c-visitLine2" placeholder="in Istanbul"></div>
+              <div class="form-group"><label>Buton Yazısı</label><input id="c-getInTouchText" placeholder="Get in Touch"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="c-getInTouchUrl" placeholder="mailto:hello@podcoffee.com"></div>
             </div>
           </div>
         </div>
@@ -1465,9 +1467,11 @@ async function loadContact() {
   if (!doc.exists) return;
   const d = doc.data();
   const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
-  v('c-visitEyebrow', d.visitEyebrow);
-  v('c-visitLine1',   d.visitLine1);
-  v('c-visitLine2',   d.visitLine2);
+  v('c-visitEyebrow',    d.visitEyebrow);
+  v('c-visitLine1',      d.visitLine1);
+  v('c-visitLine2',      d.visitLine2);
+  v('c-getInTouchText',  d.getInTouchText);
+  v('c-getInTouchUrl',   d.getInTouchUrl);
   v('c-phone',     d.phone);
   v('c-email',     d.email);
   v('c-address',   d.address);
@@ -1480,9 +1484,11 @@ async function loadContact() {
 async function saveContact() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   await db.collection('siteConfig').doc('contact').set({
-    visitEyebrow: g('c-visitEyebrow'),
-    visitLine1:   g('c-visitLine1'),
-    visitLine2:   g('c-visitLine2'),
+    visitEyebrow:   g('c-visitEyebrow'),
+    visitLine1:     g('c-visitLine1'),
+    visitLine2:     g('c-visitLine2'),
+    getInTouchText: g('c-getInTouchText'),
+    getInTouchUrl:  g('c-getInTouchUrl'),
     phone:     g('c-phone'),
     email:     g('c-email'),
     address:   g('c-address'),
