@@ -829,11 +829,12 @@
       .copyright-content { flex-direction: column; gap: 0.5em; align-items: flex-start; }
       .block-text-image { padding: 2em 1.5em 3em; }
       .block-slider__header { padding: 0 1.5em; }
-      /* Native scroll fallback — works even if Swiper CDN fails */
+      .block-slider { overflow: visible; padding: 3em 0 3.5em; }
       .podSwiper {
         padding: 0 !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
+        height: auto !important;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x mandatory;
         scrollbar-width: none;
@@ -845,11 +846,13 @@
         flex-wrap: nowrap !important;
         transform: none !important;
         width: auto !important;
+        height: auto !important;
         padding: 0 1.5em;
         gap: 1em;
       }
       .swiper-slide {
-        width: 78vw !important;
+        width: 72vw !important;
+        height: 86vw !important;
         flex-shrink: 0;
         scroll-snap-align: start;
       }
@@ -860,7 +863,7 @@
       .title-l { font-size: 1.75em; }
       .title-m { font-size: 1.5em; }
       .block-hero__cta { flex-direction: column; align-items: flex-start; gap: 1em; }
-      .swiper-slide { width: 86vw !important; }
+      .swiper-slide { width: 86vw !important; height: 102vw !important; }
     }
   </style>
 </head>
