@@ -13,13 +13,13 @@
   <meta property="og:site_name" content="POD Coffee & Eatery">
   <meta property="og:title" content="POD Coffee & Eatery — Bornova, İzmir">
   <meta property="og:description" content="İzmir Bornova'da özel kahve deneyimi. Mevsimsel lezzetler, sıcak atmosfer ve kaliteli servis.">
-  <meta property="og:image" content="/images/og-image.jpg">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=85&auto=format&fit=crop">
   <meta property="og:locale" content="tr_TR">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="POD Coffee & Eatery — Bornova, İzmir">
   <meta name="twitter:description" content="İzmir Bornova'da özel kahve deneyimi. Mevsimsel lezzetler, sıcak atmosfer ve kaliteli servis.">
-  <meta name="twitter:image" content="/images/og-image.jpg">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=85&auto=format&fit=crop">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -829,8 +829,29 @@
       .copyright-content { flex-direction: column; gap: 0.5em; align-items: flex-start; }
       .block-text-image { padding: 2em 1.5em 3em; }
       .block-slider__header { padding: 0 1.5em; }
-      .podSwiper { padding: 0 1.5em !important; }
-      .swiper-slide { width: 80vw !important; }
+      .podSwiper {
+        padding: 0 !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+      }
+      .podSwiper::-webkit-scrollbar { display: none; }
+      .swiper-wrapper {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        transform: none !important;
+        width: auto !important;
+        padding: 0 1.5em;
+        gap: 1em;
+      }
+      .swiper-slide {
+        width: 78vw !important;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+      }
       .block-slider__nav { display: none; }
     }
     @media (max-width: 480px) {
