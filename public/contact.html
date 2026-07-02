@@ -313,9 +313,9 @@
 
   <!-- HEADER -->
   <header class="block-header">
-    <a href="pod.html#reserve" class="block-header__book-btn">Reserve</a>
+    <a href="/#reserve" class="block-header__book-btn">Reserve</a>
     <div class="block-header__logo">
-      <a href="pod.html" class="block-header__logo-text">POD</a>
+      <a href="/" class="block-header__logo-text">POD</a>
     </div>
     <button class="block-header__toggle" id="menuToggle" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -323,10 +323,10 @@
   </header>
   <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
     <div class="block-header__menu-nav">
-      <a href="pod.html#story">Our Story</a>
-      <a href="menu.html">Menu</a>
-      <a href="space.html">The Space</a>
-      <a href="contact.html">Contact</a>
+      <a href="/#story">Our Story</a>
+      <a href="/menu">Menu</a>
+      <a href="/space">The Space</a>
+      <a href="/contact">Contact</a>
     </div>
     <div class="block-header__menu-social">
       <a href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
@@ -382,17 +382,18 @@
       <!-- Contact form -->
       <div data-reveal>
         <span class="info-block__label" style="margin-bottom:1.25em;display:block">Mesaj Gönder</span>
-        <div class="contact-form">
-          <div class="field"><input type="text" placeholder="Adınız Soyadınız"></div>
-          <div class="field"><input type="email" placeholder="E-Posta Adresiniz"></div>
-          <div class="field"><input type="tel" placeholder="Telefon (opsiyonel)"></div>
-          <div class="field"><textarea placeholder="Mesajınız veya rezervasyon talebiniz…" rows="4"></textarea></div>
+        <div class="contact-form" id="contactForm">
+          <div class="field"><input id="cf-name" type="text" placeholder="Adınız Soyadınız" required></div>
+          <div class="field"><input id="cf-email" type="email" placeholder="E-Posta Adresiniz" required></div>
+          <div class="field"><input id="cf-phone" type="tel" placeholder="Telefon (opsiyonel)"></div>
+          <div class="field"><textarea id="cf-msg" placeholder="Mesajınız veya rezervasyon talebiniz…" rows="4"></textarea></div>
           <div class="contact-form__submit">
-            <a href="#" class="link" style="color:var(--c2)">
-              <span>Gönder</span>
+            <button id="cfSubmitBtn" type="button" class="link" style="color:var(--c2);background:none;border:none;cursor:pointer;padding:0;font-family:inherit" onclick="submitContactForm()">
+              <span id="cfSubmitLabel">Gönder</span>
               <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
-            </a>
+            </button>
           </div>
+          <p id="cfStatus" style="font-size:.8125em;margin-top:.5em;min-height:1.2em"></p>
         </div>
       </div>
 
@@ -480,7 +481,7 @@
           <div class="block-footer__description">
             <p>Istanbul's favourite coffee corner. A space to slow down, connect, and savour the little things.</p>
           </div>
-          <a id="footerReserveLink" href="contact.html" class="link">
+          <a id="footerReserveLink" href="/contact" class="link">
             <span id="footerReserveText">Reserve a Table</span>
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
           </a>
@@ -491,10 +492,10 @@
           <div>
             <span class="eyebrow block-footer__eyebrow">Navigate</span>
             <ul class="block-footer__menu-list">
-              <li><a href="pod.html#story" class="link">Our Story</a></li>
-              <li><a href="menu.html" class="link">Menu</a></li>
-              <li><a href="space.html" class="link">The Space</a></li>
-              <li><a href="contact.html" class="link">Contact</a></li>
+              <li><a href="/#story" class="link">Our Story</a></li>
+              <li><a href="/menu" class="link">Menu</a></li>
+              <li><a href="/space" class="link">The Space</a></li>
+              <li><a href="/contact" class="link">Contact</a></li>
               <li><a id="footerIgLink" href="https://www.instagram.com/podeatery" class="link" target="_blank" rel="noopener">Instagram</a></li>
             </ul>
           </div>
@@ -518,7 +519,7 @@
       <div class="block-footer__logotype">POD</div>
       <div class="copyright-content">
         <span>© 2024 POD Coffee &amp; Eatery. All rights reserved.</span>
-        <div class="terms"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a></div>
+        <div class="terms"><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a></div>
       </div>
     </div>
   </div>
@@ -626,6 +627,41 @@
       }
     } catch(e) { console.warn('[POD] İçerik yüklenemedi:', e.message); }
   })();
+
+  async function submitContactForm() {
+    const name  = document.getElementById('cf-name').value.trim();
+    const email = document.getElementById('cf-email').value.trim();
+    const phone = document.getElementById('cf-phone').value.trim();
+    const msg   = document.getElementById('cf-msg').value.trim();
+    const status = document.getElementById('cfStatus');
+    const btn    = document.getElementById('cfSubmitBtn');
+    const label  = document.getElementById('cfSubmitLabel');
+
+    if (!name || !email) { status.textContent = 'Lütfen adınızı ve e-postanızı girin.'; status.style.color = '#c2644f'; return; }
+
+    btn.disabled = true;
+    label.textContent = 'Gönderiliyor…';
+    status.textContent = '';
+    try {
+      const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      const db = firebase.firestore();
+      await db.collection('messages').add({ name, email, phone, message: msg, createdAt: firebase.firestore.FieldValue.serverTimestamp(), read: false });
+      label.textContent = 'Gönder';
+      btn.disabled = false;
+      status.textContent = 'Mesajınız iletildi, teşekkürler!';
+      status.style.color = '#779580';
+      document.getElementById('cf-name').value = '';
+      document.getElementById('cf-email').value = '';
+      document.getElementById('cf-phone').value = '';
+      document.getElementById('cf-msg').value = '';
+    } catch(e) {
+      btn.disabled = false;
+      label.textContent = 'Gönder';
+      status.textContent = 'Hata oluştu, tekrar deneyin.';
+      status.style.color = '#c2644f';
+    }
+  }
   </script>
 </body>
 </html>
