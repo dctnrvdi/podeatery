@@ -999,11 +999,11 @@
       <div class="block-card-content-box" data-reveal>
         <div class="block-card-content-box__left">
           <div>
-            <span class="eyebrow">Visit Us</span>
-            <h2 class="title-s">Find Us<br>in Istanbul</h2>
+            <span class="eyebrow" id="visitEyebrow">Visit Us</span>
+            <h2 class="title-s" id="visitTitle">Find Us<br>in Istanbul</h2>
           </div>
-          <a href="mailto:hello@podcoffee.com" class="link" style="color:var(--color-1)">
-            <span>Get in Touch</span>
+          <a id="getInTouchLink" href="mailto:hello@podcoffee.com" class="link" style="color:var(--color-1)">
+            <span id="getInTouchText">Get in Touch</span>
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#F8F2E5"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#03090D"/></svg>
           </a>
         </div>
@@ -1358,6 +1358,13 @@
       /* ── CONTACT → hours & location on card ── */
       if (contactDoc.exists) {
         const c = contactDoc.data();
+        if (c.visitEyebrow) { const e = document.getElementById('visitEyebrow'); if(e) e.textContent = c.visitEyebrow; }
+        if (c.visitLine1 || c.visitLine2) {
+          const e = document.getElementById('visitTitle');
+          if (e) e.innerHTML = [c.visitLine1, c.visitLine2].filter(Boolean).join('<br>');
+        }
+        if (c.getInTouchText) { const e = document.getElementById('getInTouchText'); if(e) e.textContent = c.getInTouchText; }
+        if (c.getInTouchUrl)  { const e = document.getElementById('getInTouchLink'); if(e) e.href = c.getInTouchUrl; }
         const h = c.hours || {};
         const hoursEl = document.querySelector('.block-card-content-box__hours');
         if (hoursEl && Object.keys(h).length) {
