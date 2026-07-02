@@ -1224,7 +1224,6 @@
     /* ── SWIPER ── */
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     let swipeStartIdx = 0;
-    let correcting = false;
 
     const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
@@ -1234,26 +1233,22 @@
       on: {
         touchStart(sw) {
           swipeStartIdx = sw.activeIndex;
-          correcting = false;
+        },
+        touchEnd(sw) {
+          if (!isMobile || !sw.swipeDirection) return;
+          const step = sw.swipeDirection === 'next' ? 1 : -1;
+          const target = Math.max(0, Math.min(swipeStartIdx + step, sw.slides.length - 1));
+          /* Call our slideTo first, then block Swiper's own velocity-based call */
+          sw.slideTo(target, 300, true);
+          sw.allowSlideNext = false;
+          sw.allowSlidePrev = false;
+          requestAnimationFrame(() => {
+            sw.allowSlideNext = true;
+            sw.allowSlidePrev = true;
+          });
         },
         slideChangeTransitionStart(sw) {
           const bar = document.getElementById('swiperBar');
-
-          if (correcting) {
-            correcting = false;
-            swipeStartIdx = sw.activeIndex;
-            if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
-            if (isMobile && navigator.vibrate) navigator.vibrate(10);
-            if (isMobile) updateDots(sw.activeIndex);
-            return;
-          }
-
-          if (isMobile && Math.abs(sw.activeIndex - swipeStartIdx) > 1) {
-            correcting = true;
-            sw.slideTo(swipeStartIdx + Math.sign(sw.activeIndex - swipeStartIdx), 200, true);
-            return;
-          }
-
           swipeStartIdx = sw.activeIndex;
           if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
