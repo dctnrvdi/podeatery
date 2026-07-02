@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menü — POD Coffee &amp; Eatery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS ── */
+    :root {
+      --color-1: #F8F2E5;
+      --color-2: #03090D;
+      --color-3: #C2644F;
+      --color-4: #779580;
+      --color-8: #D3CFC5;
+      --gold: #c8a96e;
+      --font-primary: 'Josefin Sans', sans-serif;
+      --font-secondary: 'Jost', sans-serif;
+      --size-font: calc(min(100vw, 1728px) / 108);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+    html { font-size: var(--size-font); }
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    body { font-family: var(--font-secondary); background-color: #fff; color: #1a1a1a; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ─── HEADER ── */
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0; right: 0;
+      height: 5.5em; background: #fff; z-index: 999;
+    }
+    .block-header {
+      position: fixed; top: 1em; left: 0; right: 0; margin: 0 auto;
+      max-width: 45em; height: 3.75em;
+      background-color: rgba(3,9,13,.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 0.375em; padding: 0 0.875em;
+      z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+    }
+    .block-header__book-btn {
+      font-family: var(--font-primary); font-size: 0.75em; font-weight: 500;
+      letter-spacing: 0.09em; text-transform: uppercase; color: #FFFEFD;
+      border: 1px solid rgba(255,254,253,.32); border-radius: 0.3em;
+      padding: 0.6em 1.2em; background: transparent; transition: background .25s;
+    }
+    .block-header__book-btn:hover { background: rgba(255,254,253,.1); }
+    .block-header__logo { position: absolute; left: 50%; transform: translateX(-50%); }
+    .block-header__logo-text {
+      font-family: var(--font-primary); font-size: 1.125em; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase; color: #FFFEFD;
+    }
+    .block-header__toggle { display: flex; flex-direction: column; gap: 4px; padding: 0.4em; }
+    .block-header__toggle span { display: block; width: 22px; height: 1.5px; background: #FFFEFD; border-radius: 1px; transition: transform .3s, opacity .3s; transform-origin: center; }
+    .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .block-header__toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .block-header__toggle.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+    .block-header__menu {
+      position: fixed; top: calc(1em + 3.75em + 0.5em); left: 0; right: 0;
+      margin: 0 auto; max-width: 45em;
+      background-color: #FFFEFD; border-radius: 0.375em; overflow: hidden;
+      pointer-events: none; opacity: 0; transform: translateY(-8px);
+      transition: opacity .3s, transform .3s; z-index: 999;
+    }
+    .block-header__menu.is-open { pointer-events: auto; opacity: 1; transform: translateY(0); }
+    .block-header__menu-nav {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 2.25em 1.5em 1.5em; gap: 1.1em;
+    }
+    .block-header__menu-nav a {
+      font-family: var(--font-primary); font-size: 1.375em; font-weight: 400;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-2);
+      opacity: 0; transform: translateY(20px);
+      transition: transform .35s, opacity .35s, color .2s;
+    }
+    .block-header__menu.is-open .block-header__menu-nav a { opacity: 1; transform: translateY(0); }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(1) { transition-delay: .06s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(2) { transition-delay: .12s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(3) { transition-delay: .18s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(4) { transition-delay: .24s; }
+    .block-header__menu-nav a:hover { color: var(--color-3); }
+    .block-header__menu-social {
+      display: flex; justify-content: center; gap: 2em;
+      padding: 1em 1.5em 1.75em; border-top: 1px solid rgba(3,9,13,.08);
+    }
+    .block-header__menu-social a {
+      font-family: var(--font-primary); font-size: 0.75em;
+      letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-8);
+      transition: color .2s;
+    }
+    .block-header__menu-social a:hover { color: var(--color-3); }
+
+    /* ─── PAGE INTRO ── */
+    .page-intro {
+      padding: 9em 4em 3em; border-bottom: 1px solid #ebebeb;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 2em;
+    }
+    .page-intro__title { font-family: var(--font-primary); font-size: 4.5em; font-weight: 300; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
+    .page-intro__sub { font-family: var(--font-secondary); font-size: 0.875em; color: #999; max-width: 20em; line-height: 1.6; text-align: right; }
+
+    /* ─── FILTER BAR ── */
+    .filter-bar {
+      display: flex; align-items: center; padding: 0 4em;
+      border-bottom: 1px solid #ebebeb;
+      position: sticky; top: calc(1em + 3.75em); background: #fff; z-index: 100;
+    }
+    .filter-tab {
+      font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #999;
+      padding: 1.25em 0; margin-right: 2.5em;
+      border-bottom: 1.5px solid transparent; transition: color .2s, border-color .2s;
+    }
+    .filter-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    .filter-tab:hover { color: #1a1a1a; }
+
+    /* ─── MENU CONTENT ── */
+    .menu-content { display: none; }
+    .menu-content.is-active { display: block; }
+
+    /* ─── CATEGORY SECTION ── */
+    .cat-section {
+      display: flex; flex-direction: row; align-items: stretch;
+      border-bottom: 1px solid #ebebeb; min-height: 36em;
+    }
+    .cat-section.is-reversed { flex-direction: row-reverse; }
+    .cat-section__text {
+      width: 40%; flex-shrink: 0; padding: 5em 4em;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .cat-section.is-reversed .cat-section__text { border-left: 1px solid #ebebeb; }
+    .cat-section:not(.is-reversed) .cat-section__text { border-right: 1px solid #ebebeb; }
+    .cat-section__image { flex: 1; position: relative; overflow: hidden; }
+    .cat-section__image-inner { position: absolute; inset: 0; }
+
+    /* ─── HOVER IMAGE LAYERS ── */
+    .cat-img-overlay {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1);
+      z-index: 2;
+    }
+    .cat-img-overlay.is-visible { opacity: 1; }
+
+    /* Gradient variants */
+    .grad-1  { background: linear-gradient(145deg, #f5e6d0 0%, #e8c99a 100%); }
+    .grad-2  { background: linear-gradient(160deg, #f0dcc6 0%, #d9b48a 100%); }
+    .grad-3  { background: linear-gradient(135deg, #f8ede0 0%, #edca9c 100%); }
+    .grad-4  { background: linear-gradient(150deg, #f2e8da 0%, #dfc5a0 100%); }
+    .grad-5  { background: linear-gradient(145deg, #e8f0eb 0%, #b0cdb8 100%); }
+    .grad-6  { background: linear-gradient(155deg, #f7ede4 0%, #e2c4a8 100%); }
+    .grad-7  { background: linear-gradient(140deg, #f4ece2 0%, #dbbf9e 100%); }
+    .grad-8  { background: linear-gradient(150deg, #fdf6ec 0%, #e8d4b0 100%); }
+    .grad-9  { background: linear-gradient(145deg, #edf5f0 0%, #b8d8c4 100%); }
+    .grad-10 { background: linear-gradient(155deg, #f0f0eb 0%, #ccd0c0 100%); }
+    .grad-11 { background: linear-gradient(145deg, #f8eee6 0%, #e0c0a8 100%); }
+    .grad-smoothie   { background: linear-gradient(145deg, #dff0dd 0%, #a8d0a0 100%); }
+    .grad-seasonal   { background: linear-gradient(145deg, #fff8e7 0%, #f5d08a 100%); }
+    .grad-coffee     { background: linear-gradient(145deg, #f5ece0 0%, #c8966a 100%); }
+    .grad-ice        { background: linear-gradient(145deg, #e8f4f8 0%, #9ecde8 100%); }
+    .grad-herbal     { background: linear-gradient(145deg, #edf5ea 0%, #b0d4a8 100%); }
+    .cat-note { font-family: var(--font-secondary); font-size: 0.8em; color: #888; font-style: italic; margin-bottom: 1.75em; padding: 0.55em 0.8em; background: #f8f7f4; border-radius: 0.3em; line-height: 1.55; border-left: 2px solid #e0ddd8; }
+    .cat-special-badge { display: inline-flex; align-items: center; font-family: var(--font-primary); font-size: 0.45em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold); border-radius: 100px; padding: 0.35em 0.9em; margin-left: 0.6em; vertical-align: middle; }
+    .cat-subtitle { display: block; font-family: var(--font-secondary); font-size: 0.875em; color: #aaa; font-style: italic; margin-top: 0.3em; margin-bottom: 2em; letter-spacing: 0.02em; }
+    .extras-box { margin-top: 1.5em; padding-top: 1.25em; border-top: 1px solid #ebebeb; }
+    .extras-box__label { font-family: var(--font-primary); font-size: 0.625em; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; display: block; margin-bottom: 0.6em; }
+    .extras-list { display: flex; flex-wrap: wrap; gap: 0.4em 1.25em; }
+    .extra-item { font-family: var(--font-secondary); font-size: 0.8125em; color: #888; }
+    .extra-item strong { color: #555; font-weight: 500; }
+    .cat-section__image-inner::after {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Category label */
+    .cat-label { display: flex; align-items: flex-start; gap: 1em; margin-bottom: 2em; }
+    .cat-label__number { font-family: var(--font-primary); font-size: 0.625em; font-weight: 400; letter-spacing: 0.08em; color: #ccc; padding-top: 0.5em; }
+    .cat-label__name { font-family: var(--font-primary); font-size: 2.5em; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1; }
+
+    /* ─── MENU ITEMS ── */
+    .menu-items { display: flex; flex-direction: column; }
+    .menu-item {
+      padding: 1.1em 0 1.1em 0.75em;
+      border-top: 1px solid #f0f0f0;
+      border-left: 2px solid transparent;
+      transition: border-left-color .2s, padding-left .2s, background .2s;
+      cursor: default;
+    }
+    .menu-item:hover { border-left-color: var(--gold); }
+    .menu-item.has-image { cursor: pointer; }
+    .menu-item.is-tapped { background: rgba(200,169,110,.06); border-left-color: var(--gold); }
+    .menu-item__row { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; margin-bottom: 0.3em; }
+    .menu-item__name { font-family: var(--font-secondary); font-size: 0.9375em; font-weight: 500; }
+    .menu-item__price { font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500; letter-spacing: 0.04em; color: #666; flex-shrink: 0; }
+    .menu-item__desc { font-family: var(--font-secondary); font-size: 0.8125em; color: #999; line-height: 1.55; }
+    /* Mobile image hint */
+    .menu-item__tap-hint {
+      font-family: var(--font-primary); font-size: 0.5625em; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gold); margin-top: 0.4em;
+      display: none;
+    }
+    @media (pointer: coarse) { .menu-item.has-image .menu-item__tap-hint { display: block; } }
+
+    /* Bottom caption */
+    .cat-section__image-caption { position: absolute; bottom: 2em; left: 2em; right: 2em; z-index: 5; }
+    .cat-section__image-caption span {
+      font-family: var(--font-primary); font-size: 0.6875em; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,26,26,.4);
+    }
+
+    /* ─── ADD-ONS ── */
+    .addons-box {
+      background: #faf7f2; border: 1px solid #ebebeb; border-radius: 0.5em;
+      padding: 1em 1.25em; margin-bottom: 1.75em;
+    }
+    .addons-box__label {
+      font-family: var(--font-primary); font-size: 0.625em; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+      display: block; margin-bottom: 0.85em;
+    }
+    .addons-list { display: flex; flex-direction: column; gap: 0.6em; }
+    .addon-item { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; }
+    .addon-name { font-family: var(--font-secondary); font-size: 0.8125em; color: #444; }
+    .addon-note { font-size: 0.85em; color: #bbb; margin-left: 0.4em; }
+    .addon-price { font-family: var(--font-primary); font-size: 0.75em; font-weight: 500; color: #666; flex-shrink: 0; }
+
+    /* ─── SCROLL REVEAL ── */
+    [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity .65s ease, transform .65s ease; }
+    [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── FOOTER ── */
+    .block-footer-wrap { background-color: var(--color-1); }
+    .footer {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5.25em;
+      padding: 0 0 6.8125em; margin: 0 2.5em; position: relative;
+      border-bottom: 1px solid rgba(0,0,0,.15);
+    }
+    .footer > * { min-width: 0; }
+    .footer::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(0,0,0,.15); }
+    .block-footer__content { display: flex; flex-direction: row; align-items: flex-end; gap: 1.125em; padding-top: 2.75em; min-width: 0; }
+    .block-footer__figure { width: 14.625em; flex-shrink: 0; border-radius: 0.375em; overflow: hidden; align-self: stretch; background: linear-gradient(145deg, #f5e6d0, #e8c99a); }
+    .block-footer__figure img { width: 100%; height: 100%; object-fit: cover; }
+    .block-footer__desc-wrap { display: flex; flex-direction: column; gap: 1.6875em; min-width: 0; }
+    .block-footer__description { max-width: 18.675em; }
+    .block-footer__description p { font-size: 0.9375em; line-height: 1.6; opacity: .7; }
+    .block-footer__menu-form { display: grid; grid-template-columns: 1fr 1fr; align-items: start; padding-top: 7.125em; min-width: 0; }
+    .eyebrow { font-family: var(--font-primary); font-size: 0.625em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(3,9,13,.4); display: block; margin-bottom: 1.5em; }
+    .block-footer__menu-list { display: flex; flex-direction: column; gap: 0.875em; }
+    .block-footer__menu-list li a { font-family: var(--font-primary); font-size: 0.875em; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; }
+    .block-footer__form { max-width: 15em; }
+    .link { display: inline-flex; align-items: center; gap: 0.6em; font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; }
+    .link svg { width: 1.375em; height: 1.375em; flex-shrink: 0; }
+    .form-footer { display: flex; flex-direction: column; gap: 0.75em; }
+    .field input { width: 100%; border: none; border-bottom: 1px solid rgba(3,9,13,.2); background: transparent; padding: 0.5em 0; font-family: var(--font-secondary); font-size: 0.875em; color: var(--color-2); outline: none; transition: border-color .2s; }
+    .field input:focus { border-bottom-color: var(--color-2); }
+    .form__button { margin-top: 0.5em; }
+    .copyright { display: flex; align-items: center; justify-content: space-between; padding: 1.5em 2.5em; gap: 1em; }
+    .block-footer__logotype { font-family: var(--font-primary); font-size: 0.875em; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+    .copyright-content, .copyright-content a { font-family: var(--font-primary); font-size: 0.75em; letter-spacing: 0.05em; text-transform: uppercase; }
+    .copyright-content { display: flex; align-items: center; gap: 2em; }
+    .terms { display: flex; gap: 3em; }
+    .terms a:hover { color: var(--color-3); }
+
+    /* Loading state */
+    .menu-loading { text-align: center; padding: 8em 2em; }
+    .menu-loading__label { font-family: var(--font-primary); font-size: 0.75em; letter-spacing: 0.14em; text-transform: uppercase; color: #ccc; }
+
+    /* ─── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      html { font-size: 14px; }
+      .block-header, .block-header__menu { max-width: calc(100% - 2em); }
+      .page-intro { padding: 8em 2em 2.5em; flex-direction: column; align-items: flex-start; }
+      .page-intro__sub { text-align: left; }
+      .filter-bar { padding: 0 2em; }
+      .cat-section { flex-direction: column !important; min-height: auto; }
+      .cat-section__text { width: 100%; padding: 3em 2em; border-right: none !important; border-left: none !important; border-bottom: 1px solid #ebebeb; }
+      .cat-section__image { min-height: 55vw; position: relative; }
+      .cat-section__image-inner { position: absolute; inset: 0; }
+      .footer { grid-template-columns: 1fr; gap: 0; margin: 0 1em; padding-bottom: 3em; }
+      .footer::after { display: none; }
+      .block-footer__content { flex-direction: column; align-items: flex-start; }
+      .block-footer__figure { width: 100%; height: 14em; align-self: auto; }
+      .block-footer__menu-form { grid-template-columns: 1fr; gap: 2.5em; padding-top: 2.5em; }
+      .block-footer__form { max-width: 100%; }
+      .copyright { margin: 0 1em; }
+      .copyright-content { flex-direction: column; gap: 0.5em; align-items: flex-start; }
+    }
+    @media (max-width: 600px) {
+      .page-intro__title { font-size: 3em; }
+      .cat-label__name { font-size: 1.875em; }
+      .filter-tab { margin-right: 1.5em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="block-header">
+    <a href="pod.html" class="block-header__book-btn">Ana Sayfa</a>
+    <div class="block-header__logo">
+      <a href="pod.html" class="block-header__logo-text">POD</a>
+    </div>
+    <button class="block-header__toggle" id="menuToggle" aria-label="Menüyü aç">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
+    <div class="block-header__menu-nav">
+      <a href="pod.html">Ana Sayfa</a>
+      <a href="menu.html">Menü</a>
+      <a href="space.html">Mekan</a>
+      <a href="contact.html">İletişim</a>
+    </div>
+    <div class="block-header__menu-social">
+      <a id="nav-instagram" href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
+      <a id="nav-email" href="mailto:hello@podcoffee.com">hello@podcoffee.com</a>
+    </div>
+  </nav>
+
+  <!-- PAGE INTRO -->
+  <div class="page-intro" data-reveal>
+    <h1 class="page-intro__title">Menü</h1>
+    <p class="page-intro__sub">Her sabah taze hazırlanan, mevsimsel malzemelerle yapılan yiyecek ve içeceklerimiz.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-tab active" data-filter="yiyecek">Yiyecek</button>
+    <button class="filter-tab" data-filter="icecek">İçecek</button>
+  </div>
+
+  <!-- CONTENT AREAS -->
+  <div class="menu-content is-active" id="yiyecek">
+    <div id="yiyecekContent" class="menu-loading"><p class="menu-loading__label">Yükleniyor…</p></div>
+  </div>
+  <div class="menu-content" id="icecek">
+    <div id="icecekContent" class="menu-loading"><p class="menu-loading__label">Yükleniyor…</p></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="block-footer-wrap">
+    <div class="footer">
+      <div class="block-footer__content">
+        <div class="block-footer__figure" id="footerFigure"></div>
+        <div class="block-footer__desc-wrap">
+          <div class="block-footer__description">
+            <p id="footerDesc">Istanbul'un sevilen kahve köşesi. Yavaşlamak, bağlanmak ve küçük şeylerin tadını çıkarmak için bir yer.</p>
+          </div>
+          <a href="contact.html" class="link">
+            <span>Rezervasyon Yap</span>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="block-footer__menu-form">
+          <div>
+            <span class="eyebrow block-footer__eyebrow">Sayfalar</span>
+            <ul class="block-footer__menu-list">
+              <li><a href="pod.html" class="link">Ana Sayfa</a></li>
+              <li><a href="menu.html" class="link">Menü</a></li>
+              <li><a href="space.html" class="link">Mekan</a></li>
+              <li><a href="contact.html" class="link">İletişim</a></li>
+              <li><a id="footer-instagram" href="https://www.instagram.com/podeatery" class="link" target="_blank" rel="noopener">Instagram</a></li>
+            </ul>
+          </div>
+          <div class="block-footer__form">
+            <span class="eyebrow block-footer__eyebrow">Haberdar Ol</span>
+            <div class="form-footer">
+              <div class="field"><input type="text" placeholder="Adınız" autocomplete="name"></div>
+              <div class="field"><input type="email" placeholder="E-postanız" autocomplete="email"></div>
+              <div class="form__button">
+                <a href="#" class="link">
+                  <span>Gönder</span>
+                  <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      <div class="block-footer__logotype" id="footerLogo">POD</div>
+      <div class="copyright-content">
+        <span>© 2025 POD Coffee &amp; Eatery. Tüm hakları saklıdır.</span>
+        <div class="terms">
+          <a href="#">Gizlilik Politikası</a>
+          <a href="#">Kullanım Koşulları</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+  /* ════════════════════════════════════════
+     STATIC FALLBACK DATA
+  ════════════════════════════════════════ */
+  const STATIC = {
+    yiyecek: [
+      { id:'yaztostu', name:'YAZ TOSTU', gradient:'grad-seasonal', order:1, special:true, items:[
+        { id:'yt1', name:'Yaz Tostu',           price:320, desc:'Ekşi Maya Ekmeğinde Kaşar, Tulum ve Mozarella Peyniri, Domates Sos', order:1 },
+        { id:'yt2', name:'Yazlık Ekmek Üstü',  price:340, desc:'Çırpılmış Avokado Sos, Marine Domates, Krem Peynir, Taze Fesleğen', order:2 },
+        { id:'yt3', name:'Karpuz Peynir',       price:340, desc:'Küp Karpuz, Ezine Peyniri, Nane', order:3 },
+        { id:'yt4', name:'Şeftali French Toast',price:400, desc:'Karamelize Şeftali, Pod Yapımı Tatlı Krema, Agave', order:4 },
+      ]},
+      { id:'pancake', name:'PANCAKE', gradient:'grad-1', order:3, items:[
+        { id:'p1', name:'Klasik',                      price:420, desc:'Agave Şurubu, Yaban Mersini, Tereyağı, Pudra Şekeri', order:1 },
+        { id:'p2', name:'Tuzlu Karamel & Crumble',    price:420, desc:'Tuzlu Karamel Sos, Muz, Pod Yapımı Crumble, Krep Kırıkları', order:2 },
+        { id:'p3', name:'Çikolata & Orman Meyveleri', price:420, desc:'Eritme Çikolata, Orman Meyveli Pod Yapımı Marmelat', order:3 },
+      ]},
+      { id:'ekmekustu', name:'EKMEKÜSTÜ', gradient:'grad-2', order:4, subtitle:'ekşi mayalı tam buğday ekmeği üzerine',
+        extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}],
+        items:[
+          { id:'e1',  name:'Fıstık Ezmesi',        price:240, desc:'Fıstık Ezmesi, Muz, Yaban Mersini, Ahududu Reçeli, File Badem', order:1 },
+          { id:'e2',  name:'Vegan 🌱',              price:320, desc:'Pancarlı Humus, Zeytinyağlı Mantar, Izgara Kabak, Kabak Çekirdeği', order:2 },
+          { id:'e3',  name:'Ispanak',               price:380, desc:'Sote Ispanak, Poşe Yumurta, Hollandez Sos', order:3 },
+          { id:'e4',  name:'Avokado Mantar',        price:380, desc:'Avokado Sos, Karamelize Ispanak, Mantar, Pancar, Toz Parmesan', order:4 },
+          { id:'e5',  name:'Avokado Beetroot',      price:380, desc:'Fırınlanmış Pancarlı Labne, Dilim Avokado, Chia, Zeytinyağı', order:5 },
+          { id:'e6',  name:'Ezine',                 price:400, desc:'Ezine Beyaz Peyniri, Kuru Domates, Kabak Çekirdeği, Ceviz, Taze Kekik', order:6 },
+          { id:'e7',  name:'Üç Peynir',             price:420, desc:'Mozarella, Tulum, Lor Peyniri, Çırpılmış Yumurta, Kapya Biber', order:7 },
+          { id:'e8',  name:'Hindi Füme',            price:420, desc:'Tarhunlu Peynir Sos, Hindi Füme, Lolorosso, Salatalık, Kaşar', order:8 },
+          { id:'e9',  name:'Avokado Yumurta',       price:440, desc:'Çırpılmış Yumurta, Avokado Ezmesi, Kabak Çekirdeği', order:9 },
+          { id:'e10', name:'Hindi Füme & Cheddar',  price:460, desc:'Çırpılmış Yumurta, Cheddar, Hindi Füme, Çörek Otu', order:10 },
+          { id:'e11', name:'Tatlı & Tuzlu',         price:460, desc:'Aromatik Labne, Böğürtlen Reçeli, Antep Fıstığı & Avokado Ezmesi, Çırpılmış Yumurta', order:11 },
+          { id:'e12', name:'French Toast',          price:480, desc:'Tereyağlı Brioche, Özel Karamel Sos, Muz, Çilek, Orman Meyveleri, File Badem', order:12 },
+          { id:'e13', name:'Sosis',                 price:480, desc:'Çırpılmış Yumurta, Dana Sosis, Hollandez Sos', order:13 },
+          { id:'e14', name:'Sucuk',                 price:480, desc:'Çırpılmış Yumurta, Sucuk, Hellim, Kapya Biber', order:14 },
+          { id:'e15', name:'Füme Somon',            price:480, desc:'Füme Somon, Aromatik Labne, Kapari, Salatalık, Dereotu', order:15 },
+          { id:'e16', name:'Füme Avokado',          price:480, desc:'Füme Et, Avokado Ezmesi, Poşe Yumurta, Fesleğenli Zeytinyağı', order:16 },
+          { id:'e17', name:'Füme & Burrata',        price:560, desc:'Brioche, Antep Fıstık Pesto, Burrata, Füme Et, Roka, Balzamik', order:17 },
+        ]},
+      { id:'bagel', name:'BAGEL', gradient:'grad-3', order:5, subtitle:'Pod yapımı bagel', items:[
+        { id:'b1', name:'Üç Peynir',      price:320, desc:'Mozzarella, Tulum, Cheddar', order:1 },
+        { id:'b2', name:'Avokado & Zeytin',price:320, desc:'Avokado Sos, Zeytin Ezmesi, Marul, Kaşar, Cheddar, Domates', order:2 },
+        { id:'b3', name:'Hindi Füme',     price:320, desc:'Tarhunlu Peynir Sos, Hindi Füme, Cheddar, Salatalık', order:3 },
+        { id:'b4', name:'Avokado & Füme', price:380, desc:'Avokado Sos, Çırpılmış Yumurta, Füme Et', order:4 },
+      ]},
+      { id:'yumurtaburger', name:'YUMURTA BURGER', gradient:'grad-4', order:6, subtitle:'Pod yapımı burger ekmeği', items:[
+        { id:'yb1', name:'Mantarlı',      price:320, desc:'Çırpılmış Yumurta, Karamelize Mantar, Taze Kekik', order:1 },
+        { id:'yb2', name:'Avokado & Füme',price:380, desc:'Dilim Avokado, Çırpılmış Yumurta, Füme Et, Cheddar', order:2 },
+      ]},
+      { id:'yogurtkase', name:'YOĞURT KASE', gradient:'grad-5', order:7, items:[
+        { id:'yk1', name:'Sade',      price:340, desc:'Ballı Süzme Yoğurt, Ev Yapımı Granola, Fıstık Ezmesi, Yaban Mersini, Çilek, Kivi, Muz, Mango, Chia', order:1 },
+        { id:'yk2', name:'Böğürtlen', price:360, desc:'Böğürtlenli Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:2 },
+        { id:'yk3', name:'Matcha',    price:360, desc:'Matchalı Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:3 },
+        { id:'yk4', name:'Spirulina', price:360, desc:'Spirulinali Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:4 },
+      ]},
+      { id:'tost', name:'TOST', gradient:'grad-6', order:8, subtitle:'ekşi mayalı tam buğday ekmeği',
+        extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}],
+        items:[
+          { id:'to1', name:'Mozzarella', price:320, desc:'Fırınlanmış Patlıcan, Kabak, Mozarella, Kuru Domates', order:1 },
+          { id:'to2', name:'Vegan 🌱',   price:340, desc:'Vegan Mozarella, Izgara İstiridye Mantarı, Izgara Kabak, Vegan Pesto', order:2 },
+          { id:'to3', name:'Üç Peynir', price:360, desc:'Mozarella, Tulum, Cheddar', order:3 },
+          { id:'to4', name:'Esnaf İşi', price:380, desc:'Sucuk, Kaşar, Paprika Salça, Cherry Domates', order:4 },
+          { id:'to5', name:'Rozbif',    price:400, desc:'Et Füme, Ballı Hardal Sos, Roka, Karamelize Soğan, Cheddar', order:5 },
+        ]},
+      { id:'omlet', name:'OMLET', gradient:'grad-7', order:9,
+        extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}],
+        items:[
+          { id:'o1',  name:'Sade Omlet',          price:340, desc:'', order:1 },
+          { id:'o2',  name:'Mozzarella Menemen',   price:340, desc:'', order:2 },
+          { id:'o3',  name:'İspanyol Poşesi',      price:340, desc:'Küp Patates, Yeşil ve Kırmızı Biber, 2 Poşe Yumurta', order:3 },
+          { id:'o4',  name:'Çılbır',               price:340, desc:'Taze Baharatlı Yoğurt, Özel Tereyağlı Sos', order:4 },
+          { id:'o5',  name:'Ispanak Mantar Omlet', price:380, desc:'Ispanak, Sote Mantar, Kabak Çekirdeği, Çörek Otu', order:5 },
+          { id:'o6',  name:'Üç Peynirli Omlet',   price:380, desc:'Mozarella, Tulum, Lor Peyniri, Kapya Biber', order:6 },
+          { id:'o7',  name:'İspanyol Omlet',       price:380, desc:'Küp Patates, Kapya Biber, Çarliston Biber', order:7 },
+          { id:'o8',  name:'Ezine Omlet',          price:380, desc:'Ezine Peyniri, Kurutulmuş Domates, Kabak Çekirdeği', order:8 },
+          { id:'o9',  name:'Yeşil Omlet',          price:380, desc:'Ispanak, Yulaf, Mozarella', order:9 },
+          { id:'o10', name:'Fit Omlet',            price:380, desc:'3 Yumurta Beyazı, Hindi Füme, Lor Peyniri, Kuru Domates', order:10 },
+        ]},
+      { id:'kruvasan', name:'KRUVASAN', gradient:'grad-8', order:10, items:[
+        { id:'k1', name:'Sade',         price:140, desc:'', order:1 },
+        { id:'k2', name:'Bademli',      price:180, desc:'', order:2 },
+        { id:'k3', name:'Nutella',      price:380, desc:'Nutella, Çilek, Muz, Crumble, File Badem, Antep Fıstığı', order:3 },
+        { id:'k4', name:'Ezine',        price:460, desc:'Ezine Peyniri, Kuru Domates, Kabak Çekirdeği, Ceviz, Taze Kekik', order:4 },
+        { id:'k5', name:'Üç Peynir',   price:480, desc:'Mozarella, Tulum, Lor, Çırpılmış Yumurta, Kapya Biber', order:5 },
+        { id:'k6', name:'Sucuk',        price:520, desc:'Çırpılmış Yumurta, Sucuk, Hellim, Kapya Biber', order:6 },
+        { id:'k7', name:'Sosis',        price:520, desc:'Çırpılmış Yumurta, Dana Sosis, Hollandez Sos', order:7 },
+        { id:'k8', name:'Füme Avokado', price:540, desc:'Füme Et, Avokado Ezmesi, Çırpılmış Yumurta, Tulum', order:8 },
+      ]},
+      { id:'bowl', name:'BOWL', gradient:'grad-9', order:11, subtitle:'soğuk', items:[
+        { id:'bw1', name:'Fıstık Ezmeli', price:360, desc:'Yulaf/Badem Sütü, Yulaf, Muz, Fıstık Ezmesi, Granola, File Badem', order:1 },
+        { id:'bw2', name:'Kırmızı',       price:360, desc:'Yulaf/Badem Sütü, Granola, Muz, Frambuaz, Böğürtlen, Yaban Mersini, Chia', order:2 },
+      ]},
+      { id:'salatalar', name:'SALATALAR', gradient:'grad-10', order:12, items:[
+        { id:'sl1', name:'Tahıl Salata', price:280, desc:'Kinoa, Karabuğday, Yeşil Mercimek, Yeşil Elma, Pancar, Lor, Portakal', order:1 },
+        { id:'sl2', name:'Avokado',      price:320, desc:'Dilimlenmiş Avokado, Kinoa, Portakal, Portakallı Ballı Hardal Sos', order:2 },
+      ]},
+      { id:'tatlilar', name:'TATLILAR', gradient:'grad-11', order:13, items:[
+        { id:'t1',  name:'Chia Puding',              price:200, desc:'', order:1 },
+        { id:'t2',  name:'Yulaf Cookie',             price:220, desc:'Yulaf, Kuru Üzüm, Ceviz', order:2 },
+        { id:'t3',  name:'Matcha Cookie',            price:220, desc:'Matcha, Beyaz Çikolata, Fındık', order:3 },
+        { id:'t4',  name:'Nutella Cookie',           price:220, desc:'Nutella, Ceviz', order:4 },
+        { id:'t5',  name:'Amsterdam Cookie',         price:220, desc:'Bitter Çikolata, Beyaz Çikolata', order:5 },
+        { id:'t6',  name:'Magnolia',                 price:220, desc:'Çilek / Oreo ve Muz / Lotus', order:6 },
+        { id:'t7',  name:'Böğürtlen Brownie',        price:260, desc:'', order:7 },
+        { id:'t8',  name:'Beyaz Çikolatalı Brownie', price:260, desc:'', order:8 },
+        { id:'t9',  name:'Lotus Cup',                price:260, desc:'', order:9 },
+        { id:'t10', name:'Cream Puff Lotuslu',       price:260, desc:'Çıtır Profiterol İçinde Lotus Krem Diplomat', order:10 },
+        { id:'t11', name:'Tiramisu',                 price:240, desc:'', order:11 },
+        { id:'t12', name:'French Toast',             price:480, desc:'Tereyağlı Brioche, Karamel Sos, Muz, Çilek, Orman Meyveleri (18:00\'a kadar)', order:12 },
+      ]},
+    ],
+    icecek: [
+      { id:'espresso', name:'ESPRESSO BAR', gradient:'grad-coffee', order:1, tab:'icecek',
+        note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺',
+        items:[
+          { id:'es1',  name:'Ristretto',              price:160, desc:'', order:1 },
+          { id:'es2',  name:'Espresso Single / Double',price:180, desc:'', order:2 },
+          { id:'es3',  name:'Doppio',                 price:180, desc:'', order:3 },
+          { id:'es4',  name:'Espresso Macchiato',     price:180, desc:'', order:4 },
+          { id:'es5',  name:'Filtre Kahve',           price:200, desc:'Sıcak | Soğuk', order:5 },
+          { id:'es6',  name:'Americano',              price:200, desc:'Sıcak | Soğuk', order:6 },
+          { id:'es7',  name:'Cortado',                price:200, desc:'', order:7 },
+          { id:'es8',  name:'Latte',                  price:210, desc:'Sıcak | Soğuk', order:8 },
+          { id:'es9',  name:'Flat White',             price:210, desc:'Sıcak | Soğuk', order:9 },
+          { id:'es10', name:'Cappuccino',             price:210, desc:'', order:10 },
+          { id:'es11', name:'Mocha',                  price:240, desc:'Sıcak | Soğuk', order:11 },
+          { id:'es12', name:'White Mocha',            price:240, desc:'Sıcak | Soğuk', order:12 },
+          { id:'es13', name:'Zebra Mocha',            price:240, desc:'Sıcak | Soğuk', order:13 },
+          { id:'es14', name:'Türk Kahvesi',           price:140, desc:'', order:14 },
+        ]},
+      { id:'podspecial', name:'POD ÖZEL', gradient:'grad-1', order:2, tab:'icecek',
+        note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺',
+        items:[
+          { id:'ps1', name:'Muzlu Süt',                        price:240, desc:'', order:1 },
+          { id:'ps2', name:'Pod Latte',                        price:240, desc:'Bal ve Tarçın İlaveli', order:2 },
+          { id:'ps3', name:'Cookie Latte',                     price:240, desc:'Sıcak | Soğuk', order:3 },
+          { id:'ps4', name:'Toffee Nut Latte',                 price:240, desc:'Sıcak | Soğuk', order:4 },
+          { id:'ps5', name:'Kavrulmuş Badem Latte',            price:240, desc:'Sıcak | Soğuk', order:5 },
+          { id:'ps6', name:'Coconut Latte',                    price:240, desc:'Sıcak | Soğuk', order:6 },
+          { id:'ps7', name:'Deniz Tuzlu Karamel Latte',        price:240, desc:'Sıcak | Soğuk', order:7 },
+          { id:'ps8', name:'Chai Tea Latte',                   price:240, desc:'Sıcak | Soğuk', order:8 },
+          { id:'ps9', name:'Beyaz Çikolata Frambuaz Latte',    price:250, desc:'Sıcak | Soğuk', order:9 },
+        ]},
+      { id:'matchabar', name:'MATCHA BAR', gradient:'grad-smoothie', order:3, tab:'icecek',
+        note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺',
+        extras:[{name:'Creamy', price:50}],
+        items:[
+          { id:'mb1', name:'Matcha',               price:230, desc:'', order:1 },
+          { id:'mb2', name:'Çilek Matcha',         price:270, desc:'Pod Yapımı Çilek Püresi', order:2 },
+          { id:'mb3', name:'Yaban Mersini Matcha', price:270, desc:'Pod Yapımı Yaban Mersini Püresi', order:3 },
+          { id:'mb4', name:'Ananas Matcha',        price:270, desc:'Pod Yapımı Ananas Püresi', order:4 },
+          { id:'mb5', name:'Mango Matcha',         price:270, desc:'Pod Yapımı Mango Püresi', order:5 },
+          { id:'mb6', name:'Şeftali Matcha',       price:270, desc:'Pod Yapımı Şeftali Püresi', order:6 },
+        ]},
+      { id:'brewbar', name:'BREW BAR', gradient:'grad-3', order:4, tab:'icecek',
+        items:[
+          { id:'bb1', name:'V60',       price:260, desc:'', order:1 },
+          { id:'bb2', name:'Chemex',    price:260, desc:'', order:2 },
+          { id:'bb3', name:'Aeropress', price:260, desc:'', order:3 },
+        ]},
+      { id:'smoothie', name:'SMOOTHIE & PROTEIN BAR', gradient:'grad-smoothie', order:5, tab:'icecek',
+        showAddons:true,
+        items:[
+          { id:'sm1', name:'Yeşil Smoothie',         price:280, desc:'Avokado, Ispanak, Muz, Taze Elma Suyu, Chia', order:1 },
+          { id:'sm2', name:'Orman Meyveli Smoothie', price:280, desc:'Böğürtlen, Frambuaz, Yaban Mersini, Muz, Fıstık Ezmesi, Badem Sütü', order:2 },
+          { id:'sm3', name:'Kakao Smoothie',         price:280, desc:'Kakao, Muz, Fıstık Ezmesi, Chia, Badem Sütü', order:3 },
+          { id:'sm4', name:'Tropikal Smoothie',      price:280, desc:'Ananas, Mango, Muz, Fıstık Ezmesi, Chia', order:4 },
+        ]},
+      { id:'buzgibiler', name:'BUZ GİBİLER', gradient:'grad-ice', order:6, tab:'icecek',
+        items:[
+          { id:'bg1', name:'Muz & Maydonoz',  price:280, desc:'Pod Limonata, Muz, Maydonoz', order:1 },
+          { id:'bg2', name:'Orman Meyveleri', price:280, desc:'Pod Limonata, Böğürtlen, Frambuaz, Çilek, Nane', order:2 },
+          { id:'bg3', name:'Ananas',          price:280, desc:'Pod Limonata, Ananas, Çarkıfelek', order:3 },
+        ]},
+      { id:'detoks', name:'DETOKS', gradient:'grad-herbal', order:7, tab:'icecek',
+        items:[
+          { id:'dt1', name:'Yeşil',   price:240, desc:'Maydonoz, Yeşil Elma, Kereviz, Salatalık, Limon', order:1 },
+          { id:'dt2', name:'Turuncu', price:240, desc:'Portakal, Havuç, Limon, Zencefil', order:2 },
+          { id:'dt3', name:'Kırmızı', price:240, desc:'Portakal, Kırmızı Elma, Havuç, Böğürtlen', order:3 },
+        ]},
+      { id:'sogukcay', name:'TAZELEYİCİ SOĞUK ÇAYLAR', gradient:'grad-ice', order:8, tab:'icecek',
+        items:[
+          { id:'sc1', name:'Limonata',        price:220, desc:'Taze Nane, Ev Yapımı Pod Limonata', order:1 },
+          { id:'sc2', name:'Portakal Suyu',   price:220, desc:'', order:2 },
+          { id:'sc3', name:'Cool Lime',       price:220, desc:'', order:3 },
+          { id:'sc4', name:'Berry Hibiscus',  price:220, desc:'', order:4 },
+          { id:'sc5', name:'Elma & Yasemin',  price:220, desc:'', order:5 },
+          { id:'sc6', name:'Mango & Frambuaz',price:220, desc:'', order:6 },
+        ]},
+      { id:'bitkicay', name:'MELEZ TEA BİTKİ ÇAYLARI', gradient:'grad-9', order:9, tab:'icecek',
+        items:[
+          { id:'bc1', name:'Relax',        price:160, desc:'Rooibos, Papatya, Lavanta, Elma, Vanilya (5-7 dk)', order:1 },
+          { id:'bc2', name:'Mystic',       price:160, desc:'Mango, Elma, Zerdeçal, Yeşil Çay, Zencefil, Tarçın (3-4 dk)', order:2 },
+          { id:'bc3', name:'Soothe',       price:160, desc:'Rezene, Ihlamur, Zencefil, Nane, Vanilya (6 dk)', order:3 },
+          { id:'bc4', name:'Boost',        price:160, desc:'Elma, Mürver, Kuşburnu, Ekinezya, Zencefil (6 dk)', order:4 },
+          { id:'bc5', name:'Zencefil Çay', price:160, desc:'Taze Zencefil, Portakal, Limon (7-8 dk)', order:5 },
+          { id:'bc6', name:'Demleme Çay',  price:60,  desc:'İnce Belli 60₺ / Fincan 70₺', order:6 },
+        ]},
+      { id:'softbar', name:'SOFT BAR', gradient:'grad-4', order:10, tab:'icecek',
+        items:[
+          { id:'sb1', name:'Pınar Premium Su',    price:50,  desc:'', order:1 },
+          { id:'sb2', name:'Uludağ Premium Soda', price:120, desc:'', order:2 },
+          { id:'sb3', name:'Churchill',           price:160, desc:'', order:3 },
+        ]},
+    ],
+    addons: [
+      { name:'Whey Protein', price:120, note:'+23 gr protein' },
+      { name:'Kolajen',      price:100, note:'' },
+    ]
+  };
+
+  /* ════════════════════════════════════════
+     FIREBASE
+  ════════════════════════════════════════ */
+  let db = null;
+  function getConfig() {
+    return { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+  }
+
+  async function fetchFromFirestore() {
+    const cfg = getConfig();
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      db = firebase.firestore();
+      const [catSnap, itemSnap, addonSnap] = await Promise.all([
+        db.collection('menuCategories').get(),
+        db.collection('menuItems').get(),
+        db.collection('addons').get()
+      ]);
+      const cats  = catSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+      const items = itemSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+      const addons= addonSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+
+      const buildTab = tab => cats
+        .filter(c => c.tab === tab)
+        .sort((a,b) => (a.order||0)-(b.order||0))
+        .map(cat => ({
+          ...cat,
+          items: items.filter(i => i.categoryId === cat.id).sort((a,b)=>(a.order||0)-(b.order||0))
+        }));
+
+      const result = { yiyecek: buildTab('yiyecek'), icecek: buildTab('icecek'), addons };
+      console.log('[POD] Firestore:', result.yiyecek.length, 'yiyecek cat,', result.icecek.length, 'icecek cat');
+      return result;
+    } catch(e) {
+      console.warn('[POD] Firestore hatası, statik veri kullanılıyor:', e);
+      return null;
+    }
+  }
+
+  /* ════════════════════════════════════════
+     RENDER
+  ════════════════════════════════════════ */
+  const ARROW_SVG = `<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>`;
+
+  function renderCategory(cat, index, isReversed, addons) {
+    const reversed = isReversed ? 'is-reversed' : '';
+    const numStr   = String(index + 1).padStart(2,'0');
+    const showAddons = cat.showAddons || cat.id === 'smoothie' || cat.tab === 'icecek';
+
+    const addonsHtml = showAddons && addons && addons.length ? `
+      <div class="addons-box">
+        <span class="addons-box__label">İsteğe Göre Ekle</span>
+        <div class="addons-list">
+          ${addons.map(a => `
+            <div class="addon-item">
+              <span class="addon-name">${esc(a.name)}${a.note ? ` <span class="addon-note">— ${esc(a.note)}</span>` : ''}</span>
+              <span class="addon-price">+${a.price} ₺</span>
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+
+    const extrasArr = Array.isArray(cat.extras) ? cat.extras : [];
+    const extrasHtml = extrasArr.length ? `
+      <div class="extras-box">
+        <span class="extras-box__label">Ekstralar</span>
+        <div class="extras-list">
+          ${extrasArr.map(e => `<span class="extra-item">${esc(e.name)} <strong>+${e.price}₺</strong></span>`).join('')}
+        </div>
+      </div>` : '';
+
+    const specialBadge = cat.special ? `<span class="cat-special-badge">Sezonluk</span>` : '';
+    const subtitleHtml = cat.subtitle ? `<span class="cat-subtitle">${esc(cat.subtitle)}</span>` : '';
+    const noteHtml     = cat.note    ? `<div class="cat-note">${esc(cat.note)}</div>` : '';
+
+    const itemsHtml = (cat.items || []).map(item => {
+      const hasImg = !!item.imageUrl;
+      return `
+        <li class="menu-item${hasImg ? ' has-image':''}"
+            data-cat-id="${cat.id}"
+            data-img="${esc(item.imageUrl || '')}">
+          <div class="menu-item__row">
+            <span class="menu-item__name">${esc(item.name)}</span>
+            ${item.price ? `<span class="menu-item__price">${item.price} ₺</span>` : ''}
+          </div>
+          ${item.desc ? `<p class="menu-item__desc">${esc(item.desc)}</p>` : ''}
+          ${hasImg ? `<span class="menu-item__tap-hint">Görseli Gör</span>` : ''}
+        </li>`;
+    }).join('');
+
+    return `
+      <div class="cat-section ${reversed}" data-reveal>
+        <div class="cat-section__text">
+          <div>
+            <div class="cat-label">
+              <span class="cat-label__number">${numStr}</span>
+              <div>
+                <span class="cat-label__name">${esc(cat.name)}${specialBadge}</span>
+                ${subtitleHtml}
+              </div>
+            </div>
+            ${noteHtml}
+            ${addonsHtml}
+            <ul class="menu-items">${itemsHtml}</ul>
+            ${extrasHtml}
+          </div>
+        </div>
+        <div class="cat-section__image">
+          <div class="cat-section__image-inner ${cat.gradient || 'grad-1'}" data-panel="${cat.id}">
+            <div class="cat-img-overlay" id="overlay-${cat.id}"></div>
+            <div class="cat-section__image-caption"><span>${esc(cat.name)}</span></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderTab(tabId, categories, addons) {
+    const el = document.getElementById(tabId + 'Content');
+    if (!categories || categories.length === 0) {
+      el.innerHTML = '<div class="menu-loading"><p class="menu-loading__label">İçerik bulunamadı.</p></div>';
+      return;
+    }
+    try {
+      el.innerHTML = categories.map((cat, i) => renderCategory(cat, i, i % 2 !== 0, addons)).join('');
+      bindHoverEvents(el);
+      observeReveals();
+    } catch(err) {
+      console.error('[POD] renderTab error:', tabId, err);
+      el.innerHTML = `<div class="menu-loading"><p class="menu-loading__label">Render hatası: ${err.message}</p></div>`;
+    }
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  /* ════════════════════════════════════════
+     HOVER / TAP IMAGE LOGIC
+  ════════════════════════════════════════ */
+  const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
+  let tapTimers = {};
+
+  function bindHoverEvents(container) {
+    container.querySelectorAll('.menu-item[data-img]').forEach(item => {
+      const imgUrl = item.dataset.img;
+      const catId  = item.dataset.catId;
+      if (!imgUrl) return;
+
+      const overlay = document.getElementById('overlay-' + catId);
+      if (!overlay) return;
+
+      if (!isTouchDevice()) {
+        /* Desktop hover */
+        item.addEventListener('mouseenter', () => {
+          overlay.style.backgroundImage = `url(${imgUrl})`;
+          overlay.classList.add('is-visible');
+        });
+        item.addEventListener('mouseleave', () => {
+          overlay.classList.remove('is-visible');
+        });
+      } else {
+        /* Mobile tap */
+        item.addEventListener('click', () => {
+          const isSameActive = overlay.classList.contains('is-visible') &&
+                               overlay.style.backgroundImage.includes(encodeURI(imgUrl).replace(/[()]/g, m => `\\${m}`).replace(/,/g, '\\,') || imgUrl);
+          // Clear all overlays in this panel
+          document.querySelectorAll('.cat-img-overlay').forEach(o => {
+            if (o.id === 'overlay-' + catId) {
+              o.classList.remove('is-visible');
+              clearTimeout(tapTimers[catId]);
+            }
+          });
+          // Remove tap highlight
+          container.querySelectorAll('.menu-item.is-tapped').forEach(el => el.classList.remove('is-tapped'));
+
+          if (!isSameActive) {
+            overlay.style.backgroundImage = `url(${imgUrl})`;
+            overlay.classList.add('is-visible');
+            item.classList.add('is-tapped');
+            tapTimers[catId] = setTimeout(() => {
+              overlay.classList.remove('is-visible');
+              item.classList.remove('is-tapped');
+            }, 4000);
+          }
+        });
+      }
+    });
+  }
+
+  /* ════════════════════════════════════════
+     INIT
+  ════════════════════════════════════════ */
+  async function init() {
+    let data = await fetchFromFirestore();
+    if (!data) data = STATIC;
+
+    renderTab('yiyecek', data.yiyecek, data.addons);
+    renderTab('icecek',  data.icecek,  data.addons);
+
+    // Apply brand/contact info to footer if available
+    if (db) {
+      try {
+        const cfg = await db.collection('siteConfig').doc('contact').get();
+        if (cfg.exists) {
+          const d = cfg.data();
+          if (d.instagram) {
+            document.getElementById('nav-instagram').href = `https://www.instagram.com/${d.instagram.replace('@','')}`;
+            document.getElementById('nav-instagram').textContent = d.instagram;
+            document.getElementById('footer-instagram').href = `https://www.instagram.com/${d.instagram.replace('@','')}`;
+          }
+          if (d.email) {
+            document.getElementById('nav-email').href = `mailto:${d.email}`;
+            document.getElementById('nav-email').textContent = d.email;
+          }
+        }
+        const brand = await db.collection('siteConfig').doc('brand').get();
+        if (brand.exists) {
+          const b = brand.data();
+          if (b.siteName) document.getElementById('footerLogo').textContent = b.siteName;
+        }
+        const footerSnap = await db.collection('siteConfig').doc('footer').get();
+        if (footerSnap.exists) {
+          const f = footerSnap.data();
+          if (f.desc) document.getElementById('footerDesc').textContent = f.desc;
+          if (f.logotype) document.getElementById('footerLogo').textContent = f.logotype;
+          if (f.image) {
+            const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(f.image);
+            document.getElementById('footerFigure').innerHTML = isVideo
+              ? `<video src="${f.image}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`
+              : `<img src="${f.image}" alt="">`;
+          }
+          if (f.instagram) {
+            const a = document.getElementById('footer-instagram');
+            if (a) a.href = f.instagram;
+          }
+          const copyrightEl = document.querySelector('.copyright-content span');
+          if (copyrightEl && f.copyright) copyrightEl.textContent = f.copyright;
+          const newsletterEl = document.querySelector('.block-footer__form .block-footer__eyebrow');
+          if (newsletterEl && f.newsletterTitle) newsletterEl.textContent = f.newsletterTitle;
+        }
+      } catch(e) { /* ignore */ }
+    }
+  }
+
+  /* ════════════════════════════════════════
+     LENIS
+  ════════════════════════════════════════ */
+  const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+  (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
+
+  /* ── HEADER MENU ── */
+  const toggle = document.getElementById('menuToggle');
+  const menu   = document.getElementById('headerMenu');
+  toggle.addEventListener('click', () => {
+    const open = menu.classList.toggle('is-open');
+    toggle.classList.toggle('is-open', open);
+    menu.setAttribute('aria-hidden', String(!open));
+    open ? lenis.stop() : lenis.start();
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('is-open');
+    toggle.classList.remove('is-open');
+    menu.setAttribute('aria-hidden', 'true');
+    lenis.start();
+  }));
+
+  /* ── FILTER TABS ── */
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.menu-content').forEach(c => c.classList.remove('is-active'));
+      document.getElementById(tab.dataset.filter).classList.add('is-active');
+      observeReveals();
+    });
+  });
+
+  /* ── SCROLL REVEAL ── */
+  let revealObs;
+  function observeReveals() {
+    if (revealObs) revealObs.disconnect();
+    revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); revealObs.unobserve(e.target); } });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('[data-reveal]:not(.is-visible)').forEach(el => revealObs.observe(el));
+  }
+  observeReveals();
+
+  init();
+  </script>
+</body>
+</html>

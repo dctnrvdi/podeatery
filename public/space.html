@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Space — POD Coffee &amp; Eatery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c1: #F8F2E5;
+      --c2: #03090D;
+      --c3: #C2644F;
+      --c4: #779580;
+      --c8: #D3CFC5;
+      --fp: 'Josefin Sans', sans-serif;
+      --fs: 'Jost', sans-serif;
+      --size-font: calc(min(100vw, 1728px) / 108);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    img, video { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+
+    html { font-size: var(--size-font); }
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto; }
+    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    .eyebrow {
+      font-family: var(--fp);
+      font-size: 0.6875em;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c8);
+      display: inline-block;
+    }
+    .link {
+      font-family: var(--fp);
+      font-size: 0.875em;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: .7em;
+      transition: opacity .25s;
+    }
+    .link:hover { opacity: .6; }
+    .link svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ─── HEADER ── */
+    .block-header {
+      position: fixed;
+      top: 1em; left: 0; right: 0;
+      margin: 0 auto;
+      max-width: 45em;
+      height: 3.75em;
+      background-color: rgba(3,9,13,.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: .375em;
+      padding: 0 .875em;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .block-header__book-btn {
+      font-family: var(--fp); font-size: .75em; font-weight: 500;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: #FFFEFD; border: 1px solid rgba(255,254,253,.32);
+      border-radius: .3em; padding: .6em 1.2em;
+      background: transparent; transition: background .25s;
+    }
+    .block-header__book-btn:hover { background: rgba(255,254,253,.1); }
+    .block-header__logo { position: absolute; left: 50%; transform: translateX(-50%); }
+    .block-header__logo-text { font-family: var(--fp); font-size: 1.125em; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #FFFEFD; }
+    .block-header__toggle { display: flex; flex-direction: column; gap: 4px; padding: .4em; }
+    .block-header__toggle span { display: block; width: 22px; height: 1.5px; background: #FFFEFD; border-radius: 1px; transition: transform .3s, opacity .3s; transform-origin: center; }
+    .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+    .block-header__toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .block-header__toggle.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+    .block-header__menu {
+      position: fixed; top: calc(1em + 3.75em + .5em); left: 0; right: 0;
+      margin: 0 auto; max-width: 45em; background: #FFFEFD;
+      border-radius: .375em; overflow: hidden; pointer-events: none;
+      opacity: 0; transform: translateY(-8px); transition: opacity .3s, transform .3s; z-index: 999;
+    }
+    .block-header__menu.is-open { pointer-events: auto; opacity: 1; transform: translateY(0); }
+    .block-header__menu-nav { display: flex; flex-direction: column; align-items: center; padding: 2.25em 1.5em 1.5em; gap: 1.1em; }
+    .block-header__menu-nav a { font-family: var(--fp); font-size: 1.375em; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; color: var(--c2); opacity: 0; transform: translateY(20px); transition: transform .35s, opacity .35s, color .2s; }
+    .block-header__menu.is-open .block-header__menu-nav a { opacity: 1; transform: translateY(0); }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(1) { transition-delay: .06s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(2) { transition-delay: .12s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(3) { transition-delay: .18s; }
+    .block-header__menu.is-open .block-header__menu-nav a:nth-child(4) { transition-delay: .24s; }
+    .block-header__menu-nav a:hover { color: var(--c3); }
+    .block-header__menu-social { display: flex; justify-content: center; gap: 2em; padding: 1em 1.5em 1.75em; border-top: 1px solid rgba(3,9,13,.08); }
+    .block-header__menu-social a { font-family: var(--fp); font-size: .75em; letter-spacing: .09em; text-transform: uppercase; color: var(--c8); transition: color .2s; }
+    .block-header__menu-social a:hover { color: var(--c3); }
+
+    /* ─── HERO ── */
+    .sp-hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 3em 3.5em 4em;
+      overflow: hidden;
+      background: var(--c2);
+    }
+    .sp-hero__bg { position: absolute; inset: 0; overflow: hidden; }
+    .sp-hero__bg img { position: absolute; inset: -5% 0; width: 100%; height: 110%; object-fit: cover; opacity: .65; }
+    .sp-hero__content { position: relative; z-index: 2; }
+    .sp-hero__eyebrow { color: rgba(248,242,229,.55); margin-bottom: 1em; }
+    .sp-hero__title {
+      font-family: var(--fp);
+      font-size: 7em;
+      font-weight: 300;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: var(--c1);
+      line-height: .88;
+      max-width: 8em;
+    }
+    .sp-hero__scroll {
+      position: absolute;
+      right: 3.5em;
+      bottom: 4em;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .75em;
+    }
+    .sp-hero__scroll span { font-family: var(--fp); font-size: .625em; letter-spacing: .15em; text-transform: uppercase; color: rgba(248,242,229,.45); writing-mode: vertical-rl; }
+    .sp-hero__scroll-line { width: 1px; height: 3em; background: rgba(248,242,229,.25); animation: scrollPulse 2s ease-in-out infinite; }
+    @keyframes scrollPulse { 0%,100%{opacity:.25} 50%{opacity:.7} }
+
+    /* ─── INTRO SPLIT ── */
+    .sp-intro {
+      display: grid;
+      grid-template-columns: 45% 55%;
+      min-height: 100vh;
+      border-bottom: 1px solid #ebebeb;
+    }
+    .sp-intro__text {
+      padding: 7em 4em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2.5em;
+      border-right: 1px solid #ebebeb;
+    }
+    .sp-intro__statement {
+      font-family: var(--fp);
+      font-size: 1.875em;
+      font-weight: 300;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      line-height: 1.1;
+      max-width: 14em;
+    }
+    .sp-intro__body {
+      font-size: .9375em;
+      line-height: 1.7;
+      color: #666;
+      max-width: 28em;
+    }
+    .sp-intro__image { position: relative; overflow: hidden; }
+    .sp-intro__image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+    /* ─── 2×2 GRID ── */
+    .sp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 50vh 50vh;
+    }
+    .sp-grid__cell {
+      position: relative;
+      overflow: hidden;
+    }
+    .sp-grid__cell img,
+    .sp-grid__cell video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* GIF cell — pulsing animation */
+    .sp-grid__cell--gif .gif-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #f5e6d0, #e8c99a, #d4a97a);
+      background-size: 300% 300%;
+      animation: gifLoop 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes gifLoop {
+      0%   { background-position: 0% 0%;   filter: brightness(1)   saturate(1); }
+      33%  { background-position: 100% 0%;  filter: brightness(1.05) saturate(1.1); }
+      66%  { background-position: 100% 100%;filter: brightness(.97) saturate(.95); }
+      100% { background-position: 0% 100%;  filter: brightness(1.03) saturate(1.05); }
+    }
+    .sp-grid__cell--gif img {
+      mix-blend-mode: multiply;
+      opacity: .55;
+      animation: gifImgFlicker 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes gifImgFlicker {
+      0%   { transform: scale(1)    translateX(0); }
+      50%  { transform: scale(1.02) translateX(-5px); }
+      100% { transform: scale(1.01) translateX(3px); }
+    }
+    /* Video cell */
+    .sp-grid__cell--video .video-play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      background: rgba(3,9,13,.18);
+      transition: background .3s;
+    }
+    .sp-grid__cell--video:hover .video-play { background: rgba(3,9,13,.3); }
+    .sp-grid__cell--video .play-icon {
+      width: 4em;
+      height: 4em;
+      border-radius: 50%;
+      background: rgba(248,242,229,.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .3s;
+    }
+    .sp-grid__cell--video:hover .play-icon { transform: scale(1.1); }
+    .sp-grid__cell--video .play-icon svg { width: 1.25em; height: 1.25em; margin-left: .15em; }
+    /* cell labels */
+    .sp-grid__badge {
+      position: absolute;
+      top: 1.25em;
+      left: 1.25em;
+      z-index: 3;
+      font-family: var(--fp);
+      font-size: .5625em;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(248,242,229,.7);
+      background: rgba(3,9,13,.35);
+      padding: .35em .65em;
+      border-radius: 2em;
+      backdrop-filter: blur(6px);
+    }
+    /* grid dividers */
+    .sp-grid__cell:nth-child(1),
+    .sp-grid__cell:nth-child(2) { border-bottom: 3px solid #fff; }
+    .sp-grid__cell:nth-child(1),
+    .sp-grid__cell:nth-child(3) { border-right: 3px solid #fff; }
+
+    /* ─── FULL WIDTH ── */
+    .sp-full {
+      height: 80vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .sp-full img { position: absolute; inset: -5% 0; width: 100%; height: 110%; object-fit: cover; }
+
+    /* ─── QUOTE ── */
+    .sp-quote {
+      padding: 8em 4em;
+      background: var(--c1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.25em;
+    }
+    .sp-quote__line { width: 1px; height: 3em; background: var(--c8); }
+    .sp-quote__text {
+      font-family: var(--fp);
+      font-size: 2.875em;
+      font-weight: 300;
+      letter-spacing: .03em;
+      max-width: 18em;
+      line-height: 1.12;
+    }
+    .sp-quote__attr {
+      font-family: var(--fp);
+      font-size: .6875em;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--c8);
+    }
+
+    /* ─── ASYMMETRIC ── */
+    .sp-asymm {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      min-height: 80vh;
+      border-top: 1px solid #ebebeb;
+      border-bottom: 1px solid #ebebeb;
+    }
+    .sp-asymm__large { position: relative; overflow: hidden; }
+    .sp-asymm__large img { position: absolute; inset: -5% 0; width: 100%; height: 110%; object-fit: cover; }
+    .sp-asymm__stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      border-left: 1px solid #ebebeb;
+    }
+    .sp-asymm__stack-img { position: relative; overflow: hidden; border-bottom: 1px solid #ebebeb; }
+    .sp-asymm__stack-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .sp-asymm__stack-text {
+      padding: 3em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5em;
+      background: #fff;
+    }
+    .sp-asymm__stack-text .eyebrow { color: var(--c8); }
+    .sp-asymm__stack-text p { font-size: .9375em; line-height: 1.7; color: #666; max-width: 22em; }
+
+    /* ─── SECOND FULL WIDTH ── */
+    .sp-full-dark {
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 4em;
+    }
+    .sp-full-dark img { position: absolute; inset: -5% 0; width: 100%; height: 110%; object-fit: cover; }
+    .sp-full-dark::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(3,9,13,.65) 0%, transparent 55%);
+    }
+    .sp-full-dark__content { position: relative; z-index: 2; color: var(--c1); }
+    .sp-full-dark__content .eyebrow { color: rgba(248,242,229,.55); margin-bottom: .75em; }
+    .sp-full-dark__content h2 {
+      font-family: var(--fp);
+      font-size: 3.625em;
+      font-weight: 300;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      line-height: .95;
+      max-width: 14em;
+      margin-bottom: 1.5em;
+    }
+
+    /* ─── SCROLL REVEAL ── */
+    [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .75s ease, transform .75s ease; }
+    [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+    [data-reveal="1"] { transition-delay: .1s; }
+    [data-reveal="2"] { transition-delay: .2s; }
+
+    /* ─── FOOTER ── */
+    .block-footer-wrap { background-color: var(--c1); }
+    .footer {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5.25em; padding: 0 0 6.8125em;
+      margin: 0 2.5em; position: relative;
+      border-bottom: 1px solid rgba(0,0,0,.15);
+    }
+    .footer > * { min-width: 0; }
+    .footer::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100%; background: rgba(0,0,0,.15); }
+    .block-footer__content { display: flex; flex-direction: row; align-items: flex-end; gap: 1.125em; padding-top: 2.75em; min-width: 0; }
+    .block-footer__figure { width: 14.625em; flex-shrink: 0; border-radius: .375em; overflow: hidden; align-self: stretch; background: linear-gradient(145deg,#f5e6d0,#e8c99a); }
+    .block-footer__figure img { width: 100%; height: 100%; object-fit: cover; }
+    .block-footer__desc-wrap { display: flex; flex-direction: column; gap: 1.6875em; min-width: 0; }
+    .block-footer__description { max-width: 18.675em; }
+    .block-footer__description p { font-size: .9375em; line-height: 1.6; opacity: .7; }
+    .block-footer__menu-form { display: grid; grid-template-columns: 1fr 1fr; align-items: start; padding-top: 7.125em; min-width: 0; }
+    .block-footer__eyebrow { color: #7D7D79; letter-spacing: .12em; margin-bottom: 1.25em; }
+    .block-footer__menu-list { display: flex; flex-direction: column; gap: 1.125em; }
+    .block-footer__menu-list .link { font-size: .875em; opacity: .85; }
+    .block-footer__menu-list .link:hover { opacity: 1; color: var(--c3); }
+    .block-footer__form { max-width: 16.625em; }
+    .form-footer { display: flex; flex-direction: column; gap: 1.35em; }
+    .form-footer .field { position: relative; }
+    .form-footer .field input { width: 100%; background: transparent; border: 0; outline: none; padding: 0 .75em .55em; font-size: .875em; font-weight: 500; letter-spacing: .06em; font-family: var(--fp); text-transform: uppercase; color: var(--c2); }
+    .form-footer .field input::placeholder { opacity: .65; color: var(--c2); }
+    .form-footer .field::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: .95em; border: 1px solid rgba(3,9,13,.18); border-top: none; border-radius: 0 0 .45em .45em; pointer-events: none; }
+    .form__button { margin-top: .625em; display: flex; justify-content: flex-end; }
+    .copyright { padding: 2.5em 0; margin: 0 2.5em; }
+    .block-footer__logotype { font-family: var(--fp); font-size: 1.5em; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; opacity: .75; margin-bottom: 1.25em; }
+    .copyright-content { display: flex; justify-content: space-between; align-items: center; opacity: .55; }
+    .copyright-content, .copyright-content a { font-family: var(--fp); font-size: .75em; letter-spacing: .05em; text-transform: uppercase; }
+    .terms { display: flex; gap: 3em; }
+    .terms a:hover { color: var(--c3); }
+
+    /* ─── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      html { font-size: 14px; }
+      .block-header, .block-header__menu { max-width: calc(100% - 2em); }
+      .sp-hero__title { font-size: 4em; }
+      .sp-intro { grid-template-columns: 1fr; }
+      .sp-intro__text { padding: 4em 2em; border-right: none; border-bottom: 1px solid #ebebeb; }
+      .sp-intro__image { height: 60vw; position: relative; }
+      .sp-intro__image img { position: absolute; inset: 0; height: 100%; }
+      .sp-grid { grid-template-rows: 35vh 35vh; }
+      .sp-asymm { grid-template-columns: 1fr; }
+      .sp-asymm__large { height: 60vw; }
+      .sp-asymm__large img { inset: 0; height: 100%; }
+      .sp-asymm__stack { grid-template-rows: 40vw auto; }
+      .sp-quote__text { font-size: 1.875em; }
+      .footer { grid-template-columns: 1fr; gap: 0; margin: 0 1em; padding-bottom: 3em; }
+      .footer::after { display: none; }
+      .block-footer__content { flex-direction: column; align-items: flex-start; }
+      .block-footer__figure { width: 100%; height: 14em; align-self: auto; }
+      .block-footer__menu-form { grid-template-columns: 1fr; gap: 2.5em; padding-top: 2.5em; }
+      .block-footer__form { max-width: 100%; }
+      .copyright { margin: 0 1em; }
+      .copyright-content { flex-direction: column; gap: .5em; align-items: flex-start; }
+    }
+    @media (max-width: 600px) {
+      .sp-hero { padding: 2em 1.5em 3em; }
+      .sp-hero__title { font-size: 3em; }
+      .sp-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 50vw); }
+      .sp-grid__cell:nth-child(n) { border-right: none; border-bottom: 3px solid #fff; }
+      .sp-full-dark { padding: 2em; }
+      .sp-full-dark__content h2 { font-size: 2.25em; }
+      .sp-asymm__stack-text { padding: 2em 1.5em; }
+      .sp-quote { padding: 5em 1.5em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="block-header">
+    <a href="pod.html#reserve" class="block-header__book-btn">Reserve</a>
+    <div class="block-header__logo">
+      <a href="pod.html" class="block-header__logo-text">POD</a>
+    </div>
+    <button class="block-header__toggle" id="menuToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+  <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
+    <div class="block-header__menu-nav">
+      <a href="pod.html#story">Our Story</a>
+      <a href="menu.html">Menu</a>
+      <a href="space.html">The Space</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="block-header__menu-social">
+      <a href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
+      <a href="mailto:hello@podcoffee.com">hello@podcoffee.com</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="sp-hero">
+    <div class="sp-hero__bg">
+      <img id="heroImg"
+        src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&q=85&auto=format&fit=crop"
+        alt="POD interior">
+    </div>
+    <div class="sp-hero__content" data-reveal>
+      <span class="eyebrow sp-hero__eyebrow">Istanbul · The Space</span>
+      <h1 class="sp-hero__title">Our<br>Corner</h1>
+    </div>
+    <div class="sp-hero__scroll">
+      <span>Scroll</span>
+      <div class="sp-hero__scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── INTRO SPLIT ── -->
+  <section class="sp-intro">
+    <div class="sp-intro__text">
+      <span class="eyebrow" data-reveal>İç Mekan</span>
+      <p class="sp-intro__statement" data-reveal="1">Sıcak ahşap, yumuşak ışık ve iyi müzik.</p>
+      <p class="sp-intro__body" data-reveal="2">POD'u tasarlarken tek bir hedefimiz vardı: içeri girdiğinizde biraz daha uzun kalmak isteyesiniz. Her detayı bu his için seçtik — el yapımı seramikler, loş ama sıcak aydınlatma, pencere kenarındaki özel köşeler.</p>
+      <a href="contact.html" class="link" data-reveal="2">
+        <span>Bizi Bul</span>
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+      </a>
+    </div>
+    <div class="sp-intro__image">
+      <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1200&q=85&auto=format&fit=crop" alt="POD interior atmosphere">
+    </div>
+  </section>
+
+  <!-- ── 2×2 GRID ── -->
+  <!-- [img top-left] [GIF top-right] / [video bottom-left] [img bottom-right] -->
+  <div class="sp-grid">
+
+    <!-- top-left: static photo -->
+    <div class="sp-grid__cell">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=960&q=85&auto=format&fit=crop" alt="Coffee detail">
+    </div>
+
+    <!-- top-right: GIF (CSS animated) -->
+    <div class="sp-grid__cell sp-grid__cell--gif">
+      <div class="gif-bg"></div>
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=960&q=85&auto=format&fit=crop" alt="Coffee loop">
+      <span class="sp-grid__badge">GIF</span>
+    </div>
+
+    <!-- bottom-left: video placeholder -->
+    <div class="sp-grid__cell sp-grid__cell--video">
+      <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=960&q=85&auto=format&fit=crop" alt="Barista">
+      <div class="video-play">
+        <div class="play-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8 5.14v14l11-7-11-7z" fill="#03090D"/>
+          </svg>
+        </div>
+      </div>
+      <span class="sp-grid__badge">Video</span>
+    </div>
+
+    <!-- bottom-right: static photo -->
+    <div class="sp-grid__cell">
+      <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=960&q=85&auto=format&fit=crop" alt="Coffee table">
+    </div>
+
+  </div>
+
+  <!-- ── PULL QUOTE ── -->
+  <section class="sp-quote">
+    <div class="sp-quote__line"></div>
+    <blockquote class="sp-quote__text" data-reveal>"Sessizliğin ve sıcaklığın buluştuğu bir köşe."</blockquote>
+    <span class="sp-quote__attr" data-reveal="1">— POD Coffee &amp; Eatery, Istanbul</span>
+  </section>
+
+  <!-- ── ASYMMETRIC ROW ── -->
+  <section class="sp-asymm">
+    <div class="sp-asymm__large">
+      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1400&q=85&auto=format&fit=crop" alt="Bar area">
+    </div>
+    <div class="sp-asymm__stack">
+      <div class="sp-asymm__stack-img">
+        <img src="https://images.unsplash.com/photo-1507914372368-b2b085b925a1?w=700&q=85&auto=format&fit=crop" alt="Detail">
+      </div>
+      <div class="sp-asymm__stack-text">
+        <span class="eyebrow" data-reveal>Detaylar</span>
+        <p data-reveal="1">El yapımı seramikler, yerel sanatçıların eserleri ve her köşeye özenle yerleştirilmiş bitkiler. POD'un her detayı bir his için seçildi.</p>
+        <a href="menu.html" class="link" data-reveal="2" style="color:var(--c2)">
+          <span>Menüyü Gör</span>
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FULL-WIDTH PANORAMIC ── -->
+  <div class="sp-full">
+    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1920&q=85&auto=format&fit=crop" alt="POD full view">
+  </div>
+
+  <!-- ── FINAL DARK FULL-SCREEN ── -->
+  <section class="sp-full-dark">
+    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1920&q=85&auto=format&fit=crop" alt="POD evening">
+    <div class="sp-full-dark__content" data-reveal>
+      <span class="eyebrow">Rezervasyon</span>
+      <h2>Bir köşe ayırt&shy;ın sizi bekliyor.</h2>
+      <a href="contact.html" class="link" style="color:var(--c1)">
+        <span>İletişim &amp; Rezervasyon</span>
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#F8F2E5"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#03090D"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="block-footer-wrap">
+    <div class="footer">
+      <div class="block-footer__content">
+        <div class="block-footer__figure"></div>
+        <div class="block-footer__desc-wrap">
+          <div class="block-footer__description">
+            <p>Istanbul's favourite coffee corner. A space to slow down, connect, and savour the little things.</p>
+          </div>
+          <a href="contact.html" class="link">
+            <span>Reserve a Table</span>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="block-footer__menu-form">
+          <div>
+            <span class="eyebrow block-footer__eyebrow">Navigate</span>
+            <ul class="block-footer__menu-list">
+              <li><a href="pod.html#story" class="link">Our Story</a></li>
+              <li><a href="menu.html" class="link">Menu</a></li>
+              <li><a href="space.html" class="link">The Space</a></li>
+              <li><a href="contact.html" class="link">Contact</a></li>
+              <li><a href="https://www.instagram.com/podeatery" class="link" target="_blank" rel="noopener">Instagram</a></li>
+            </ul>
+          </div>
+          <div class="block-footer__form">
+            <span class="eyebrow block-footer__eyebrow">Stay in the Loop</span>
+            <div class="form-footer">
+              <div class="field"><input type="text" placeholder="Your Name"></div>
+              <div class="field"><input type="email" placeholder="Your Email"></div>
+              <div class="form__button">
+                <a href="#" class="link">
+                  <span>Subscribe</span>
+                  <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      <div class="block-footer__logotype">POD</div>
+      <div class="copyright-content">
+        <span>© 2024 POD Coffee &amp; Eatery. All rights reserved.</span>
+        <div class="terms"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+    const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+    (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
+
+    /* header */
+    const toggle = document.getElementById('menuToggle');
+    const menu   = document.getElementById('headerMenu');
+    toggle.addEventListener('click', () => {
+      const open = menu.classList.toggle('is-open');
+      toggle.classList.toggle('is-open', open);
+      menu.setAttribute('aria-hidden', String(!open));
+      open ? lenis.stop() : lenis.start();
+    });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      menu.classList.remove('is-open'); toggle.classList.remove('is-open');
+      menu.setAttribute('aria-hidden', 'true'); lenis.start();
+    }));
+
+    /* parallax */
+    if (!window.matchMedia('(pointer:coarse)').matches) {
+      const pairs = [
+        [document.getElementById('heroImg'), '.sp-hero'],
+      ];
+      lenis.on('scroll', () => {
+        pairs.forEach(([img, sel]) => {
+          if (!img) return;
+          const sec = img.closest(sel); if (!sec) return;
+          const r = sec.getBoundingClientRect();
+          const p = (window.innerHeight - r.top) / (window.innerHeight + r.height);
+          img.style.transform = 'translateY(' + ((p - .5) * 80) + 'px)';
+        });
+      });
+    }
+
+    /* scroll reveal */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-reveal]').forEach(el => obs.observe(el));
+  </script>
+
+  <script>
+  (async function applySpaceContent() {
+    try {
+      const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      const db = firebase.firestore();
+      const doc = await db.collection('siteConfig').doc('space').get();
+      if (!doc.exists) return;
+      const d = doc.data();
+
+      /* Hero */
+      if (d.title) {
+        const el = document.querySelector('.sp-hero__title');
+        if (el) el.innerHTML = d.title.replace(/\s+/, '<br>');
+      }
+      if (d.subtitle) {
+        const el = document.querySelector('.sp-hero__eyebrow');
+        if (el) el.textContent = d.subtitle;
+      }
+      if (d.heroMedia) setSpMedia('.sp-hero__bg', d.heroMedia, true);
+
+      /* Intro text */
+      if (d.introText) {
+        const el = document.querySelector('.sp-intro__body');
+        if (el) el.textContent = d.introText;
+      }
+
+      /* Pull quote */
+      if (d.quote) {
+        const el = document.querySelector('.sp-quote__text');
+        if (el) el.textContent = d.quote;
+      }
+
+      /* 2×2 grid cells */
+      const cells = document.querySelectorAll('.sp-grid__cell');
+      if (d.img1 && cells[0]) setSpMedia(cells[0], d.img1, false, true);
+      if (d.img2 && cells[1]) {
+        /* Replace gif-bg + overlay img with real image/gif */
+        const gifBg = cells[1].querySelector('.gif-bg');
+        const gifImg = cells[1].querySelector('img');
+        if (gifBg) gifBg.style.display = 'none';
+        if (gifImg) gifImg.src = d.img2;
+      }
+      if (d.img3 && cells[2]) {
+        const img = cells[2].querySelector('img');
+        const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(d.img3);
+        if (isVideo) {
+          const vid = document.createElement('video');
+          vid.src = d.img3; vid.autoplay = true; vid.muted = true;
+          vid.loop = true; vid.playsInline = true;
+          vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+          if (img) img.replaceWith(vid); else cells[2].prepend(vid);
+        } else if (img) { img.src = d.img3; }
+      }
+      if (d.img4 && cells[3]) {
+        const img = cells[3].querySelector('img');
+        if (img) img.src = d.img4;
+      }
+
+      /* Panoramic */
+      if (d.panorama) {
+        const el = document.querySelector('.sp-full img');
+        if (el) el.src = d.panorama;
+      }
+
+      /* Footer */
+      const footerSnap = await db.collection('siteConfig').doc('footer').get();
+      if (footerSnap.exists) {
+        const f = footerSnap.data();
+        if (f.desc) {
+          const el = document.querySelector('.block-footer__description p');
+          if (el) el.textContent = f.desc;
+        }
+        if (f.image) {
+          const fig = document.querySelector('.block-footer__figure');
+          if (fig) {
+            const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(f.image);
+            fig.innerHTML = isVideo
+              ? `<video src="${f.image}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`
+              : `<img src="${f.image}" alt="">`;
+          }
+        }
+        if (f.logotype) {
+          const el = document.querySelector('.block-footer__logotype');
+          if (el) el.textContent = f.logotype;
+        }
+        if (f.copyright) {
+          const el = document.querySelector('.copyright-content span');
+          if (el) el.textContent = f.copyright;
+        }
+        if (f.newsletterTitle) {
+          const el = document.querySelector('.block-footer__form .block-footer__eyebrow');
+          if (el) el.textContent = f.newsletterTitle;
+        }
+      }
+
+    } catch(e) {
+      console.warn('[POD Space] Firestore içerik yüklenemedi:', e.message);
+    }
+  })();
+
+  function setSpMedia(selectorOrEl, url, parallax, direct) {
+    const container = typeof selectorOrEl === 'string' ? document.querySelector(selectorOrEl) : selectorOrEl;
+    if (!container) return;
+    const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
+    const img = container.querySelector('img');
+    if (isVideo) {
+      const vid = document.createElement('video');
+      vid.src = url; vid.autoplay = true; vid.muted = true;
+      vid.loop = true; vid.playsInline = true;
+      const base = img ? img : null;
+      const style = parallax
+        ? 'position:absolute;inset:-5% 0;width:100%;height:110%;object-fit:cover;opacity:.65'
+        : 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+      vid.style.cssText = style;
+      if (base) base.replaceWith(vid); else container.prepend(vid);
+    } else if (img) {
+      img.src = url;
+    }
+  }
+  </script>
+</body>
+</html>

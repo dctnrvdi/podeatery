@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POD Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS ── */
+    :root {
+      --fp: 'Josefin Sans', sans-serif;
+      --fs: 'Jost', sans-serif;
+      --accent: #c8a96e;
+      --accent-light: #f5ead8;
+      --danger: #c2644f;
+      --danger-light: #fdf0ed;
+      --success: #779580;
+      --success-light: #edf4f0;
+      --sidebar-bg: #111210;
+      --sidebar-w: 15em;
+      --bg: #f6f5f2;
+      --white: #ffffff;
+      --border: #e8e6e2;
+      --text: #1a1a1a;
+      --muted: #888;
+      --muted2: #bbb;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; color: inherit; }
+    button, input, select, textarea { font-family: inherit; }
+    button { cursor: pointer; }
+
+    body { font-family: var(--fs); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ─── SETUP / LOGIN SCREENS ── */
+    .fullscreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sidebar-bg);
+      padding: 2em;
+    }
+    .auth-box {
+      background: var(--white);
+      border-radius: 0.75em;
+      padding: 3em 2.5em;
+      width: 100%;
+      max-width: 26em;
+    }
+    .auth-box__logo {
+      font-family: var(--fp);
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.25em;
+    }
+    .auth-box__sub {
+      font-size: 0.8125em;
+      color: var(--muted);
+      margin-bottom: 2em;
+    }
+    .auth-box h2 { font-family: var(--fp); font-size: 1.25em; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.5em; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4em; margin-bottom: 1em; }
+    .form-group label { font-family: var(--fp); font-size: 0.625em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .form-group input, .form-group select, .form-group textarea {
+      border: 1px solid var(--border);
+      border-radius: 0.4em;
+      padding: 0.75em 0.875em;
+      font-size: 0.9375em;
+      color: var(--text);
+      background: var(--white);
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 4em; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      font-family: var(--fp);
+      font-size: 0.75em;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85em 1.5em;
+      border-radius: 0.4em;
+      border: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--text); color: var(--white); }
+    .btn-accent { background: var(--accent); color: var(--white); }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg); }
+    .btn-sm { font-size: 0.6875em; padding: 0.6em 1em; }
+    .btn-icon { padding: 0.55em; border-radius: 0.35em; }
+    .btn-full { width: 100%; }
+    .btn-success { background: var(--success); color: var(--white); }
+    .auth-error { font-size: 0.8125em; color: var(--danger); margin-top: 0.75em; display: none; }
+    .auth-error.show { display: block; }
+    .setup-note { font-size: 0.75em; color: var(--muted); margin-top: 1.5em; line-height: 1.6; }
+    .setup-note a { color: var(--accent); }
+    .setup-steps { margin-top: 1em; padding-left: 1.2em; }
+    .setup-steps li { margin-bottom: 0.4em; }
+
+    /* ─── ADMIN APP LAYOUT ── */
+    #adminApp { display: none; min-height: 100vh; }
+    .admin-layout { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .sidebar__brand {
+      padding: 1.75em 1.5em 1.5em;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar__logo { font-family: var(--fp); font-size: 1.25em; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #fff; }
+    .sidebar__label { font-family: var(--fp); font-size: 0.5625em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 0.2em; }
+    .sidebar__nav { flex: 1; padding: 1em 0.75em; display: flex; flex-direction: column; gap: 0.2em; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75em;
+      padding: 0.75em 0.875em;
+      border-radius: 0.4em;
+      font-family: var(--fp);
+      font-size: 0.75em;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item svg { width: 1.1em; height: 1.1em; flex-shrink: 0; opacity: 0.7; }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .nav-item.active { background: rgba(200,169,110,0.15); color: var(--accent); }
+    .nav-item.active svg { opacity: 1; }
+    .sidebar__section-label {
+      font-family: var(--fp);
+      font-size: 0.5em;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      padding: 1em 0.875em 0.4em;
+    }
+    .sidebar__footer { padding: 1em 0.75em; border-top: 1px solid rgba(255,255,255,0.07); }
+    .sidebar__user { font-size: 0.75em; color: rgba(255,255,255,0.4); padding: 0.5em 0.875em; margin-bottom: 0.5em; }
+
+    /* Main content */
+    .admin-main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2em;
+      height: 3.5em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .admin-topbar__title { font-family: var(--fp); font-size: 0.8125em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .admin-topbar__actions { display: flex; align-items: center; gap: 0.75em; }
+
+    /* Sections */
+    .section { display: none; padding: 2em; }
+    .section.active { display: block; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2em; gap: 1em; }
+    .section-header h2 { font-family: var(--fp); font-size: 1.5em; font-weight: 300; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 0.625em;
+      overflow: hidden;
+      margin-bottom: 1em;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1em 1.25em;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      gap: 1em;
+    }
+    .card-header__left { display: flex; align-items: center; gap: 0.75em; flex: 1; min-width: 0; }
+    .card-header__title { font-family: var(--fp); font-size: 0.875em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .card-header__badge {
+      font-family: var(--fp);
+      font-size: 0.5625em;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35em 0.7em;
+      border-radius: 2em;
+      background: var(--accent-light);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .card-header__actions { display: flex; align-items: center; gap: 0.5em; flex-shrink: 0; }
+    .card-body { padding: 0; }
+
+    /* Item rows */
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      padding: 0.875em 1.25em;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row:hover { background: var(--bg); }
+    .item-row__info { flex: 1; min-width: 0; }
+    .item-row__name { font-size: 0.9375em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-row__desc { font-size: 0.75em; color: var(--muted); margin-top: 0.2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-row__price { font-family: var(--fp); font-size: 0.8125em; font-weight: 500; color: var(--muted); flex-shrink: 0; }
+    .item-row__actions { display: flex; align-items: center; gap: 0.35em; flex-shrink: 0; }
+
+    /* Empty state */
+    .empty-state { padding: 3em 1.25em; text-align: center; }
+    .empty-state p { font-size: 0.875em; color: var(--muted2); }
+
+    /* Add-ons card (special) */
+    .addon-row {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      padding: 0.75em 1.25em;
+      border-bottom: 1px solid var(--border);
+    }
+    .addon-row:last-child { border-bottom: none; }
+    .addon-row__name { flex: 1; font-size: 0.9375em; }
+    .addon-row__note { font-size: 0.75em; color: var(--muted); margin-top: 0.15em; }
+    .addon-row__price { font-family: var(--fp); font-size: 0.8125em; color: var(--muted); }
+
+    /* Contact form */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+    .hours-editor { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+    .hours-row-edit { display: flex; flex-direction: column; gap: 0.3em; }
+    .hours-row-edit label { font-family: var(--fp); font-size: 0.575em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+    /* Settings */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+    .settings-note { font-size: 0.8125em; color: var(--muted); line-height: 1.6; margin-bottom: 1.25em; }
+    .settings-note a { color: var(--accent); }
+    .settings-divider { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
+
+    /* ─── MODAL ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 0.75em;
+      width: 100%;
+      max-width: 32em;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25em 1.5em;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-family: var(--fp); font-size: 0.9375em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .modal-close { background: none; border: none; font-size: 1.25em; color: var(--muted); cursor: pointer; line-height: 1; padding: 0.2em; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 1.5em; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.75em; padding: 1em 1.5em; border-top: 1px solid var(--border); }
+
+    /* ─── TOAST ── */
+    #toastContainer { position: fixed; bottom: 2em; right: 2em; z-index: 999; display: flex; flex-direction: column; gap: 0.75em; }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 0.75em;
+      padding: 0.875em 1.25em;
+      border-radius: 0.5em;
+      background: var(--text);
+      color: #fff;
+      font-size: 0.875em;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      animation: toastIn 0.3s ease;
+      max-width: 22em;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    @keyframes toastIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes toastOut { to { opacity:0; transform: translateY(8px); } }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+
+    /* ─── CONFIRM DIALOG ── */
+    .confirm-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(10,10,10,.5);
+      backdrop-filter: blur(4px);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+    }
+    .confirm-backdrop.show { display: flex; }
+    .confirm-box { background: var(--white); border-radius: .75em; padding: 2em; max-width: 22em; width: 100%; }
+    .confirm-box h4 { font-family: var(--fp); font-size: .9375em; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .5em; }
+    .confirm-box p { font-size: .875em; color: var(--muted); margin-bottom: 1.5em; line-height: 1.5; }
+    .confirm-box__actions { display: flex; justify-content: flex-end; gap: .75em; }
+
+    /* ─── LOADING ── */
+    .spinner { display: inline-block; width: 1em; height: 1em; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-overlay { text-align: center; padding: 4em 2em; color: var(--muted2); }
+    .loading-overlay .spinner { border-color: var(--border); border-top-color: var(--muted); width: 2em; height: 2em; }
+
+    /* Dashboard */
+    .dash-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1em; margin-bottom: 2em; }
+    .dash-card { background: var(--white); border: 1px solid var(--border); border-radius: .625em; padding: 1.5em; }
+    .dash-card__label { font-family: var(--fp); font-size: .6em; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .5em; }
+    .dash-card__value { font-family: var(--fp); font-size: 2.5em; font-weight: 300; letter-spacing: .02em; }
+    .dash-card__sub { font-size: .75em; color: var(--muted); margin-top: .25em; }
+
+    /* Seed notice */
+    .seed-notice { background: var(--accent-light); border: 1px solid var(--accent); border-radius: .5em; padding: 1em 1.25em; margin-bottom: 1.5em; display: flex; align-items: center; justify-content: space-between; gap: 1em; }
+    .seed-notice p { font-size: .875em; color: #7a5a2a; flex: 1; }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { display: none; }
+      .admin-main { margin-left: 0; }
+      .contact-grid, .settings-grid, .hours-editor { grid-template-columns: 1fr; }
+      .dash-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── SETUP SCREEN ── -->
+<div id="setupScreen" class="fullscreen" style="display:none">
+  <div class="auth-box">
+    <div class="auth-box__logo">POD</div>
+    <div class="auth-box__sub">Admin Panel — Firebase Kurulumu</div>
+    <h2>Firebase Config</h2>
+    <p class="settings-note">
+      Firebase projenizin ayarlarından aşağıdaki bilgileri girin.<br>
+      <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Proje Ayarları → Genel → Web Uygulaması
+    </p>
+    <div class="form-group"><label>API Key</label><input id="s-apiKey" placeholder="AIza..."></div>
+    <div class="form-group"><label>Auth Domain</label><input id="s-authDomain" placeholder="proje.firebaseapp.com"></div>
+    <div class="form-group"><label>Project ID</label><input id="s-projectId" placeholder="proje-id"></div>
+    <div class="form-group"><label>Storage Bucket</label><input id="s-storageBucket" placeholder="proje.appspot.com"></div>
+    <div class="form-group"><label>Messaging Sender ID</label><input id="s-messagingSenderId" placeholder="123456789"></div>
+    <div class="form-group"><label>App ID</label><input id="s-appId" placeholder="1:123:web:abc..."></div>
+    <button class="btn btn-primary btn-full" onclick="saveSetup()" style="margin-top:.5em">Bağlan &amp; Devam Et</button>
+    <div id="setupError" class="auth-error"></div>
+    <p class="setup-note">
+      Henüz Firebase projeniz yoksa:
+      <ol class="setup-steps">
+        <li>Firebase Console'da yeni proje oluşturun</li>
+        <li>Firestore Database'i etkinleştirin (Test Mode)</li>
+        <li>Authentication → Email/Password etkinleştirin</li>
+        <li>Users sekmesinden admin hesabı ekleyin</li>
+      </ol>
+    </p>
+  </div>
+</div>
+
+<!-- ─── LOGIN SCREEN ── -->
+<div id="loginScreen" class="fullscreen" style="display:none">
+  <div class="auth-box">
+    <div class="auth-box__logo">POD</div>
+    <div class="auth-box__sub">Admin Panel</div>
+    <h2>Giriş Yap</h2>
+    <div class="form-group"><label>E-Posta</label><input id="loginEmail" type="email" placeholder="admin@podcoffee.com"></div>
+    <div class="form-group"><label>Şifre</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
+    <button class="btn btn-primary btn-full" id="loginBtn" onclick="doLogin()" style="margin-top:.5em">Giriş Yap</button>
+    <div id="loginError" class="auth-error"></div>
+    <p style="font-size:.75em;color:var(--muted);margin-top:1.5em;text-align:center;cursor:pointer" onclick="showSetup()">⚙ Firebase ayarlarını değiştir</p>
+  </div>
+</div>
+
+<!-- ─── ADMIN APP ── -->
+<div id="adminApp">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo">POD</div>
+        <div class="sidebar__label">Admin Panel</div>
+      </div>
+      <nav class="sidebar__nav">
+        <span class="sidebar__section-label">Genel</span>
+        <button class="nav-item active" data-section="dashboard" onclick="showSection(this,'dashboard')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11l8-9 8 9v7a1 1 0 01-1 1h-4v-5H7v5H3a1 1 0 01-1-1v-7z"/></svg>
+          Dashboard
+        </button>
+        <span class="sidebar__section-label">Menü</span>
+        <button class="nav-item" data-section="food" onclick="showSection(this,'food')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          Yiyecek Menüsü
+        </button>
+        <button class="nav-item" data-section="drinks" onclick="showSection(this,'drinks')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h8V3a1 1 0 112 0v1h1a1 1 0 011 1v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 011-1zm11 4H4v9h12V6z" clip-rule="evenodd"/></svg>
+          İçecek Menüsü
+        </button>
+        <span class="sidebar__section-label">Site</span>
+        <button class="nav-item" data-section="contact" onclick="showSection(this,'contact')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+          İletişim &amp; Saatler
+        </button>
+        <button class="nav-item" data-section="footer" onclick="showSection(this,'footer')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0-4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0-4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Footer
+        </button>
+        <button class="nav-item" data-section="brand" onclick="showSection(this,'brand')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+          Marka &amp; Görsel
+        </button>
+        <button class="nav-item" data-section="homepage" onclick="showSection(this,'homepage')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+          Ana Sayfa
+        </button>
+        <button class="nav-item" data-section="spacepage" onclick="showSection(this,'spacepage')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Mekan Sayfası
+        </button>
+        <button class="nav-item" data-section="settings" onclick="showSection(this,'settings')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Ayarlar
+        </button>
+      </nav>
+      <div class="sidebar__footer">
+        <div class="sidebar__user" id="sidebarUser"></div>
+        <button class="nav-item" onclick="doLogout()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h7a1 1 0 000-2H4V5h6a1 1 0 000-2H3zm11.293 4.293a1 1 0 011.414 1.414L14.414 10l1.293 1.293a1 1 0 01-1.414 1.414l-2-2a1 1 0 010-1.414l2-2a1 1 0 011.414 0z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M12 10a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <span class="admin-topbar__title" id="topbarTitle">Dashboard</span>
+        <div class="admin-topbar__actions">
+          <a href="pod.html" target="_blank" class="btn btn-ghost btn-sm">↗ Siteyi Gör</a>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="section active" id="section-dashboard">
+        <div class="section-header"><h2>Dashboard</h2></div>
+        <div class="dash-grid">
+          <div class="dash-card"><div class="dash-card__label">Yiyecek Ürünü</div><div class="dash-card__value" id="dash-food-count">—</div><div class="dash-card__sub">aktif ürün</div></div>
+          <div class="dash-card"><div class="dash-card__label">İçecek Ürünü</div><div class="dash-card__value" id="dash-drink-count">—</div><div class="dash-card__sub">aktif ürün</div></div>
+          <div class="dash-card"><div class="dash-card__label">Kategori</div><div class="dash-card__value" id="dash-cat-count">—</div><div class="dash-card__sub">toplam kategori</div></div>
+        </div>
+        <div id="seedNotice" class="seed-notice" style="display:none">
+          <p>Firestore henüz boş görünüyor. Mevcut menü verisini otomatik ekleyelim mi?</p>
+          <button class="btn btn-accent btn-sm" onclick="seedData()">Veriyi Yükle</button>
+        </div>
+        <div class="seed-notice" style="margin-top:1em;background:rgba(200,169,110,.08);border-color:rgba(200,169,110,.3)">
+          <p style="color:rgba(255,255,255,.7)">Menü verisi güncellendi mi? Firestore'u sıfırlayıp yeni tam menüyü yükle.</p>
+          <button class="btn btn-accent btn-sm" onclick="resetAndSeed()">Menüyü Güncelle</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hızlı Erişim</span></div></div>
+          <div class="card-body">
+            <div class="item-row" style="cursor:pointer" onclick="showSection(document.querySelector('[data-section=food]'),'food')">
+              <div class="item-row__info"><div class="item-row__name">Yiyecek Menüsü</div><div class="item-row__desc">Kategori ve ürün yönetimi</div></div>
+              <span style="color:var(--muted2)">→</span>
+            </div>
+            <div class="item-row" style="cursor:pointer" onclick="showSection(document.querySelector('[data-section=drinks]'),'drinks')">
+              <div class="item-row__info"><div class="item-row__name">İçecek Menüsü</div><div class="item-row__desc">Smoothie ve protein bar</div></div>
+              <span style="color:var(--muted2)">→</span>
+            </div>
+            <div class="item-row" style="cursor:pointer" onclick="showSection(document.querySelector('[data-section=contact]'),'contact')">
+              <div class="item-row__info"><div class="item-row__name">İletişim &amp; Saatler</div><div class="item-row__desc">Telefon, adres, çalışma saatleri</div></div>
+              <span style="color:var(--muted2)">→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOD MENU -->
+      <div class="section" id="section-food">
+        <div class="section-header">
+          <h2>Yiyecek Menüsü</h2>
+          <button class="btn btn-primary btn-sm" onclick="openCatModal('yiyecek')">+ Kategori Ekle</button>
+        </div>
+        <div id="foodList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- DRINKS MENU -->
+      <div class="section" id="section-drinks">
+        <div class="section-header">
+          <h2>İçecek Menüsü</h2>
+          <button class="btn btn-primary btn-sm" onclick="openCatModal('icecek')">+ Kategori Ekle</button>
+        </div>
+        <!-- Add-ons -->
+        <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header">
+            <div class="card-header__left">
+              <span class="card-header__title">İsteğe Göre Ekle</span>
+              <span class="card-header__badge">Ek Ürünler</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="openAddonModal()">+ Ekle</button>
+          </div>
+          <div class="card-body" id="addonList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+        </div>
+        <div id="drinkList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="section" id="section-contact">
+        <div class="section-header">
+          <h2>İletişim &amp; Saatler</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveContact()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">İletişim Bilgileri</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Telefon</label><input id="c-phone" placeholder="+90 212 123 45 67"></div>
+              <div class="form-group"><label>E-Posta</label><input id="c-email" placeholder="hello@podcoffee.com"></div>
+              <div class="form-group"><label>Adres</label><input id="c-address" placeholder="Karaköy, Istanbul"></div>
+              <div class="form-group"><label>Instagram</label><input id="c-instagram" placeholder="@podeatery"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Çalışma Saatleri</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="hours-editor">
+              <div class="hours-row-edit"><label>Pazartesi</label><input id="h-mon" placeholder="08:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Salı</label><input id="h-tue" placeholder="08:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Çarşamba</label><input id="h-wed" placeholder="08:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Perşembe</label><input id="h-thu" placeholder="08:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Cuma</label><input id="h-fri" placeholder="08:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Cumartesi</label><input id="h-sat" placeholder="09:00 – 21:00"></div>
+              <div class="hours-row-edit"><label>Pazar</label><input id="h-sun" placeholder="09:00 – 21:00"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="section" id="section-footer">
+        <div class="section-header">
+          <h2>Footer</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveFooter()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Footer Görseli &amp; Açıklama</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Footer Fotoğraf (URL veya yükle)</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="ft-image" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'ft-image','footer/image')">
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Footer Açıklama Metni</label>
+              <textarea id="ft-desc" placeholder="Istanbul's favourite coffee corner…"></textarea>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>"Rezervasyon" Buton Yazısı</label><input id="ft-reserveText" placeholder="Reserve a Table"></div>
+              <div class="form-group"><label>Rezervasyon Link URL</label><input id="ft-reserveUrl" placeholder="#reserve veya https://..."></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Sosyal Medya &amp; Bağlantılar</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Instagram Profil URL</label><input id="ft-instagram" placeholder="https://www.instagram.com/podeatery"></div>
+              <div class="form-group"><label>E-Posta Adresi</label><input id="ft-email" placeholder="hello@podcoffee.com"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bülten (Newsletter) Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Bülten Başlığı</label><input id="ft-newsletterTitle" placeholder="Stay in the Loop"></div>
+              <div class="form-group"><label>Abone Butonu Yazısı</label><input id="ft-subscribeText" placeholder="Subscribe"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Copyright Alanı</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Logo Yazısı (sol alt)</label><input id="ft-logotype" placeholder="POD"></div>
+              <div class="form-group"><label>Telif Hakkı Metni</label><input id="ft-copyright" placeholder="© 2024 POD Coffee &amp; Eatery. All rights reserved."></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRAND -->
+      <div class="section" id="section-brand">
+        <div class="section-header">
+          <h2>Marka &amp; Görsel</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveBrand()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Site Kimliği</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Site Adı / Logo Yazısı</label><input id="b-siteName" placeholder="POD"></div>
+              <div class="form-group"><label>Slogan</label><input id="b-slogan" placeholder="Coffee & Eatery · Istanbul"></div>
+            </div>
+            <div class="form-group" style="margin-top:.5em">
+              <label>Logo Görseli (URL veya yükle)</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="b-logoUrl" placeholder="https://... veya boş bırak (metin logo kullanılır)" style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'b-logoUrl','brand/logo')">
+                </label>
+              </div>
+              <div id="b-logoPreview" style="margin-top:.75em;display:none"><img style="max-height:3em;border-radius:.3em"></div>
+            </div>
+            <div class="form-group">
+              <label>Favicon (URL veya yükle — 32×32 önerilir)</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="b-faviconUrl" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'b-faviconUrl','brand/favicon')">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Footer Görseli &amp; Metin</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Footer Açıklama Metni</label>
+              <textarea id="b-footerDesc" placeholder="Istanbul'un sevilen kahve köşesi…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Footer Fotoğraf (URL veya yükle)</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="b-footerImageUrl" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'b-footerImageUrl','brand/footer')">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Sosyal Medya</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Instagram Kullanıcı Adı</label><input id="b-instagram" placeholder="@podeatery"></div>
+              <div class="form-group"><label>E-Posta</label><input id="b-email" placeholder="hello@podcoffee.com"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOMEPAGE EDITOR -->
+      <div class="section" id="section-homepage">
+        <div class="section-header">
+          <h2>Ana Sayfa</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveHomepage()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hero Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Küçük Üst Yazı (eyebrow)</label><input id="hp-eyebrow" placeholder="Istanbul · 2019"></div>
+            <div class="form-group"><label>Ana Başlık (satır 1)</label><input id="hp-title1" placeholder="A Place"></div>
+            <div class="form-group"><label>Ana Başlık (satır 2)</label><input id="hp-title2" placeholder="To Belong"></div>
+            <div class="form-group">
+              <label>Hero Görseli / Videosu</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-heroMedia" placeholder="https://... (jpg, mp4, webm, gif, mov)" style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-heroMedia','homepage/hero')">
+                </label>
+              </div>
+              <p style="font-size:.7em;color:var(--muted);margin-top:.4em">mp4, webm, mov → otomatik video oynatıcı olarak gösterilir</p>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Story Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Üst Etiket</label><input id="hp-storyLabel" placeholder="Our Story"></div>
+            <div class="form-group"><label>Ana Metin</label><textarea id="hp-storyText" placeholder="Biz kimiz, ne yapıyoruz…" style="min-height:6em"></textarea></div>
+            <div class="form-group">
+              <label>Story Görseli</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-storyImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-storyImg','homepage/story')">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Menü Bölümü (The Menu)</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Üst Etiket</label><input id="hp-menuLabel" placeholder="The Menu"></div>
+            <div class="form-group"><label>Başlık</label><input id="hp-menuTitle" placeholder="Seasonal Flavours, Daily Crafted"></div>
+            <div class="form-group"><label>Açıklama Metni</label><textarea id="hp-menuText" placeholder="From single-origin pour-overs…"></textarea></div>
+            <div class="form-group">
+              <label>Görsel</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-menuImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-menuImg','homepage/menu')"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Mekan Bölümü (The Space)</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Üst Etiket</label><input id="hp-spaceLabel" placeholder="The Space"></div>
+            <div class="form-group"><label>Başlık</label><input id="hp-spaceTitle" placeholder="A corner of calm in the heart of the city"></div>
+            <div class="form-group"><label>Açıklama Metni</label><textarea id="hp-spaceText" placeholder="Our space was designed with…"></textarea></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Tam Genişlik Görsel</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Görsel / Video (block-full-image)</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-fullImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-fullImg','homepage/full')"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Büyük Metin Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Birinci Cümle</label><input id="hp-bigText1" placeholder="Good coffee."></div>
+            <div class="form-group"><label>İkinci Cümle</label><input id="hp-bigText2" placeholder="Better mornings."></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Our Craft Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Üst Etiket</label><input id="hp-craftLabel" placeholder="Our Craft"></div>
+            <div class="form-group"><label>Başlık</label><input id="hp-craftTitle" placeholder="From Bean to Cup"></div>
+            <div class="form-group"><label>Açıklama Metni</label><textarea id="hp-craftText" placeholder="We source our beans…"></textarea></div>
+            <div class="form-group">
+              <label>Görsel / Video</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-craftImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-craftImg','homepage/craft')"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">En Alt Arka Plan Görseli (Rezervasyon)</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Görsel / Video</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="hp-cardImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'hp-cardImg','homepage/card')"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Slider / Galeri Görselleri</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p style="font-size:.8125em;color:var(--muted);margin-bottom:1em">Her satıra bir görsel URL veya yükle — virgülle ayır ya da alt alta ekle</p>
+            <div id="sliderImagesContainer"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addSliderRow()" style="margin-top:.75em">+ Görsel Ekle</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPACE PAGE EDITOR -->
+      <div class="section" id="section-spacepage">
+        <div class="section-header">
+          <h2>Mekan Sayfası</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveSpacepage()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hero</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Başlık</label><input id="sp-title" placeholder="The Space"></div>
+            <div class="form-group"><label>Alt Başlık</label><input id="sp-subtitle" placeholder="Designed for connection."></div>
+            <div class="form-group">
+              <label>Hero Görseli / Videosu</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="sp-heroMedia" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-heroMedia','space/hero')">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Açıklama</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Kısa Metin (solda)</label><textarea id="sp-introText" placeholder="Mekan hakkında…" style="min-height:5em"></textarea></div>
+            <div class="form-group"><label>Alıntı (Pull Quote)</label><textarea id="sp-quote" placeholder='"A place to slow down."' style="min-height:3em"></textarea></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Galeri Görselleri (2×2 Grid)</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Sol Üst Görsel</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-img1" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*,image/gif" style="display:none" onchange="uploadFile(this,'sp-img1','space/img1')"></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Sağ Üst (GIF / Görsel)</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-img2" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*,image/gif" style="display:none" onchange="uploadFile(this,'sp-img2','space/img2')"></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Sol Alt (Video)</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-img3" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-img3','space/video')"></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Sağ Alt Görsel</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-img4" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-img4','space/img4')"></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Panoramik Görsel (tam genişlik)</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-panorama" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-panorama','space/panorama')"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="section" id="section-settings">
+        <div class="section-header"><h2>Ayarlar</h2></div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Firebase Yapılandırması</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p class="settings-note">Değiştirmek istiyorsanız yeni config bilgilerini girin. Boş bırakılan alanlar mevcut değerini korur.</p>
+            <div class="settings-grid">
+              <div class="form-group"><label>API Key</label><input id="cfg-apiKey" placeholder="Mevcut değeri korumak için boş bırak"></div>
+              <div class="form-group"><label>Auth Domain</label><input id="cfg-authDomain"></div>
+              <div class="form-group"><label>Project ID</label><input id="cfg-projectId"></div>
+              <div class="form-group"><label>Storage Bucket</label><input id="cfg-storageBucket"></div>
+              <div class="form-group"><label>Messaging Sender ID</label><input id="cfg-messagingSenderId"></div>
+              <div class="form-group"><label>App ID</label><input id="cfg-appId"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="updateConfig()">Config Güncelle &amp; Yeniden Başlat</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Cloudinary — Görsel &amp; Video Yükleme</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p class="settings-note">
+              Ücretsiz hesap için <a href="https://cloudinary.com/users/register_free" target="_blank">cloudinary.com</a>'a kayıt olun.<br>
+              Ardından: Dashboard → Settings → Upload → <strong>Add upload preset</strong><br>
+              Preset'i <strong>Unsigned</strong> olarak ayarlayın → Save
+            </p>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Cloud Name</label>
+                <input id="cld-cloudName" placeholder="örn: dxyz1234">
+              </div>
+              <div class="form-group">
+                <label>Upload Preset (Unsigned)</label>
+                <input id="cld-uploadPreset" placeholder="örn: pod_unsigned">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveCldConfig()">Cloudinary Ayarlarını Kaydet</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Veri İşlemleri</span></div></div>
+          <div class="card-body" style="padding:1.25em;display:flex;gap:.75em;flex-wrap:wrap">
+            <button class="btn btn-accent btn-sm" onclick="seedData()">Örnek Veri Yükle</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportData()">Veriyi Dışa Aktar (JSON)</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-main -->
+  </div>
+</div>
+
+<!-- ─── MODAL: Category ── -->
+<div class="modal-backdrop" id="catModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="catModalTitle">Kategori Ekle</h3>
+      <button class="modal-close" onclick="closeModal('catModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="catId">
+      <input type="hidden" id="catTab">
+      <div class="form-group"><label>Kategori Adı</label><input id="catName" placeholder="PANCAKE"></div>
+      <div class="form-group"><label>Sıra</label><input id="catOrder" type="number" placeholder="1" min="1"></div>
+      <div class="form-group">
+        <label>Renk Tema</label>
+        <select id="catGradient">
+          <option value="grad-1">Sıcak Turuncu</option>
+          <option value="grad-2">Derin Kahve</option>
+          <option value="grad-3">Açık Krem</option>
+          <option value="grad-4">Orta Tawny</option>
+          <option value="grad-smoothie">Yeşil (Smoothie)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('catModal')">İptal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCat()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Item ── -->
+<div class="modal-backdrop" id="itemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="itemModalTitle">Ürün Ekle</h3>
+      <button class="modal-close" onclick="closeModal('itemModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="itemId">
+      <input type="hidden" id="itemCatId">
+      <div class="form-group"><label>Ürün Adı</label><input id="itemName" placeholder="Klasik"></div>
+      <div class="form-group"><label>Fiyat (₺)</label><input id="itemPrice" type="number" placeholder="420" min="0"></div>
+      <div class="form-group"><label>Açıklama</label><textarea id="itemDesc" placeholder="Malzemeler…"></textarea></div>
+      <div class="form-group">
+        <label>Görsel (hover/tap'te gösterilir)</label>
+        <div style="display:flex;gap:.5em;align-items:center">
+          <input id="itemImageUrl" placeholder="URL yapıştır veya dosya yükle" style="flex:1">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">
+            Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'itemImageUrl','menu/items')">
+          </label>
+        </div>
+        <div id="itemImgPreview" style="margin-top:.6em;display:none">
+          <img style="max-height:5em;border-radius:.35em;object-fit:cover">
+        </div>
+      </div>
+      <div class="form-group"><label>Sıra</label><input id="itemOrder" type="number" placeholder="1" min="1"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('itemModal')">İptal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveItem()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Addon ── -->
+<div class="modal-backdrop" id="addonModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="addonModalTitle">Ek Ürün Ekle</h3>
+      <button class="modal-close" onclick="closeModal('addonModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="addonId">
+      <div class="form-group"><label>Ürün Adı</label><input id="addonName" placeholder="Whey Protein Tozu"></div>
+      <div class="form-group"><label>Fiyat (₺)</label><input id="addonPrice" type="number" placeholder="120" min="0"></div>
+      <div class="form-group"><label>Not (opsiyonel)</label><input id="addonNote" placeholder="23 gr protein içerir"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('addonModal')">İptal</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAddon()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONFIRM ── -->
+<div class="confirm-backdrop" id="confirmBackdrop">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">Emin misiniz?</h4>
+    <p id="confirmMsg">Bu işlem geri alınamaz.</p>
+    <div class="confirm-box__actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">İptal</button>
+      <button class="btn btn-danger btn-sm" id="confirmOkBtn">Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOASTS ── -->
+<div id="toastContainer"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ════════════════════════════════════════
+   CONFIG & INIT
+════════════════════════════════════════ */
+let db, auth;
+
+function getConfig() {
+  return { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+}
+function saveConfigLS(cfg) {
+  localStorage.setItem('pod_fb_config', JSON.stringify(cfg));
+}
+
+function initFirebase(cfg) {
+  if (firebase.apps.length) {
+    firebase.app().delete().then(() => bootstrapFirebase(cfg));
+  } else {
+    bootstrapFirebase(cfg);
+  }
+}
+
+function bootstrapFirebase(cfg) {
+  try {
+    firebase.initializeApp(cfg);
+    db   = firebase.firestore();
+    auth = firebase.auth();
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminApp').style.display = 'block';
+        document.getElementById('sidebarUser').textContent = user.email;
+        loadAll();
+      } else {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('adminApp').style.display = 'none';
+      }
+    });
+  } catch(e) {
+    showToast('Firebase başlatılamadı: ' + e.message, 'error');
+  }
+}
+
+function showSetup() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+}
+
+function saveSetup() {
+  const cfg = {
+    apiKey:            document.getElementById('s-apiKey').value.trim(),
+    authDomain:        document.getElementById('s-authDomain').value.trim(),
+    projectId:         document.getElementById('s-projectId').value.trim(),
+    storageBucket:     document.getElementById('s-storageBucket').value.trim(),
+    messagingSenderId: document.getElementById('s-messagingSenderId').value.trim(),
+    appId:             document.getElementById('s-appId').value.trim(),
+  };
+  if (!cfg.apiKey || !cfg.projectId) {
+    document.getElementById('setupError').textContent = 'API Key ve Project ID zorunludur.';
+    document.getElementById('setupError').classList.add('show');
+    return;
+  }
+  saveConfigLS(cfg);
+  document.getElementById('setupScreen').style.display = 'none';
+  initFirebase(cfg);
+}
+
+function saveCldConfig() {
+  const name   = document.getElementById('cld-cloudName').value.trim();
+  const preset = document.getElementById('cld-uploadPreset').value.trim();
+  if (!name || !preset) return showToast('Cloud Name ve Preset gerekli', 'error');
+  localStorage.setItem('cld_cloud_name', name);
+  localStorage.setItem('cld_upload_preset', preset);
+  showToast('Cloudinary ayarları kaydedildi', 'success');
+}
+
+function loadCldConfig() {
+  const el1 = document.getElementById('cld-cloudName');
+  const el2 = document.getElementById('cld-uploadPreset');
+  if (el1) el1.value = localStorage.getItem('cld_cloud_name') || '';
+  if (el2) el2.value = localStorage.getItem('cld_upload_preset') || '';
+}
+
+function updateConfig() {
+  const old = getConfig() || {};
+  const n = id => document.getElementById(id).value.trim();
+  const cfg = {
+    apiKey:            n('cfg-apiKey')           || old.apiKey,
+    authDomain:        n('cfg-authDomain')        || old.authDomain,
+    projectId:         n('cfg-projectId')         || old.projectId,
+    storageBucket:     n('cfg-storageBucket')     || old.storageBucket,
+    messagingSenderId: n('cfg-messagingSenderId') || old.messagingSenderId,
+    appId:             n('cfg-appId')             || old.appId,
+  };
+  saveConfigLS(cfg);
+  showToast('Config güncellendi, sayfa yenileniyor…', 'success');
+  setTimeout(() => location.reload(), 1200);
+}
+
+// Boot
+window.addEventListener('DOMContentLoaded', () => {
+  const cfg = getConfig();
+  if (!cfg) {
+    document.getElementById('setupScreen').style.display = 'flex';
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    initFirebase(cfg);
+  }
+});
+
+/* ════════════════════════════════════════
+   AUTH
+════════════════════════════════════════ */
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const btn   = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  errEl.classList.remove('show');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    const msgs = { 'auth/wrong-password':'Şifre hatalı.', 'auth/user-not-found':'Kullanıcı bulunamadı.', 'auth/invalid-email':'Geçersiz e-posta.', 'auth/too-many-requests':'Çok fazla deneme. Lütfen bekleyin.' };
+    errEl.textContent = msgs[e.code] || e.message;
+    errEl.classList.add('show');
+    btn.innerHTML = 'Giriş Yap';
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display === 'flex') doLogin();
+});
+
+function doLogout() {
+  auth.signOut();
+}
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+const topbarTitles = { dashboard:'Dashboard', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', homepage:'Ana Sayfa', spacepage:'Mekan Sayfası', settings:'Ayarlar' };
+
+function showSection(btn, id) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('section-' + id).classList.add('active');
+  document.getElementById('topbarTitle').textContent = topbarTitles[id] || id;
+}
+
+/* ════════════════════════════════════════
+   LOAD ALL DATA
+════════════════════════════════════════ */
+async function loadAll() {
+  loadCldConfig();
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadSpacepage(), loadDashboard()]);
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+async function loadDashboard() {
+  const [cats, items] = await Promise.all([
+    db.collection('menuCategories').get(),
+    db.collection('menuItems').get()
+  ]);
+  const foodCats  = cats.docs.filter(d => d.data().tab === 'yiyecek');
+  const drinkCats = cats.docs.filter(d => d.data().tab === 'icecek');
+  const foodItems  = items.docs.filter(d => { const c = cats.docs.find(x=>x.id===d.data().categoryId); return c && c.data().tab==='yiyecek'; });
+  const drinkItems = items.docs.filter(d => { const c = cats.docs.find(x=>x.id===d.data().categoryId); return c && c.data().tab==='icecek'; });
+  document.getElementById('dash-food-count').textContent  = foodItems.length;
+  document.getElementById('dash-drink-count').textContent = drinkItems.length;
+  document.getElementById('dash-cat-count').textContent   = cats.size;
+  document.getElementById('seedNotice').style.display = cats.size === 0 ? 'flex' : 'none';
+}
+
+/* ════════════════════════════════════════
+   FOOD MENU
+════════════════════════════════════════ */
+async function loadFoodMenu() {
+  const container = document.getElementById('foodList');
+  const [catSnap, itemSnap] = await Promise.all([
+    db.collection('menuCategories').get(),
+    db.collection('menuItems').get()
+  ]);
+  const filtered = { docs: catSnap.docs.filter(d => d.data().tab === 'yiyecek').sort((a,b) => (a.data().order||0)-(b.data().order||0)), empty: false };
+  filtered.empty = filtered.docs.length === 0;
+  renderCategoryList(container, filtered, itemSnap, 'yiyecek');
+}
+
+async function loadDrinkMenu() {
+  const container = document.getElementById('drinkList');
+  const [catSnap, itemSnap] = await Promise.all([
+    db.collection('menuCategories').get(),
+    db.collection('menuItems').get()
+  ]);
+  const filtered = { docs: catSnap.docs.filter(d => d.data().tab === 'icecek').sort((a,b) => (a.data().order||0)-(b.data().order||0)), empty: false };
+  filtered.empty = filtered.docs.length === 0;
+  renderCategoryList(container, filtered, itemSnap, 'icecek');
+}
+
+function renderCategoryList(container, catSnap, itemSnap, tab) {
+  const catDocs = catSnap.docs || [];
+  if (catDocs.length === 0) {
+    container.innerHTML = '<div class="empty-state"><p>Henüz kategori eklenmemiş.</p></div>';
+    return;
+  }
+  container.innerHTML = '';
+  catDocs.forEach(catDoc => {
+    const cat   = catDoc.data();
+    const items = itemSnap.docs.filter(d => d.data().categoryId === catDoc.id)
+                              .sort((a,b) => (a.data().order||0)-(b.data().order||0));
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-header__left">
+          <span class="card-header__title">${escHtml(cat.name)}</span>
+          <span class="card-header__badge">${items.length} ürün</span>
+        </div>
+        <div class="card-header__actions">
+          <button class="btn btn-ghost btn-sm" onclick="openItemModal(null,'${catDoc.id}')">+ Ürün</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick="openCatModal('${tab}','${catDoc.id}','${escHtml(cat.name)}',${cat.order},'${cat.gradient||'grad-1'}')">✎</button>
+          <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick="confirmDelete('Kategori silinsin mi?','${escHtml(cat.name)} ve tüm ürünleri silinecek.',()=>deleteCat('${catDoc.id}'))">×</button>
+        </div>
+      </div>
+      <div class="card-body" id="items-${catDoc.id}">
+        ${items.length === 0 ? '<div class="empty-state"><p>Ürün eklenmemiş.</p></div>' : items.map(itemDoc => renderItemRow(itemDoc)).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderItemRow(doc) {
+  const d = doc.data();
+  const hasImg = !!d.imageUrl;
+  return `
+    <div class="item-row">
+      ${hasImg ? `<img src="${escHtml(d.imageUrl)}" style="width:2.5em;height:2.5em;border-radius:.3em;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : `<div style="width:2.5em;height:2.5em;border-radius:.3em;background:var(--bg);flex-shrink:0;border:1px dashed var(--border)"></div>`}
+      <div class="item-row__info">
+        <div class="item-row__name">${escHtml(d.name)}</div>
+        ${d.desc ? `<div class="item-row__desc">${escHtml(d.desc)}</div>` : ''}
+      </div>
+      <span class="item-row__price">${d.price ? d.price + ' ₺' : ''}</span>
+      <div class="item-row__actions">
+        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick="openItemModal('${doc.id}','${d.categoryId}','${escHtml(d.name)}',${d.price||0},'${escHtml(d.desc||'')}',${d.order||1},'${escHtml(d.imageUrl||'')}')">✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick="confirmDelete('Ürün silinsin mi?','${escHtml(d.name)} kalıcı olarak silinecek.',()=>deleteItem('${doc.id}'))">×</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Category CRUD ── */
+function openCatModal(tab, id='', name='', order=1, gradient='grad-1') {
+  document.getElementById('catModalTitle').textContent = id ? 'Kategori Düzenle' : 'Kategori Ekle';
+  document.getElementById('catId').value      = id;
+  document.getElementById('catTab').value     = tab;
+  document.getElementById('catName').value    = name;
+  document.getElementById('catOrder').value   = order;
+  document.getElementById('catGradient').value= gradient;
+  openModal('catModal');
+}
+
+async function saveCat() {
+  const id       = document.getElementById('catId').value;
+  const tab      = document.getElementById('catTab').value;
+  const name     = document.getElementById('catName').value.trim().toUpperCase();
+  const order    = parseInt(document.getElementById('catOrder').value) || 1;
+  const gradient = document.getElementById('catGradient').value;
+  if (!name) return showToast('Kategori adı gerekli', 'error');
+  try {
+    if (id) {
+      await db.collection('menuCategories').doc(id).update({ name, order, gradient });
+    } else {
+      await db.collection('menuCategories').add({ name, tab, order, gradient, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    closeModal('catModal');
+    showToast('Kategori kaydedildi', 'success');
+    await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteCat(id) {
+  const itemsSnap = await db.collection('menuItems').where('categoryId','==',id).get();
+  const batch = db.batch();
+  itemsSnap.docs.forEach(d => batch.delete(d.ref));
+  batch.delete(db.collection('menuCategories').doc(id));
+  await batch.commit();
+  showToast('Kategori silindi', 'success');
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
+}
+
+/* ── Item CRUD ── */
+function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='') {
+  document.getElementById('itemModalTitle').textContent = id ? 'Ürün Düzenle' : 'Ürün Ekle';
+  document.getElementById('itemId').value       = id || '';
+  document.getElementById('itemCatId').value    = catId;
+  document.getElementById('itemName').value     = name;
+  document.getElementById('itemPrice').value    = price || '';
+  document.getElementById('itemDesc').value     = desc;
+  document.getElementById('itemOrder').value    = order;
+  document.getElementById('itemImageUrl').value = imageUrl || '';
+  const prev = document.getElementById('itemImgPreview');
+  if (imageUrl) { prev.style.display='block'; prev.querySelector('img').src = imageUrl; }
+  else { prev.style.display='none'; prev.querySelector('img').src=''; }
+  openModal('itemModal');
+}
+document.getElementById('itemImageUrl').addEventListener('input', function() {
+  const prev = document.getElementById('itemImgPreview');
+  if (this.value) { prev.style.display='block'; prev.querySelector('img').src = this.value; }
+  else { prev.style.display='none'; }
+});
+
+async function saveItem() {
+  const id       = document.getElementById('itemId').value;
+  const catId    = document.getElementById('itemCatId').value;
+  const name     = document.getElementById('itemName').value.trim();
+  const price    = parseFloat(document.getElementById('itemPrice').value) || 0;
+  const desc     = document.getElementById('itemDesc').value.trim();
+  const order    = parseInt(document.getElementById('itemOrder').value) || 1;
+  const imageUrl = document.getElementById('itemImageUrl').value.trim();
+  if (!name) return showToast('Ürün adı gerekli', 'error');
+  try {
+    const data = { categoryId: catId, name, price, desc, order, imageUrl };
+    if (id) {
+      await db.collection('menuItems').doc(id).update(data);
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('menuItems').add(data);
+    }
+    closeModal('itemModal');
+    showToast('Ürün kaydedildi', 'success');
+    await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteItem(id) {
+  await db.collection('menuItems').doc(id).delete();
+  showToast('Ürün silindi', 'success');
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
+}
+
+/* ── Addons ── */
+async function loadAddons() {
+  const snap = await db.collection('addons').get();
+  const el = document.getElementById('addonList');
+  if (snap.empty) { el.innerHTML = '<div class="empty-state"><p>Henüz ek ürün eklenmemiş.</p></div>'; return; }
+  el.innerHTML = snap.docs.map(doc => {
+    const d = doc.data();
+    return `<div class="addon-row">
+      <div style="flex:1"><div class="addon-row__name">${escHtml(d.name)}</div>${d.note?`<div class="addon-row__note">${escHtml(d.note)}</div>`:''}</div>
+      <span class="addon-row__price">+${d.price} ₺</span>
+      <div style="display:flex;gap:.35em">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddonModal('${doc.id}','${escHtml(d.name)}',${d.price},'${escHtml(d.note||'')}',${d.order||1})">✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" onclick="confirmDelete('Ek ürün silinsin mi?','${escHtml(d.name)} silinecek.',()=>deleteAddon('${doc.id}'))">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddonModal(id='', name='', price=0, note='', order=1) {
+  document.getElementById('addonModalTitle').textContent = id ? 'Ek Ürün Düzenle' : 'Ek Ürün Ekle';
+  document.getElementById('addonId').value    = id;
+  document.getElementById('addonName').value  = name;
+  document.getElementById('addonPrice').value = price || '';
+  document.getElementById('addonNote').value  = note;
+  openModal('addonModal');
+}
+
+async function saveAddon() {
+  const id    = document.getElementById('addonId').value;
+  const name  = document.getElementById('addonName').value.trim();
+  const price = parseFloat(document.getElementById('addonPrice').value) || 0;
+  const note  = document.getElementById('addonNote').value.trim();
+  if (!name) return showToast('Ad gerekli', 'error');
+  const data = { name, price, note, order: 1 };
+  if (id) await db.collection('addons').doc(id).update(data);
+  else await db.collection('addons').add(data);
+  closeModal('addonModal');
+  showToast('Kaydedildi', 'success');
+  loadAddons();
+}
+
+async function deleteAddon(id) {
+  await db.collection('addons').doc(id).delete();
+  showToast('Silindi', 'success');
+  loadAddons();
+}
+
+/* ════════════════════════════════════════
+   CONTACT
+════════════════════════════════════════ */
+async function loadContact() {
+  const doc = await db.collection('siteConfig').doc('contact').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('c-phone',     d.phone);
+  v('c-email',     d.email);
+  v('c-address',   d.address);
+  v('c-instagram', d.instagram);
+  const h = d.hours || {};
+  v('h-mon', h.mon); v('h-tue', h.tue); v('h-wed', h.wed); v('h-thu', h.thu);
+  v('h-fri', h.fri); v('h-sat', h.sat); v('h-sun', h.sun);
+}
+
+async function saveContact() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  await db.collection('siteConfig').doc('contact').set({
+    phone:     g('c-phone'),
+    email:     g('c-email'),
+    address:   g('c-address'),
+    instagram: g('c-instagram'),
+    hours: {
+      mon: g('h-mon'), tue: g('h-tue'), wed: g('h-wed'),
+      thu: g('h-thu'), fri: g('h-fri'), sat: g('h-sat'), sun: g('h-sun')
+    },
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('İletişim bilgileri kaydedildi', 'success');
+}
+
+/* ════════════════════════════════════════
+   SEED DATA
+════════════════════════════════════════ */
+const FULL_MENU_CATS = [
+  // YIYECEK
+  { id:'yaztostu',      name:'YAZ TOSTU',              tab:'yiyecek', order:1,  gradient:'grad-seasonal', special:true },
+  { id:'pancake',       name:'PANCAKE',                tab:'yiyecek', order:2,  gradient:'grad-1' },
+  { id:'ekmekustu',     name:'EKMEKÜSTÜ',              tab:'yiyecek', order:3,  gradient:'grad-2', subtitle:'ekşi mayalı tam buğday ekmeği üzerine', extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}] },
+  { id:'bagel',         name:'BAGEL',                  tab:'yiyecek', order:4,  gradient:'grad-3', subtitle:'Pod yapımı bagel' },
+  { id:'yumurtaburger', name:'YUMURTA BURGER',         tab:'yiyecek', order:5,  gradient:'grad-4', subtitle:'Pod yapımı burger ekmeği' },
+  { id:'yogurtkase',    name:'YOĞURT KASE',            tab:'yiyecek', order:6,  gradient:'grad-5' },
+  { id:'tost',          name:'TOST',                   tab:'yiyecek', order:7,  gradient:'grad-6', subtitle:'ekşi mayalı tam buğday ekmeği', extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}] },
+  { id:'omlet',         name:'OMLET',                  tab:'yiyecek', order:8,  gradient:'grad-7', extras:[{name:'Mantar',price:30},{name:'Peynir',price:50},{name:'Avokado',price:50},{name:'Hindi Füme',price:50},{name:'Sucuk',price:70},{name:'Füme Et',price:100}] },
+  { id:'kruvasan',      name:'KRUVASAN',               tab:'yiyecek', order:9,  gradient:'grad-8' },
+  { id:'bowl',          name:'BOWL',                   tab:'yiyecek', order:10, gradient:'grad-9', subtitle:'soğuk' },
+  { id:'salatalar',     name:'SALATALAR',              tab:'yiyecek', order:11, gradient:'grad-10' },
+  { id:'tatlilar',      name:'TATLILAR',               tab:'yiyecek', order:12, gradient:'grad-11' },
+  // ICECEK
+  { id:'espresso',    name:'ESPRESSO BAR',              tab:'icecek', order:1,  gradient:'grad-coffee', note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺' },
+  { id:'podspecial',  name:'POD ÖZEL',                  tab:'icecek', order:2,  gradient:'grad-1',      note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺' },
+  { id:'matchabar',   name:'MATCHA BAR',                tab:'icecek', order:3,  gradient:'grad-smoothie', note:'Süt tercihi: Laktozsuz, Yulaf +40₺, Badem +40₺', extras:[{name:'Creamy',price:50}] },
+  { id:'brewbar',     name:'BREW BAR',                  tab:'icecek', order:4,  gradient:'grad-3' },
+  { id:'smoothie',    name:'SMOOTHIE & PROTEIN BAR',    tab:'icecek', order:5,  gradient:'grad-smoothie', showAddons:true },
+  { id:'buzgibiler',  name:'BUZ GİBİLER',               tab:'icecek', order:6,  gradient:'grad-ice' },
+  { id:'detoks',      name:'DETOKS',                    tab:'icecek', order:7,  gradient:'grad-herbal' },
+  { id:'sogukcay',    name:'TAZELEYİCİ SOĞUK ÇAYLAR',  tab:'icecek', order:8,  gradient:'grad-ice' },
+  { id:'bitkicay',    name:'MELEZ TEA BİTKİ ÇAYLARI',  tab:'icecek', order:9,  gradient:'grad-9' },
+  { id:'softbar',     name:'SOFT BAR',                  tab:'icecek', order:10, gradient:'grad-4' },
+];
+
+const FULL_MENU_ITEMS = [
+  // YAZ TOSTU
+  { categoryId:'yaztostu', name:'Yaz Tostu',            price:320, desc:'Ekşi Maya Ekmeğinde Kaşar, Tulum ve Mozarella Peyniri, Domates Sos', order:1 },
+  { categoryId:'yaztostu', name:'Yazlık Ekmek Üstü',   price:340, desc:'Çırpılmış Avokado Sos, Marine Domates, Krem Peynir, Taze Fesleğen', order:2 },
+  { categoryId:'yaztostu', name:'Karpuz Peynir',        price:340, desc:'Küp Karpuz, Ezine Peyniri, Nane', order:3 },
+  { categoryId:'yaztostu', name:'Şeftali French Toast', price:400, desc:'Karamelize Şeftali, Pod Yapımı Tatlı Krema, Agave', order:4 },
+  // PANCAKE
+  { categoryId:'pancake', name:'Klasik',                      price:420, desc:'Agave Şurubu, Yaban Mersini, Tereyağı, Pudra Şekeri', order:1 },
+  { categoryId:'pancake', name:'Tuzlu Karamel & Crumble',    price:420, desc:'Tuzlu Karamel Sos, Muz, Pod Yapımı Crumble, Krep Kırıkları', order:2 },
+  { categoryId:'pancake', name:'Çikolata & Orman Meyveleri', price:420, desc:'Eritme Çikolata, Orman Meyveli Pod Yapımı Marmelat', order:3 },
+  // EKMEKÜSTÜ
+  { categoryId:'ekmekustu', name:'Fıstık Ezmesi',       price:240, desc:'Fıstık Ezmesi, Muz, Yaban Mersini, Ahududu Reçeli, File Badem', order:1 },
+  { categoryId:'ekmekustu', name:'Vegan',                price:320, desc:'Pancarlı Humus, Zeytinyağlı Mantar, Izgara Kabak, Kabak Çekirdeği', order:2 },
+  { categoryId:'ekmekustu', name:'Ispanak',              price:380, desc:'Sote Ispanak, Poşe Yumurta, Hollandez Sos', order:3 },
+  { categoryId:'ekmekustu', name:'Avokado Mantar',       price:380, desc:'Avokado Sos, Karamelize Ispanak, Mantar, Pancar, Toz Parmesan', order:4 },
+  { categoryId:'ekmekustu', name:'Avokado Beetroot',     price:380, desc:'Fırınlanmış Pancarlı Labne, Dilim Avokado, Chia, Zeytinyağı', order:5 },
+  { categoryId:'ekmekustu', name:'Ezine',                price:400, desc:'Ezine Beyaz Peyniri, Kuru Domates, Kabak Çekirdeği, Ceviz, Taze Kekik', order:6 },
+  { categoryId:'ekmekustu', name:'Üç Peynir',            price:420, desc:'Mozarella, Tulum, Lor Peyniri, Çırpılmış Yumurta, Kapya Biber', order:7 },
+  { categoryId:'ekmekustu', name:'Hindi Füme',           price:420, desc:'Tarhunlu Peynir Sos, Hindi Füme, Lolorosso, Salatalık, Kaşar', order:8 },
+  { categoryId:'ekmekustu', name:'Avokado Yumurta',      price:440, desc:'Çırpılmış Yumurta, Avokado Ezmesi, Kabak Çekirdeği', order:9 },
+  { categoryId:'ekmekustu', name:'Hindi Füme & Cheddar', price:460, desc:'Çırpılmış Yumurta, Cheddar, Hindi Füme, Çörek Otu', order:10 },
+  { categoryId:'ekmekustu', name:'Tatlı & Tuzlu',        price:460, desc:'Aromatik Labne, Böğürtlen Reçeli, Antep Fıstığı & Avokado Ezmesi, Çırpılmış Yumurta', order:11 },
+  { categoryId:'ekmekustu', name:'French Toast',         price:480, desc:'Tereyağlı Brioche, Özel Karamel Sos, Muz, Çilek, Orman Meyveleri, File Badem', order:12 },
+  { categoryId:'ekmekustu', name:'Sosis',                price:480, desc:'Çırpılmış Yumurta, Dana Sosis, Hollandez Sos', order:13 },
+  { categoryId:'ekmekustu', name:'Sucuk',                price:480, desc:'Çırpılmış Yumurta, Sucuk, Hellim, Kapya Biber', order:14 },
+  { categoryId:'ekmekustu', name:'Füme Somon',           price:480, desc:'Füme Somon, Aromatik Labne, Kapari, Salatalık, Dereotu', order:15 },
+  { categoryId:'ekmekustu', name:'Füme Avokado',         price:480, desc:'Füme Et, Avokado Ezmesi, Poşe Yumurta, Fesleğenli Zeytinyağı', order:16 },
+  { categoryId:'ekmekustu', name:'Füme & Burrata',       price:560, desc:'Brioche, Antep Fıstık Pesto, Burrata, Füme Et, Roka, Balzamik', order:17 },
+  // BAGEL
+  { categoryId:'bagel', name:'Üç Peynir',       price:320, desc:'Mozzarella, Tulum, Cheddar', order:1 },
+  { categoryId:'bagel', name:'Avokado & Zeytin',price:320, desc:'Avokado Sos, Zeytin Ezmesi, Marul, Kaşar, Cheddar, Domates', order:2 },
+  { categoryId:'bagel', name:'Hindi Füme',      price:320, desc:'Tarhunlu Peynir Sos, Hindi Füme, Cheddar, Salatalık', order:3 },
+  { categoryId:'bagel', name:'Avokado & Füme',  price:380, desc:'Avokado Sos, Çırpılmış Yumurta, Füme Et', order:4 },
+  // YUMURTA BURGER
+  { categoryId:'yumurtaburger', name:'Mantarlı',       price:320, desc:'Çırpılmış Yumurta, Karamelize Mantar, Taze Kekik', order:1 },
+  { categoryId:'yumurtaburger', name:'Avokado & Füme', price:380, desc:'Dilim Avokado, Çırpılmış Yumurta, Füme Et, Cheddar', order:2 },
+  // YOĞURT KASE
+  { categoryId:'yogurtkase', name:'Sade',      price:340, desc:'Ballı Süzme Yoğurt, Ev Yapımı Granola, Fıstık Ezmesi, Yaban Mersini, Çilek, Kivi, Muz, Mango, Chia', order:1 },
+  { categoryId:'yogurtkase', name:'Böğürtlen', price:360, desc:'Böğürtlenli Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:2 },
+  { categoryId:'yogurtkase', name:'Matcha',    price:360, desc:'Matchalı Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:3 },
+  { categoryId:'yogurtkase', name:'Spirulina', price:360, desc:'Spirulinali Ballı Yoğurt, Granola, Fıstık Ezmesi, Mevsim Meyveleri', order:4 },
+  // TOST
+  { categoryId:'tost', name:'Mozzarella', price:320, desc:'Fırınlanmış Patlıcan, Kabak, Mozarella, Kuru Domates', order:1 },
+  { categoryId:'tost', name:'Vegan',      price:340, desc:'Vegan Mozarella, Izgara İstiridye Mantarı, Izgara Kabak, Vegan Pesto', order:2 },
+  { categoryId:'tost', name:'Üç Peynir', price:360, desc:'Mozarella, Tulum, Cheddar', order:3 },
+  { categoryId:'tost', name:'Esnaf İşi', price:380, desc:'Sucuk, Kaşar, Paprika Salça, Cherry Domates', order:4 },
+  { categoryId:'tost', name:'Rozbif',    price:400, desc:'Et Füme, Ballı Hardal Sos, Roka, Karamelize Soğan, Cheddar', order:5 },
+  // OMLET
+  { categoryId:'omlet', name:'Sade Omlet',          price:340, desc:'', order:1 },
+  { categoryId:'omlet', name:'Mozzarella Menemen',  price:340, desc:'', order:2 },
+  { categoryId:'omlet', name:'İspanyol Poşesi',     price:340, desc:'Küp Patates, Yeşil ve Kırmızı Biber, 2 Poşe Yumurta', order:3 },
+  { categoryId:'omlet', name:'Çılbır',              price:340, desc:'Taze Baharatlı Yoğurt, Özel Tereyağlı Sos', order:4 },
+  { categoryId:'omlet', name:'Ispanak Mantar Omlet',price:380, desc:'Ispanak, Sote Mantar, Kabak Çekirdeği, Çörek Otu', order:5 },
+  { categoryId:'omlet', name:'Üç Peynirli Omlet',  price:380, desc:'Mozarella, Tulum, Lor Peyniri, Kapya Biber', order:6 },
+  { categoryId:'omlet', name:'İspanyol Omlet',      price:380, desc:'Küp Patates, Kapya Biber, Çarliston Biber', order:7 },
+  { categoryId:'omlet', name:'Ezine Omlet',         price:380, desc:'Ezine Peyniri, Kurutulmuş Domates, Kabak Çekirdeği', order:8 },
+  { categoryId:'omlet', name:'Yeşil Omlet',         price:380, desc:'Ispanak, Yulaf, Mozarella', order:9 },
+  { categoryId:'omlet', name:'Fit Omlet',           price:380, desc:'3 Yumurta Beyazı, Hindi Füme, Lor Peyniri, Kuru Domates', order:10 },
+  // KRUVASAN
+  { categoryId:'kruvasan', name:'Sade',         price:140, desc:'', order:1 },
+  { categoryId:'kruvasan', name:'Bademli',      price:180, desc:'', order:2 },
+  { categoryId:'kruvasan', name:'Nutella',      price:380, desc:'Nutella, Çilek, Muz, Crumble, File Badem, Antep Fıstığı', order:3 },
+  { categoryId:'kruvasan', name:'Ezine',        price:460, desc:'Ezine Peyniri, Kuru Domates, Kabak Çekirdeği, Ceviz, Taze Kekik', order:4 },
+  { categoryId:'kruvasan', name:'Üç Peynir',   price:480, desc:'Mozarella, Tulum, Lor, Çırpılmış Yumurta, Kapya Biber', order:5 },
+  { categoryId:'kruvasan', name:'Sucuk',        price:520, desc:'Çırpılmış Yumurta, Sucuk, Hellim, Kapya Biber', order:6 },
+  { categoryId:'kruvasan', name:'Sosis',        price:520, desc:'Çırpılmış Yumurta, Dana Sosis, Hollandez Sos', order:7 },
+  { categoryId:'kruvasan', name:'Füme Avokado', price:540, desc:'Füme Et, Avokado Ezmesi, Çırpılmış Yumurta, Tulum', order:8 },
+  // BOWL
+  { categoryId:'bowl', name:'Fıstık Ezmeli', price:360, desc:'Yulaf/Badem Sütü, Yulaf, Muz, Fıstık Ezmesi, Granola, File Badem', order:1 },
+  { categoryId:'bowl', name:'Kırmızı',       price:360, desc:'Yulaf/Badem Sütü, Granola, Muz, Frambuaz, Böğürtlen, Yaban Mersini, Chia', order:2 },
+  // SALATALAR
+  { categoryId:'salatalar', name:'Tahıl Salata', price:280, desc:'Kinoa, Karabuğday, Yeşil Mercimek, Yeşil Elma, Pancar, Lor, Portakal', order:1 },
+  { categoryId:'salatalar', name:'Avokado',      price:320, desc:'Dilimlenmiş Avokado, Kinoa, Portakal, Portakallı Ballı Hardal Sos', order:2 },
+  // TATLILAR
+  { categoryId:'tatlilar', name:'Chia Puding',              price:200, desc:'', order:1 },
+  { categoryId:'tatlilar', name:'Yulaf Cookie',             price:220, desc:'Yulaf, Kuru Üzüm, Ceviz', order:2 },
+  { categoryId:'tatlilar', name:'Matcha Cookie',            price:220, desc:'Matcha, Beyaz Çikolata, Fındık', order:3 },
+  { categoryId:'tatlilar', name:'Nutella Cookie',           price:220, desc:'Nutella, Ceviz', order:4 },
+  { categoryId:'tatlilar', name:'Amsterdam Cookie',         price:220, desc:'Bitter Çikolata, Beyaz Çikolata', order:5 },
+  { categoryId:'tatlilar', name:'Magnolia',                 price:220, desc:'Çilek / Oreo ve Muz / Lotus', order:6 },
+  { categoryId:'tatlilar', name:'Böğürtlen Brownie',        price:260, desc:'', order:7 },
+  { categoryId:'tatlilar', name:'Beyaz Çikolatalı Brownie', price:260, desc:'', order:8 },
+  { categoryId:'tatlilar', name:'Lotus Cup',                price:260, desc:'', order:9 },
+  { categoryId:'tatlilar', name:'Cream Puff Lotuslu',       price:260, desc:'Çıtır Profiterol İçinde Lotus Krem Diplomat', order:10 },
+  { categoryId:'tatlilar', name:'Tiramisu',                 price:240, desc:'', order:11 },
+  { categoryId:'tatlilar', name:'French Toast',             price:480, desc:'Tereyağlı Brioche, Karamel Sos, Muz, Çilek, Orman Meyveleri (18:00\'a kadar)', order:12 },
+  // ESPRESSO BAR
+  { categoryId:'espresso', name:'Ristretto',               price:160, desc:'', order:1 },
+  { categoryId:'espresso', name:'Espresso Single / Double',price:180, desc:'', order:2 },
+  { categoryId:'espresso', name:'Doppio',                  price:180, desc:'', order:3 },
+  { categoryId:'espresso', name:'Espresso Macchiato',      price:180, desc:'', order:4 },
+  { categoryId:'espresso', name:'Filtre Kahve',            price:200, desc:'Sıcak | Soğuk', order:5 },
+  { categoryId:'espresso', name:'Americano',               price:200, desc:'Sıcak | Soğuk', order:6 },
+  { categoryId:'espresso', name:'Cortado',                 price:200, desc:'', order:7 },
+  { categoryId:'espresso', name:'Latte',                   price:210, desc:'Sıcak | Soğuk', order:8 },
+  { categoryId:'espresso', name:'Flat White',              price:210, desc:'Sıcak | Soğuk', order:9 },
+  { categoryId:'espresso', name:'Cappuccino',              price:210, desc:'', order:10 },
+  { categoryId:'espresso', name:'Mocha',                   price:240, desc:'Sıcak | Soğuk', order:11 },
+  { categoryId:'espresso', name:'White Mocha',             price:240, desc:'Sıcak | Soğuk', order:12 },
+  { categoryId:'espresso', name:'Zebra Mocha',             price:240, desc:'Sıcak | Soğuk', order:13 },
+  { categoryId:'espresso', name:'Türk Kahvesi',            price:140, desc:'', order:14 },
+  // POD ÖZEL
+  { categoryId:'podspecial', name:'Muzlu Süt',                     price:240, desc:'', order:1 },
+  { categoryId:'podspecial', name:'Pod Latte',                     price:240, desc:'Bal ve Tarçın İlaveli', order:2 },
+  { categoryId:'podspecial', name:'Cookie Latte',                  price:240, desc:'Sıcak | Soğuk', order:3 },
+  { categoryId:'podspecial', name:'Toffee Nut Latte',              price:240, desc:'Sıcak | Soğuk', order:4 },
+  { categoryId:'podspecial', name:'Kavrulmuş Badem Latte',         price:240, desc:'Sıcak | Soğuk', order:5 },
+  { categoryId:'podspecial', name:'Coconut Latte',                 price:240, desc:'Sıcak | Soğuk', order:6 },
+  { categoryId:'podspecial', name:'Deniz Tuzlu Karamel Latte',     price:240, desc:'Sıcak | Soğuk', order:7 },
+  { categoryId:'podspecial', name:'Chai Tea Latte',                price:240, desc:'Sıcak | Soğuk', order:8 },
+  { categoryId:'podspecial', name:'Beyaz Çikolata Frambuaz Latte', price:250, desc:'Sıcak | Soğuk', order:9 },
+  // MATCHA BAR
+  { categoryId:'matchabar', name:'Matcha',               price:230, desc:'', order:1 },
+  { categoryId:'matchabar', name:'Çilek Matcha',         price:270, desc:'Pod Yapımı Çilek Püresi', order:2 },
+  { categoryId:'matchabar', name:'Yaban Mersini Matcha', price:270, desc:'Pod Yapımı Yaban Mersini Püresi', order:3 },
+  { categoryId:'matchabar', name:'Ananas Matcha',        price:270, desc:'Pod Yapımı Ananas Püresi', order:4 },
+  { categoryId:'matchabar', name:'Mango Matcha',         price:270, desc:'Pod Yapımı Mango Püresi', order:5 },
+  { categoryId:'matchabar', name:'Şeftali Matcha',       price:270, desc:'Pod Yapımı Şeftali Püresi', order:6 },
+  // BREW BAR
+  { categoryId:'brewbar', name:'V60',       price:260, desc:'', order:1 },
+  { categoryId:'brewbar', name:'Chemex',    price:260, desc:'', order:2 },
+  { categoryId:'brewbar', name:'Aeropress', price:260, desc:'', order:3 },
+  // SMOOTHIE & PROTEIN BAR
+  { categoryId:'smoothie', name:'Yeşil Smoothie',         price:280, desc:'Avokado, Ispanak, Muz, Taze Elma Suyu, Chia', order:1 },
+  { categoryId:'smoothie', name:'Orman Meyveli Smoothie', price:280, desc:'Böğürtlen, Frambuaz, Yaban Mersini, Muz, Fıstık Ezmesi, Badem Sütü', order:2 },
+  { categoryId:'smoothie', name:'Kakao Smoothie',         price:280, desc:'Kakao, Muz, Fıstık Ezmesi, Chia, Badem Sütü', order:3 },
+  { categoryId:'smoothie', name:'Tropikal Smoothie',      price:280, desc:'Ananas, Mango, Muz, Fıstık Ezmesi, Chia', order:4 },
+  // BUZ GİBİLER
+  { categoryId:'buzgibiler', name:'Muz & Maydonoz',  price:280, desc:'Pod Limonata, Muz, Maydonoz', order:1 },
+  { categoryId:'buzgibiler', name:'Orman Meyveleri', price:280, desc:'Pod Limonata, Böğürtlen, Frambuaz, Çilek, Nane', order:2 },
+  { categoryId:'buzgibiler', name:'Ananas',          price:280, desc:'Pod Limonata, Ananas, Çarkıfelek', order:3 },
+  // DETOKS
+  { categoryId:'detoks', name:'Yeşil',   price:240, desc:'Maydonoz, Yeşil Elma, Kereviz, Salatalık, Limon', order:1 },
+  { categoryId:'detoks', name:'Turuncu', price:240, desc:'Portakal, Havuç, Limon, Zencefil', order:2 },
+  { categoryId:'detoks', name:'Kırmızı', price:240, desc:'Portakal, Kırmızı Elma, Havuç, Böğürtlen', order:3 },
+  // TAZELEYİCİ SOĞUK ÇAYLAR
+  { categoryId:'sogukcay', name:'Limonata',         price:220, desc:'Taze Nane, Ev Yapımı Pod Limonata', order:1 },
+  { categoryId:'sogukcay', name:'Portakal Suyu',    price:220, desc:'', order:2 },
+  { categoryId:'sogukcay', name:'Cool Lime',        price:220, desc:'', order:3 },
+  { categoryId:'sogukcay', name:'Berry Hibiscus',   price:220, desc:'', order:4 },
+  { categoryId:'sogukcay', name:'Elma & Yasemin',   price:220, desc:'', order:5 },
+  { categoryId:'sogukcay', name:'Mango & Frambuaz', price:220, desc:'', order:6 },
+  // MELEZ TEA BİTKİ ÇAYLARI
+  { categoryId:'bitkicay', name:'Relax',        price:160, desc:'Rooibos, Papatya, Lavanta, Elma, Vanilya (5-7 dk)', order:1 },
+  { categoryId:'bitkicay', name:'Mystic',       price:160, desc:'Mango, Elma, Zerdeçal, Yeşil Çay, Zencefil, Tarçın (3-4 dk)', order:2 },
+  { categoryId:'bitkicay', name:'Soothe',       price:160, desc:'Rezene, Ihlamur, Zencefil, Nane, Vanilya (6 dk)', order:3 },
+  { categoryId:'bitkicay', name:'Boost',        price:160, desc:'Elma, Mürver, Kuşburnu, Ekinezya, Zencefil (6 dk)', order:4 },
+  { categoryId:'bitkicay', name:'Zencefil Çay', price:160, desc:'Taze Zencefil, Portakal, Limon (7-8 dk)', order:5 },
+  { categoryId:'bitkicay', name:'Demleme Çay',  price:60,  desc:'İnce Belli 60₺ / Fincan 70₺', order:6 },
+  // SOFT BAR
+  { categoryId:'softbar', name:'Pınar Premium Su',    price:50,  desc:'', order:1 },
+  { categoryId:'softbar', name:'Uludağ Premium Soda', price:120, desc:'', order:2 },
+  { categoryId:'softbar', name:'Churchill',           price:160, desc:'', order:3 },
+];
+
+async function seedData() {
+  showToast('Veri yükleniyor…');
+  const batch = db.batch();
+  FULL_MENU_CATS.forEach(c => batch.set(db.collection('menuCategories').doc(c.id), c));
+  FULL_MENU_ITEMS.forEach(item => batch.set(db.collection('menuItems').doc(), item));
+  const addons = [
+    { name:'Whey Protein', price:120, note:'+23 gr protein', order:1 },
+    { name:'Kolajen',      price:100, note:'', order:2 },
+  ];
+  addons.forEach(a => batch.set(db.collection('addons').doc(), a));
+  await db.collection('siteConfig').doc('contact').set({
+    phone:'+90 212 123 45 67', email:'hello@podcoffee.com',
+    address:'Karaköy, Istanbul', instagram:'@podeatery',
+    hours:{ mon:'08:00 – 21:00', tue:'08:00 – 21:00', wed:'08:00 – 21:00',
+            thu:'08:00 – 21:00', fri:'08:00 – 21:00', sat:'09:00 – 21:00', sun:'09:00 – 21:00' }
+  });
+  await batch.commit();
+  showToast('Tüm veriler yüklendi!', 'success');
+  loadAll();
+}
+
+async function resetAndSeed() {
+  if (!confirm('Tüm menü (yiyecek + içecek) sıfırlanacak ve tam liste yüklenecek. Devam?')) return;
+  showToast('Menü sıfırlanıyor…');
+  const [catSnap, itemSnap, addonSnap] = await Promise.all([
+    db.collection('menuCategories').get(),
+    db.collection('menuItems').get(),
+    db.collection('addons').get(),
+  ]);
+  const delBatch = db.batch();
+  catSnap.docs.forEach(d => delBatch.delete(d.ref));
+  itemSnap.docs.forEach(d => delBatch.delete(d.ref));
+  addonSnap.docs.forEach(d => delBatch.delete(d.ref));
+  await delBatch.commit();
+  await seedData();
+}
+
+/* ════════════════════════════════════════
+   EXPORT
+════════════════════════════════════════ */
+async function exportData() {
+  const [cats, items, addons, contact] = await Promise.all([
+    db.collection('menuCategories').orderBy('order').get(),
+    db.collection('menuItems').get(),
+    db.collection('addons').get(),
+    db.collection('siteConfig').doc('contact').get()
+  ]);
+  const data = {
+    categories: cats.docs.map(d=>({id:d.id,...d.data()})),
+    items:      items.docs.map(d=>({id:d.id,...d.data()})),
+    addons:     addons.docs.map(d=>({id:d.id,...d.data()})),
+    contact:    contact.data()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pod-menu-export.json';
+  a.click();
+  showToast('Dışa aktarıldı', 'success');
+}
+
+/* ════════════════════════════════════════
+   CLOUDINARY UPLOAD
+════════════════════════════════════════ */
+function getCldConfig() {
+  return {
+    cloudName:    localStorage.getItem('cld_cloud_name') || '',
+    uploadPreset: localStorage.getItem('cld_upload_preset') || '',
+  };
+}
+
+async function uploadFile(input, targetInputId, _path) {
+  const file = input.files[0];
+  if (!file) return;
+  const { cloudName, uploadPreset } = getCldConfig();
+  if (!cloudName || !uploadPreset) {
+    showToast('Cloudinary ayarları eksik — Ayarlar → Cloudinary bölümünü doldurun', 'error');
+    input.value = '';
+    return;
+  }
+  showToast('Yükleniyor…');
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', uploadPreset);
+    const isVideo = file.type.startsWith('video/');
+    const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/${isVideo ? 'video' : 'image'}/upload`;
+    const res  = await fetch(endpoint, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const url = data.secure_url;
+    document.getElementById(targetInputId).value = url;
+    document.getElementById(targetInputId).dispatchEvent(new Event('input'));
+    showToast('Yüklendi!', 'success');
+  } catch(e) { showToast('Yükleme hatası: ' + e.message, 'error'); }
+  input.value = '';
+}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+async function loadFooter() {
+  const doc = await db.collection('siteConfig').doc('footer').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('ft-image',          d.image);
+  v('ft-desc',           d.desc);
+  v('ft-reserveText',    d.reserveText);
+  v('ft-reserveUrl',     d.reserveUrl);
+  v('ft-instagram',      d.instagram);
+  v('ft-email',          d.email);
+  v('ft-newsletterTitle',d.newsletterTitle);
+  v('ft-subscribeText',  d.subscribeText);
+  v('ft-logotype',       d.logotype);
+  v('ft-copyright',      d.copyright);
+}
+
+async function saveFooter() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  await db.collection('siteConfig').doc('footer').set({
+    image:           g('ft-image'),
+    desc:            g('ft-desc'),
+    reserveText:     g('ft-reserveText'),
+    reserveUrl:      g('ft-reserveUrl'),
+    instagram:       g('ft-instagram'),
+    email:           g('ft-email'),
+    newsletterTitle: g('ft-newsletterTitle'),
+    subscribeText:   g('ft-subscribeText'),
+    logotype:        g('ft-logotype'),
+    copyright:       g('ft-copyright'),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Footer kaydedildi', 'success');
+}
+
+/* ════════════════════════════════════════
+   BRAND
+════════════════════════════════════════ */
+async function loadBrand() {
+  const doc = await db.collection('siteConfig').doc('brand').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('b-siteName',      d.siteName);
+  v('b-slogan',        d.slogan);
+  v('b-logoUrl',       d.logoUrl);
+  v('b-faviconUrl',    d.faviconUrl);
+  v('b-footerDesc',    d.footerDesc);
+  v('b-footerImageUrl',d.footerImageUrl);
+  v('b-instagram',     d.instagram);
+  v('b-email',         d.email);
+  if (d.logoUrl) {
+    const prev = document.getElementById('b-logoPreview');
+    prev.style.display = 'block';
+    prev.querySelector('img').src = d.logoUrl;
+  }
+}
+
+async function saveBrand() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  await db.collection('siteConfig').doc('brand').set({
+    siteName:      g('b-siteName'),
+    slogan:        g('b-slogan'),
+    logoUrl:       g('b-logoUrl'),
+    faviconUrl:    g('b-faviconUrl'),
+    footerDesc:    g('b-footerDesc'),
+    footerImageUrl:g('b-footerImageUrl'),
+    instagram:     g('b-instagram'),
+    email:         g('b-email'),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Marka bilgileri kaydedildi', 'success');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const logoInput = document.getElementById('b-logoUrl');
+  if (logoInput) {
+    logoInput.addEventListener('input', function() {
+      const prev = document.getElementById('b-logoPreview');
+      if (this.value) { prev.style.display='block'; prev.querySelector('img').src = this.value; }
+      else { prev.style.display='none'; }
+    });
+  }
+});
+
+/* ════════════════════════════════════════
+   HOMEPAGE EDITOR
+════════════════════════════════════════ */
+let sliderImageCount = 0;
+
+function addSliderRow(url='') {
+  sliderImageCount++;
+  const i = sliderImageCount;
+  const container = document.getElementById('sliderImagesContainer');
+  const row = document.createElement('div');
+  row.id = `sliderRow-${i}`;
+  row.style.cssText = 'display:flex;gap:.5em;align-items:center;margin-bottom:.5em';
+  row.innerHTML = `
+    <input id="sliderImg-${i}" value="${escHtml(url)}" placeholder="https://..." style="flex:1">
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">
+      Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sliderImg-${i}','homepage/slider')">
+    </label>
+    <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger);flex-shrink:0" onclick="document.getElementById('sliderRow-${i}').remove()">×</button>`;
+  container.appendChild(row);
+}
+
+async function loadHomepage() {
+  const doc = await db.collection('siteConfig').doc('homepage').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('hp-eyebrow',    d.eyebrow);
+  v('hp-title1',     d.title1);
+  v('hp-title2',     d.title2);
+  v('hp-heroMedia',  d.heroMedia);
+  v('hp-storyLabel', d.storyLabel);
+  v('hp-storyText',  d.storyText);
+  v('hp-storyImg',   d.storyImg);
+  v('hp-menuLabel',  d.menuLabel);
+  v('hp-menuTitle',  d.menuTitle);
+  v('hp-menuText',   d.menuText);
+  v('hp-menuImg',    d.menuImg);
+  v('hp-spaceLabel', d.spaceLabel);
+  v('hp-spaceTitle', d.spaceTitle);
+  v('hp-spaceText',  d.spaceText);
+  v('hp-fullImg',    d.fullImg);
+  v('hp-craftLabel', d.craftLabel);
+  v('hp-craftTitle', d.craftTitle);
+  v('hp-craftText',  d.craftText);
+  v('hp-craftImg',   d.craftImg);
+  v('hp-cardImg',    d.cardImg);
+  v('hp-bigText1',   d.bigText1);
+  v('hp-bigText2',   d.bigText2);
+  document.getElementById('sliderImagesContainer').innerHTML = '';
+  sliderImageCount = 0;
+  (d.sliderImages || []).forEach(url => addSliderRow(url));
+}
+
+async function saveHomepage() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  const sliderImages = [];
+  document.querySelectorAll('[id^="sliderImg-"]').forEach(el => { if(el.value.trim()) sliderImages.push(el.value.trim()); });
+  await db.collection('siteConfig').doc('homepage').set({
+    eyebrow:    g('hp-eyebrow'),
+    title1:     g('hp-title1'),
+    title2:     g('hp-title2'),
+    heroMedia:  g('hp-heroMedia'),
+    storyLabel: g('hp-storyLabel'),
+    storyText:  g('hp-storyText'),
+    storyImg:   g('hp-storyImg'),
+    menuLabel:  g('hp-menuLabel'),
+    menuTitle:  g('hp-menuTitle'),
+    menuText:   g('hp-menuText'),
+    menuImg:    g('hp-menuImg'),
+    spaceLabel: g('hp-spaceLabel'),
+    spaceTitle: g('hp-spaceTitle'),
+    spaceText:  g('hp-spaceText'),
+    fullImg:    g('hp-fullImg'),
+    craftLabel: g('hp-craftLabel'),
+    craftTitle: g('hp-craftTitle'),
+    craftText:  g('hp-craftText'),
+    craftImg:   g('hp-craftImg'),
+    cardImg:    g('hp-cardImg'),
+    bigText1:   g('hp-bigText1'),
+    bigText2:   g('hp-bigText2'),
+    sliderImages,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Ana sayfa içeriği kaydedildi', 'success');
+}
+
+/* ════════════════════════════════════════
+   SPACE PAGE EDITOR
+════════════════════════════════════════ */
+async function loadSpacepage() {
+  const doc = await db.collection('siteConfig').doc('space').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('sp-title',     d.title);
+  v('sp-subtitle',  d.subtitle);
+  v('sp-heroMedia', d.heroMedia);
+  v('sp-introText', d.introText);
+  v('sp-quote',     d.quote);
+  v('sp-img1',      d.img1);
+  v('sp-img2',      d.img2);
+  v('sp-img3',      d.img3);
+  v('sp-img4',      d.img4);
+  v('sp-panorama',  d.panorama);
+}
+
+async function saveSpacepage() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  await db.collection('siteConfig').doc('space').set({
+    title:     g('sp-title'),
+    subtitle:  g('sp-subtitle'),
+    heroMedia: g('sp-heroMedia'),
+    introText: g('sp-introText'),
+    quote:     g('sp-quote'),
+    img1:      g('sp-img1'),
+    img2:      g('sp-img2'),
+    img3:      g('sp-img3'),
+    img4:      g('sp-img4'),
+    panorama:  g('sp-panorama'),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Mekan sayfası kaydedildi', 'success');
+}
+
+/* ════════════════════════════════════════
+   MODALS
+════════════════════════════════════════ */
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+});
+
+/* ════════════════════════════════════════
+   CONFIRM DIALOG
+════════════════════════════════════════ */
+let confirmCallback = null;
+function confirmDelete(title, msg, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent   = msg;
+  confirmCallback = cb;
+  document.getElementById('confirmBackdrop').classList.add('show');
+  document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); if(confirmCallback) confirmCallback(); };
+}
+function closeConfirm() {
+  document.getElementById('confirmBackdrop').classList.remove('show');
+  confirmCallback = null;
+}
+
+/* ════════════════════════════════════════
+   TOASTS
+════════════════════════════════════════ */
+function showToast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 350);
+  }, 3000);
+}
+
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
