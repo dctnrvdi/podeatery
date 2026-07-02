@@ -165,14 +165,12 @@
       content: "";
       position: absolute;
       left: 0; right: 0; bottom: 0;
-      height: .95em;
-      border: 1px solid rgba(3,9,13,.15);
-      border-top: none;
-      border-radius: 0 0 .4em .4em;
+      height: 1px;
+      background: rgba(3,9,13,.15);
       pointer-events: none;
-      transition: border-color .2s;
+      transition: background .2s;
     }
-    .contact-form .field:focus-within::after { border-color: rgba(3,9,13,.4); }
+    .contact-form .field:focus-within::after { background: rgba(3,9,13,.45); }
     .contact-form__submit {
       display: flex;
       justify-content: flex-end;
@@ -205,6 +203,31 @@
     }
     .map-label__name { font-family: var(--fp); font-size: .8125em; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--c2); }
     .map-label__addr { font-family: var(--fs); font-size: .75em; color: #666; margin-top: .25em; }
+
+    /* directions button */
+    .directions-btn {
+      position: absolute;
+      bottom: 1.75em;
+      left: 2em;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: .55em;
+      background: #fff;
+      color: var(--c2);
+      border-radius: .375em;
+      padding: .7em 1.1em;
+      font-family: var(--fp);
+      font-size: .75em;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 12px rgba(3,9,13,.14);
+      transition: box-shadow .2s, transform .2s;
+      text-decoration: none;
+    }
+    .directions-btn:hover { box-shadow: 0 6px 24px rgba(3,9,13,.22); transform: translateY(-1px); }
+    .directions-btn svg { width: 1em; height: 1em; flex-shrink: 0; }
 
     /* ─── STRIP (hours + cta) ── */
     .hours-strip {
@@ -379,12 +402,20 @@
     <div class="contact-map">
       <div class="map-label">
         <div class="map-label__name" id="mapLabelName">POD Coffee &amp; Eatery</div>
-        <div class="map-label__addr" id="mapLabelAddr">Karaköy, Istanbul, Türkiye</div>
+        <div class="map-label__addr" id="mapLabelAddr">Bornova, İzmir, Türkiye</div>
       </div>
+      <a class="directions-btn" id="directionsBtn"
+        href="https://www.google.com/maps/dir/?api=1&destination=38.4638,27.2198"
+        target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+        Yol Tarifi Al
+      </a>
       <iframe
         id="contactMap"
         title="POD Coffee &amp; Eatery harita"
-        src="https://maps.google.com/maps?q=F622%2B8Q+Bornova+%C4%B0zmir&output=embed&z=17"
+        src="https://maps.google.com/maps?q=38.4638,27.2198&output=embed&z=16"
         allowfullscreen
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade">
@@ -496,6 +527,12 @@
   <script>
     const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
     (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
+
+    /* Yol tarifi — iOS'ta Apple Maps, diğerlerinde Google Maps */
+    const directionsBtn = document.getElementById('directionsBtn');
+    if (directionsBtn && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      directionsBtn.href = 'maps://maps.apple.com/?daddr=38.4638,27.2198';
+    }
 
     const toggle = document.getElementById('menuToggle');
     const menu   = document.getElementById('headerMenu');
