@@ -1223,14 +1223,38 @@
 
     /* ── SWIPER ── */
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    let touchStartIdx = 0;
+    let fixingJump = false;
+
     const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
       spaceBetween: isMobile ? 16 : 20,
       grabCursor: !isMobile,
       navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
       on: {
+        touchStart(sw) {
+          if (!fixingJump) touchStartIdx = sw.activeIndex;
+        },
         slideChange(sw) {
           const bar = document.getElementById('swiperBar');
+
+          if (fixingJump) {
+            fixingJump = false;
+            touchStartIdx = sw.activeIndex;
+            if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
+            if (isMobile && navigator.vibrate) navigator.vibrate(10);
+            if (isMobile) updateDots(sw.activeIndex);
+            return;
+          }
+
+          if (isMobile && Math.abs(sw.activeIndex - touchStartIdx) > 1) {
+            const target = touchStartIdx + Math.sign(sw.activeIndex - touchStartIdx);
+            fixingJump = true;
+            sw.slideTo(target, 250, true);
+            return;
+          }
+
+          touchStartIdx = sw.activeIndex;
           if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
           if (isMobile) updateDots(sw.activeIndex);
