@@ -865,10 +865,80 @@
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Açıklama</span></div></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">İç Mekan Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
-            <div class="form-group"><label>Kısa Metin (solda)</label><textarea id="sp-introText" placeholder="Mekan hakkında…" style="min-height:5em"></textarea></div>
-            <div class="form-group"><label>Alıntı (Pull Quote)</label><textarea id="sp-quote" placeholder='"A place to slow down."' style="min-height:3em"></textarea></div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Eyebrow</label><input id="sp-introEyebrow" placeholder="İç Mekan"></div>
+              <div class="form-group"><label>Kısa Statement</label><input id="sp-introStatement" placeholder="Sıcak ahşap, yumuşak ışık ve iyi müzik."></div>
+            </div>
+            <div class="form-group"><label>Açıklama Metni</label><textarea id="sp-introText" placeholder="Mekan hakkında…" style="min-height:5em"></textarea></div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="sp-introLinkText" placeholder="Bizi Bul"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="sp-introLinkUrl" placeholder="contact.html"></div>
+            </div>
+            <div class="form-group">
+              <label>Sağ Görsel</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="sp-introImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-introImg','space/introImg')"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Pull Quote</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Alıntı Metni</label><textarea id="sp-quote" placeholder='"Sessizliğin ve sıcaklığın buluştuğu bir köşe."' style="min-height:3em"></textarea></div>
+            <div class="form-group"><label>Alıntı Kaynağı</label><input id="sp-quoteAttr" placeholder="— POD Coffee &amp; Eatery, Istanbul"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Detaylar Bölümü</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Eyebrow</label><input id="sp-detailsEyebrow" placeholder="Detaylar"></div>
+              <div class="form-group"><label>Açıklama Metni</label><input id="sp-detailsText" placeholder="El yapımı seramikler…"></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="sp-detailsLinkText" placeholder="Menüyü Gör"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="sp-detailsLinkUrl" placeholder="menu.html"></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group">
+                <label>Büyük Görsel (sol)</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-detailsImgLarge" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-detailsImgLarge','space/detailsLarge')"></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Küçük Görsel (sağ üst)</label>
+                <div style="display:flex;gap:.5em">
+                  <input id="sp-detailsImgSmall" placeholder="https://..." style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-detailsImgSmall','space/detailsSmall')"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Rezervasyon Bölümü (koyu alan)</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Eyebrow</label><input id="sp-reserveEyebrow" placeholder="Rezervasyon"></div>
+              <div class="form-group"><label>Başlık</label><input id="sp-reserveTitle" placeholder="Bir köşe ayırtın sizi bekliyor."></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="sp-reserveLinkText" placeholder="İletişim &amp; Rezervasyon"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="sp-reserveLinkUrl" placeholder="contact.html"></div>
+            </div>
+            <div class="form-group">
+              <label>Arka Plan Görseli</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="sp-reserveImg" placeholder="https://..." style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sp-reserveImg','space/reserveImg')"></label>
+              </div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -2022,31 +2092,65 @@ async function loadSpacepage() {
   if (!doc.exists) return;
   const d = doc.data();
   const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
-  v('sp-title',     d.title);
-  v('sp-subtitle',  d.subtitle);
-  v('sp-heroMedia', d.heroMedia);
-  v('sp-introText', d.introText);
-  v('sp-quote',     d.quote);
-  v('sp-img1',      d.img1);
-  v('sp-img2',      d.img2);
-  v('sp-img3',      d.img3);
-  v('sp-img4',      d.img4);
-  v('sp-panorama',  d.panorama);
+  v('sp-title',            d.title);
+  v('sp-subtitle',         d.subtitle);
+  v('sp-heroMedia',        d.heroMedia);
+  v('sp-introEyebrow',     d.introEyebrow);
+  v('sp-introStatement',   d.introStatement);
+  v('sp-introText',        d.introText);
+  v('sp-introLinkText',    d.introLinkText);
+  v('sp-introLinkUrl',     d.introLinkUrl);
+  v('sp-introImg',         d.introImg);
+  v('sp-quote',            d.quote);
+  v('sp-quoteAttr',        d.quoteAttr);
+  v('sp-detailsEyebrow',   d.detailsEyebrow);
+  v('sp-detailsText',      d.detailsText);
+  v('sp-detailsLinkText',  d.detailsLinkText);
+  v('sp-detailsLinkUrl',   d.detailsLinkUrl);
+  v('sp-detailsImgLarge',  d.detailsImgLarge);
+  v('sp-detailsImgSmall',  d.detailsImgSmall);
+  v('sp-reserveEyebrow',   d.reserveEyebrow);
+  v('sp-reserveTitle',     d.reserveTitle);
+  v('sp-reserveLinkText',  d.reserveLinkText);
+  v('sp-reserveLinkUrl',   d.reserveLinkUrl);
+  v('sp-reserveImg',       d.reserveImg);
+  v('sp-img1',             d.img1);
+  v('sp-img2',             d.img2);
+  v('sp-img3',             d.img3);
+  v('sp-img4',             d.img4);
+  v('sp-panorama',         d.panorama);
 }
 
 async function saveSpacepage() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   await db.collection('siteConfig').doc('space').set({
-    title:     g('sp-title'),
-    subtitle:  g('sp-subtitle'),
-    heroMedia: g('sp-heroMedia'),
-    introText: g('sp-introText'),
-    quote:     g('sp-quote'),
-    img1:      g('sp-img1'),
-    img2:      g('sp-img2'),
-    img3:      g('sp-img3'),
-    img4:      g('sp-img4'),
-    panorama:  g('sp-panorama'),
+    title:           g('sp-title'),
+    subtitle:        g('sp-subtitle'),
+    heroMedia:       g('sp-heroMedia'),
+    introEyebrow:    g('sp-introEyebrow'),
+    introStatement:  g('sp-introStatement'),
+    introText:       g('sp-introText'),
+    introLinkText:   g('sp-introLinkText'),
+    introLinkUrl:    g('sp-introLinkUrl'),
+    introImg:        g('sp-introImg'),
+    quote:           g('sp-quote'),
+    quoteAttr:       g('sp-quoteAttr'),
+    detailsEyebrow:  g('sp-detailsEyebrow'),
+    detailsText:     g('sp-detailsText'),
+    detailsLinkText: g('sp-detailsLinkText'),
+    detailsLinkUrl:  g('sp-detailsLinkUrl'),
+    detailsImgLarge: g('sp-detailsImgLarge'),
+    detailsImgSmall: g('sp-detailsImgSmall'),
+    reserveEyebrow:  g('sp-reserveEyebrow'),
+    reserveTitle:    g('sp-reserveTitle'),
+    reserveLinkText: g('sp-reserveLinkText'),
+    reserveLinkUrl:  g('sp-reserveLinkUrl'),
+    reserveImg:      g('sp-reserveImg'),
+    img1:            g('sp-img1'),
+    img2:            g('sp-img2'),
+    img3:            g('sp-img3'),
+    img4:            g('sp-img4'),
+    panorama:        g('sp-panorama'),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   showToast('Mekan sayfası kaydedildi', 'success');
