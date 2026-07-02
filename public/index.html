@@ -830,33 +830,10 @@
       .block-text-image { padding: 2em 1.5em 3em; }
       .block-slider__header { padding: 0 1.5em; }
       .block-slider { overflow: visible; padding: 3em 0 3.5em; }
-      .podSwiper {
-        padding: 0 !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        height: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
-      }
-      .podSwiper::-webkit-scrollbar { display: none; }
-      .swiper-wrapper {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        transform: none !important;
-        width: auto !important;
-        height: auto !important;
-        padding: 0 1.5em;
-        gap: 1em;
-      }
+      .podSwiper { padding: 0 1.5em !important; }
       .swiper-slide {
         width: 72vw !important;
         height: 86vw !important;
-        flex-shrink: 0;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
       }
       .block-slider__nav { display: none; }
     }
@@ -1212,57 +1189,21 @@
     }, { threshold: 0 });
     document.querySelectorAll('[data-reveal]').forEach(el => obs.observe(el));
 
-    /* ── SWIPER — desktop only; mobile uses native CSS scroll snap ── */
-    const isMobileDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 768;
-    if (!isMobileDevice) {
-      const swiper = new Swiper('.podSwiper', {
-        slidesPerView: 'auto',
-        spaceBetween: 20,
-        grabCursor: true,
-        navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
-        on: {
-          slideChange(sw) {
-            const bar = document.getElementById('swiperBar');
-            if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
-          }
-        }
-      });
-    } else {
-      /* ── MOBILE: haptic feedback on slide snap ── */
-      const snapContainer = document.querySelector('.podSwiper');
-      if (snapContainer) {
-        let activeIdx = -1;
-
-        function getNearestSlideIndex() {
-          const slides = snapContainer.querySelectorAll('.swiper-slide');
-          const cLeft = snapContainer.getBoundingClientRect().left;
-          let best = 0, minD = Infinity;
-          slides.forEach((s, i) => {
-            const d = Math.abs(s.getBoundingClientRect().left - cLeft);
-            if (d < minD) { minD = d; best = i; }
-          });
-          return best;
-        }
-
-        function onSnap() {
-          const idx = getNearestSlideIndex();
-          if (idx !== activeIdx) {
-            activeIdx = idx;
-            if (navigator.vibrate) navigator.vibrate(10);
-          }
-        }
-
-        if ('onscrollend' in window) {
-          snapContainer.addEventListener('scrollend', onSnap);
-        } else {
-          let snapTimer;
-          snapContainer.addEventListener('scroll', () => {
-            clearTimeout(snapTimer);
-            snapTimer = setTimeout(onSnap, 120);
-          });
+    /* ── SWIPER ── */
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    new Swiper('.podSwiper', {
+      slidesPerView: 'auto',
+      spaceBetween: isMobile ? 16 : 20,
+      grabCursor: !isMobile,
+      navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
+      on: {
+        slideChange(sw) {
+          const bar = document.getElementById('swiperBar');
+          if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
+          if (isMobile && navigator.vibrate) navigator.vibrate(10);
         }
       }
-    }
+    });
   </script>
 
   <!-- Firebase -->
