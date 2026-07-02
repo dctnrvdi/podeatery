@@ -788,6 +788,7 @@
       .block-split-content__image img { top: 0; height: 100%; }
       .block-split-content__panel { width: 100%; }
       .block-split-content__panel-content { min-height: auto; padding: 2.25em 1.5em 3em; }
+      .block-full-image { height: 60vw; min-height: 240px; }
       .block-content-intro { grid-template-columns: 1fr; gap: 1.5em; padding: 4em 1.5em; }
       .block-content-intro__eyebrow,
       .block-content-intro__body { grid-column: span 1; }
@@ -1162,7 +1163,7 @@
     /* ── SCROLL REVEAL ── */
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); } });
-    }, { threshold: 0.12 });
+    }, { threshold: 0 });
     document.querySelectorAll('[data-reveal]').forEach(el => obs.observe(el));
 
     /* ── SWIPER ── */
