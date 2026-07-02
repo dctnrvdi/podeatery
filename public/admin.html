@@ -1315,14 +1315,27 @@ async function saveCldConfig() {
   if (!name || !preset) return showToast('Cloud Name ve Preset gerekli', 'error');
   await db.collection('siteConfig').doc('cloudinary').set({ cloudName: name, uploadPreset: preset });
   cldConfigCache = { cloudName: name, uploadPreset: preset };
+  localStorage.setItem('pod_cld_config', JSON.stringify(cldConfigCache));
   showToast('Cloudinary ayarları kaydedildi', 'success');
 }
 
 async function loadCldConfig() {
+  const ls = localStorage.getItem('pod_cld_config');
+  if (ls) {
+    try {
+      const p = JSON.parse(ls);
+      cldConfigCache = { cloudName: p.cloudName || '', uploadPreset: p.uploadPreset || '' };
+      const el1 = document.getElementById('cld-cloudName');
+      const el2 = document.getElementById('cld-uploadPreset');
+      if (el1) el1.value = cldConfigCache.cloudName;
+      if (el2) el2.value = cldConfigCache.uploadPreset;
+    } catch(e) {}
+  }
   const doc = await db.collection('siteConfig').doc('cloudinary').get();
   if (!doc.exists) return;
   const d = doc.data();
   cldConfigCache = { cloudName: d.cloudName || '', uploadPreset: d.uploadPreset || '' };
+  localStorage.setItem('pod_cld_config', JSON.stringify(cldConfigCache));
   const el1 = document.getElementById('cld-cloudName');
   const el2 = document.getElementById('cld-uploadPreset');
   if (el1) el1.value = d.cloudName || '';
