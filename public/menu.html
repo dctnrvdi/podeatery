@@ -188,6 +188,68 @@
     .img-modal__close:active { background: rgba(3,9,13,.8); }
     .img-modal__close svg { width: 1em; height: 1em; stroke: #fff; stroke-width: 2.5; fill: none; }
 
+    /* ─── FLOATING PEEK CARD (mobile auto-reveal) ── */
+    .peek-card {
+      display: none; /* mobile only */
+      position: fixed;
+      top: 4.25em;
+      right: 0.875em;
+      width: 38vw;
+      max-width: 148px;
+      border-radius: 1em;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(3,9,13,.32), 0 2px 8px rgba(3,9,13,.12);
+      z-index: 200;
+      opacity: 0;
+      transform: scale(.82) translateY(-10px);
+      transition: opacity .32s ease, transform .4s cubic-bezier(0.34,1.4,0.64,1);
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .peek-card.is-visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    .peek-card__img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+      transition: opacity .22s ease;
+    }
+    .peek-card__img.is-fading { opacity: 0; }
+    .peek-card__bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5em .6em .55em;
+      background: linear-gradient(to top, rgba(3,9,13,.78) 0%, transparent 100%);
+    }
+    .peek-card__name {
+      font-family: var(--font-primary);
+      font-size: .56em;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #fff;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .peek-card__price {
+      font-family: var(--font-primary);
+      font-size: .52em;
+      letter-spacing: .06em;
+      color: var(--gold);
+      display: block;
+      margin-top: .15em;
+    }
+    .peek-card__hint {
+      position: absolute; top: .5em; left: 50%; transform: translateX(-50%);
+      width: 1.75em; height: 3px; border-radius: 2px;
+      background: rgba(255,255,255,.35);
+    }
+    @media (pointer: coarse) { .peek-card { display: block; } }
+
     /* ─── HOVER IMAGE LAYERS ── */
     .cat-img-overlay {
       position: absolute; inset: 0;
@@ -251,12 +313,20 @@
     .menu-item__price { font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500; letter-spacing: 0.04em; color: #666; flex-shrink: 0; }
     .menu-item__desc { font-family: var(--font-secondary); font-size: 0.8125em; color: #999; line-height: 1.55; }
     /* Mobile image hint */
-    .menu-item__tap-hint {
-      font-family: var(--font-primary); font-size: 0.5625em; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--gold); margin-top: 0.4em;
-      display: none;
+    .menu-item__tap-hint { display: none; }
+    /* Subtle dot on items that have an image (mobile) */
+    @media (pointer: coarse) {
+      .menu-item.has-image .menu-item__name::after {
+        content: '';
+        display: inline-block;
+        width: .45em; height: .45em;
+        border-radius: 50%;
+        background: var(--gold);
+        margin-left: .5em;
+        vertical-align: middle;
+        opacity: .7;
+      }
     }
-    @media (pointer: coarse) { .menu-item.has-image .menu-item__tap-hint { display: block; } }
 
     /* Bottom caption */
     .cat-section__image-caption { position: absolute; bottom: 2em; left: 2em; right: 2em; z-index: 5; }
@@ -447,6 +517,16 @@
           <a href="#">Kullanım Koşulları</a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Floating peek card (mobile auto-reveal) -->
+  <div class="peek-card" id="peekCard">
+    <div class="peek-card__hint"></div>
+    <img class="peek-card__img" id="peekImg" src="" alt="">
+    <div class="peek-card__bar">
+      <span class="peek-card__name" id="peekName"></span>
+      <span class="peek-card__price" id="peekPrice"></span>
     </div>
   </div>
 
@@ -845,6 +925,65 @@
         });
       }
     });
+
+    if (isTouchDevice()) bindPeekCard(container);
+  }
+
+  /* ════════════════════════════════════════
+     FLOATING PEEK CARD — auto-reveal on scroll
+  ════════════════════════════════════════ */
+  const peekCard  = document.getElementById('peekCard');
+  const peekImg   = document.getElementById('peekImg');
+  const peekName  = document.getElementById('peekName');
+  const peekPrice = document.getElementById('peekPrice');
+  let peekCurrentUrl = '';
+  let peekHideTimer;
+
+  /* Peek card tap → open full modal */
+  peekCard.addEventListener('click', () => {
+    if (peekCurrentUrl) {
+      openImgModal(peekCurrentUrl, peekName.textContent, peekPrice.textContent);
+    }
+  });
+
+  function showPeek(imgUrl, name, price) {
+    clearTimeout(peekHideTimer);
+
+    if (imgUrl !== peekCurrentUrl) {
+      peekImg.classList.add('is-fading');
+      setTimeout(() => {
+        peekImg.src = imgUrl;
+        peekImg.onload = () => peekImg.classList.remove('is-fading');
+        peekCurrentUrl = imgUrl;
+      }, 200);
+    }
+    peekName.textContent  = name;
+    peekPrice.textContent = price;
+    peekCard.classList.add('is-visible');
+
+    peekHideTimer = setTimeout(() => {
+      peekCard.classList.remove('is-visible');
+      peekCurrentUrl = '';
+    }, 6000);
+  }
+
+  function bindPeekCard(container) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const item   = entry.target;
+        const imgUrl = item.dataset.img;
+        if (!imgUrl) return;
+        const name  = item.querySelector('.menu-item__name')?.textContent  || '';
+        const price = item.querySelector('.menu-item__price')?.textContent || '';
+        showPeek(imgUrl, name, price);
+      });
+    }, {
+      rootMargin: '-38% 0px -38% 0px',
+      threshold: 0
+    });
+
+    container.querySelectorAll('.menu-item[data-img]').forEach(el => obs.observe(el));
   }
 
   /* ════════════════════════════════════════
