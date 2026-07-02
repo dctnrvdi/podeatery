@@ -837,6 +837,7 @@
         height: auto !important;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x mandatory;
+        overscroll-behavior-x: contain;
         scrollbar-width: none;
       }
       .podSwiper::-webkit-scrollbar { display: none; }
@@ -855,6 +856,7 @@
         height: 86vw !important;
         flex-shrink: 0;
         scroll-snap-align: start;
+        scroll-snap-stop: always;
       }
       .block-slider__nav { display: none; }
     }
@@ -1225,6 +1227,41 @@
           }
         }
       });
+    } else {
+      /* ── MOBILE: haptic feedback on slide snap ── */
+      const snapContainer = document.querySelector('.podSwiper');
+      if (snapContainer) {
+        let activeIdx = -1;
+
+        function getNearestSlideIndex() {
+          const slides = snapContainer.querySelectorAll('.swiper-slide');
+          const cLeft = snapContainer.getBoundingClientRect().left;
+          let best = 0, minD = Infinity;
+          slides.forEach((s, i) => {
+            const d = Math.abs(s.getBoundingClientRect().left - cLeft);
+            if (d < minD) { minD = d; best = i; }
+          });
+          return best;
+        }
+
+        function onSnap() {
+          const idx = getNearestSlideIndex();
+          if (idx !== activeIdx) {
+            activeIdx = idx;
+            if (navigator.vibrate) navigator.vibrate(10);
+          }
+        }
+
+        if ('onscrollend' in window) {
+          snapContainer.addEventListener('scrollend', onSnap);
+        } else {
+          let snapTimer;
+          snapContainer.addEventListener('scroll', () => {
+            clearTimeout(snapTimer);
+            snapTimer = setTimeout(onSnap, 120);
+          });
+        }
+      }
     }
   </script>
 
