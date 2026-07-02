@@ -301,13 +301,23 @@
     .menu-item {
       padding: 1.1em 0 1.1em 0.75em;
       border-top: 1px solid #f0f0f0;
-      border-left: 2px solid transparent;
-      transition: border-left-color .2s, padding-left .2s, background .2s;
+      border-left: 3px solid transparent;
+      transition: border-left-color .3s ease, background .3s ease, padding-left .2s ease;
       cursor: default;
     }
     .menu-item:hover { border-left-color: var(--gold); }
     .menu-item.has-image { cursor: pointer; }
     .menu-item.is-tapped { background: rgba(200,169,110,.06); border-left-color: var(--gold); }
+    .menu-item.is-peeking {
+      background: rgba(200,169,110,.09);
+      border-left-color: var(--gold);
+      padding-left: 1.1em;
+    }
+    .menu-item.is-peeking .menu-item__name {
+      color: #8a6830;
+      transition: color .3s ease;
+    }
+    .menu-item.is-peeking .menu-item__price { color: #aaa; }
     .menu-item__row { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; margin-bottom: 0.3em; }
     .menu-item__name { font-family: var(--font-secondary); font-size: 0.9375em; font-weight: 500; }
     .menu-item__price { font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500; letter-spacing: 0.04em; color: #666; flex-shrink: 0; }
@@ -938,6 +948,14 @@
   const peekPrice = document.getElementById('peekPrice');
   let peekCurrentUrl = '';
   let peekHideTimer;
+  let peekActiveItem = null;
+
+  function clearPeekActive() {
+    if (peekActiveItem) {
+      peekActiveItem.classList.remove('is-peeking');
+      peekActiveItem = null;
+    }
+  }
 
   /* Peek card tap → open full modal */
   peekCard.addEventListener('click', () => {
@@ -946,8 +964,15 @@
     }
   });
 
-  function showPeek(imgUrl, name, price) {
+  function showPeek(imgUrl, name, price, itemEl) {
     clearTimeout(peekHideTimer);
+
+    /* highlight the active menu item */
+    clearPeekActive();
+    if (itemEl) {
+      itemEl.classList.add('is-peeking');
+      peekActiveItem = itemEl;
+    }
 
     if (imgUrl !== peekCurrentUrl) {
       peekImg.classList.add('is-fading');
@@ -963,6 +988,7 @@
 
     peekHideTimer = setTimeout(() => {
       peekCard.classList.remove('is-visible');
+      clearPeekActive();
       peekCurrentUrl = '';
     }, 6000);
   }
@@ -976,7 +1002,7 @@
         if (!imgUrl) return;
         const name  = item.querySelector('.menu-item__name')?.textContent  || '';
         const price = item.querySelector('.menu-item__price')?.textContent || '';
-        showPeek(imgUrl, name, price);
+        showPeek(imgUrl, name, price, item);
       });
     }, {
       rootMargin: '-38% 0px -38% 0px',
