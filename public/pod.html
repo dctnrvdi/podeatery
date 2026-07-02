@@ -1206,19 +1206,22 @@
     }, { threshold: 0 });
     document.querySelectorAll('[data-reveal]').forEach(el => obs.observe(el));
 
-    /* ── SWIPER ── */
-    const swiper = new Swiper('.podSwiper', {
-      slidesPerView: 'auto',
-      spaceBetween: 20,
-      grabCursor: true,
-      navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
-      on: {
-        slideChange(sw) {
-          const bar = document.getElementById('swiperBar');
-          if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
+    /* ── SWIPER — desktop only; mobile uses native CSS scroll snap ── */
+    const isMobileDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 768;
+    if (!isMobileDevice) {
+      const swiper = new Swiper('.podSwiper', {
+        slidesPerView: 'auto',
+        spaceBetween: 20,
+        grabCursor: true,
+        navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
+        on: {
+          slideChange(sw) {
+            const bar = document.getElementById('swiperBar');
+            if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
+          }
         }
-      }
-    });
+      });
+    }
   </script>
 
   <!-- Firebase -->
