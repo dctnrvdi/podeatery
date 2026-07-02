@@ -1163,20 +1163,26 @@ function saveSetup() {
   initFirebase(cfg);
 }
 
-function saveCldConfig() {
+let cldConfigCache = { cloudName: '', uploadPreset: '' };
+
+async function saveCldConfig() {
   const name   = document.getElementById('cld-cloudName').value.trim();
   const preset = document.getElementById('cld-uploadPreset').value.trim();
   if (!name || !preset) return showToast('Cloud Name ve Preset gerekli', 'error');
-  localStorage.setItem('cld_cloud_name', name);
-  localStorage.setItem('cld_upload_preset', preset);
+  await db.collection('siteConfig').doc('cloudinary').set({ cloudName: name, uploadPreset: preset });
+  cldConfigCache = { cloudName: name, uploadPreset: preset };
   showToast('Cloudinary ayarları kaydedildi', 'success');
 }
 
-function loadCldConfig() {
+async function loadCldConfig() {
+  const doc = await db.collection('siteConfig').doc('cloudinary').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  cldConfigCache = { cloudName: d.cloudName || '', uploadPreset: d.uploadPreset || '' };
   const el1 = document.getElementById('cld-cloudName');
   const el2 = document.getElementById('cld-uploadPreset');
-  if (el1) el1.value = localStorage.getItem('cld_cloud_name') || '';
-  if (el2) el2.value = localStorage.getItem('cld_upload_preset') || '';
+  if (el1) el1.value = d.cloudName || '';
+  if (el2) el2.value = d.uploadPreset || '';
 }
 
 function updateConfig() {
@@ -1254,7 +1260,7 @@ function showSection(btn, id) {
 ════════════════════════════════════════ */
 async function loadAll() {
   loadCldConfig();
-  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadSpacepage(), loadLegal(), loadDashboard()]);
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadSpacepage(), loadLegal(), loadCldConfig(), loadDashboard()]);
 }
 
 /* ════════════════════════════════════════
@@ -1802,8 +1808,8 @@ async function exportData() {
 ════════════════════════════════════════ */
 function getCldConfig() {
   return {
-    cloudName:    localStorage.getItem('cld_cloud_name') || '',
-    uploadPreset: localStorage.getItem('cld_upload_preset') || '',
+    cloudName:    cldConfigCache.cloudName    || '',
+    uploadPreset: cldConfigCache.uploadPreset || '',
   };
 }
 
