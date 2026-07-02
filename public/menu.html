@@ -327,8 +327,8 @@
 
   <!-- PAGE INTRO -->
   <div class="page-intro" data-reveal>
-    <h1 class="page-intro__title">Menü</h1>
-    <p class="page-intro__sub">Her sabah taze hazırlanan, mevsimsel malzemelerle yapılan yiyecek ve içeceklerimiz.</p>
+    <h1 class="page-intro__title" id="menuPageTitle">Menü</h1>
+    <p class="page-intro__sub" id="menuPageSub">Her sabah taze hazırlanan, mevsimsel malzemelerle yapılan yiyecek ve içeceklerimiz.</p>
   </div>
 
   <!-- FILTER BAR -->
@@ -814,6 +814,12 @@
     // Apply brand/contact info to footer if available
     if (db) {
       try {
+        const menuPageSnap = await db.collection('siteConfig').doc('menupage').get();
+        if (menuPageSnap.exists) {
+          const mp = menuPageSnap.data();
+          if (mp.pageTitle) document.getElementById('menuPageTitle').textContent = mp.pageTitle;
+          if (mp.pageSub)   document.getElementById('menuPageSub').textContent   = mp.pageSub;
+        }
         const cfg = await db.collection('siteConfig').doc('contact').get();
         if (cfg.exists) {
           const d = cfg.data();
