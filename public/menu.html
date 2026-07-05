@@ -1012,23 +1012,22 @@
     const items = Array.from(container.querySelectorAll('.menu-item[data-img]'));
     if (!items.length) return;
 
-    let ticking = false;
     let lastShownIdx = -1;
+    let scrollTimer;
 
     const checkScroll = () => {
-      ticking = false;
       if (tabEl && !tabEl.classList.contains('is-active')) return;
 
       const vh = window.innerHeight;
       const center = vh * 0.5;
-
       let bestItem = null;
       let bestDist = Infinity;
 
       items.forEach(item => {
         const rect = item.getBoundingClientRect();
-        if (rect.bottom < vh * 0.25 || rect.top > vh * 0.75) return;
-        const dist = Math.abs((rect.top + rect.height / 2) - center);
+        if (rect.bottom < vh * 0.15 || rect.top > vh * 0.85) return;
+        const mid = rect.top + rect.height / 2;
+        const dist = Math.abs(mid - center);
         if (dist < bestDist) { bestDist = dist; bestItem = item; }
       });
 
@@ -1037,13 +1036,16 @@
       if (idx === lastShownIdx) return;
       lastShownIdx = idx;
 
-      const name  = bestItem.querySelector('.menu-item__name')?.textContent  || '';
+      const name  = bestItem.querySelector('.menu-item__name')?.textContent || '';
       const price = bestItem.querySelector('.menu-item__price')?.textContent || '';
       showPeek(bestItem.dataset.img, name, price, bestItem);
     };
 
+    /* Fire after scroll settles — Lenis smooth scroll runs 1.2s even on
+       small gestures, so we wait for it to stop before picking the card */
     window.addEventListener('scroll', () => {
-      if (!ticking) { requestAnimationFrame(checkScroll); ticking = true; }
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(checkScroll, 120);
     }, { passive: true });
   }
 
