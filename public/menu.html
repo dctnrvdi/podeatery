@@ -1012,40 +1012,34 @@
     const items = Array.from(container.querySelectorAll('.menu-item[data-img]'));
     if (!items.length) return;
 
-    let lastShownIdx = -1;
-    let scrollTimer;
+    let activeIdx = -1;
+    let ticking   = false;
 
     const checkScroll = () => {
+      ticking = false;
       if (tabEl && !tabEl.classList.contains('is-active')) return;
 
-      const vh = window.innerHeight;
-      const center = vh * 0.5;
-      let bestItem = null;
-      let bestDist = Infinity;
+      const activationY = window.innerHeight * 0.48;
+      let hitIdx = -1;
 
-      items.forEach(item => {
-        const rect = item.getBoundingClientRect();
-        if (rect.bottom < vh * 0.15 || rect.top > vh * 0.85) return;
-        const mid = rect.top + rect.height / 2;
-        const dist = Math.abs(mid - center);
-        if (dist < bestDist) { bestDist = dist; bestItem = item; }
-      });
+      for (let i = 0; i < items.length; i++) {
+        const r = items[i].getBoundingClientRect();
+        if (r.top <= activationY && r.bottom >= activationY) { hitIdx = i; break; }
+      }
 
-      if (!bestItem) return;
-      const idx = items.indexOf(bestItem);
-      if (idx === lastShownIdx) return;
-      lastShownIdx = idx;
+      if (hitIdx === -1 || hitIdx === activeIdx) return;
 
-      const name  = bestItem.querySelector('.menu-item__name')?.textContent || '';
-      const price = bestItem.querySelector('.menu-item__price')?.textContent || '';
-      showPeek(bestItem.dataset.img, name, price, bestItem);
+      /* Step at most ±1 so Lenis overshoot can never skip cards (e.g. 4→1) */
+      activeIdx = activeIdx === -1 ? hitIdx : activeIdx + (hitIdx > activeIdx ? 1 : -1);
+
+      const item  = items[activeIdx];
+      const name  = item.querySelector('.menu-item__name')?.textContent  || '';
+      const price = item.querySelector('.menu-item__price')?.textContent || '';
+      showPeek(item.dataset.img, name, price, item);
     };
 
-    /* Fire after scroll settles — Lenis smooth scroll runs 1.2s even on
-       small gestures, so we wait for it to stop before picking the card */
     window.addEventListener('scroll', () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(checkScroll, 120);
+      if (!ticking) { requestAnimationFrame(checkScroll); ticking = true; }
     }, { passive: true });
   }
 
