@@ -1008,35 +1008,43 @@
   }
 
   function bindPeekCard(container) {
-    let scrollDir = 'down';
-    let lastScrollY = window.scrollY;
+    const tabEl = container.closest('.menu-content');
+    const items = Array.from(container.querySelectorAll('.menu-item[data-img]'));
+    if (!items.length) return;
+
+    let ticking = false;
+    let lastShownIdx = -1;
+
+    const checkScroll = () => {
+      ticking = false;
+      if (tabEl && !tabEl.classList.contains('is-active')) return;
+
+      const vh = window.innerHeight;
+      const center = vh * 0.5;
+
+      let bestItem = null;
+      let bestDist = Infinity;
+
+      items.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        if (rect.bottom < vh * 0.25 || rect.top > vh * 0.75) return;
+        const dist = Math.abs((rect.top + rect.height / 2) - center);
+        if (dist < bestDist) { bestDist = dist; bestItem = item; }
+      });
+
+      if (!bestItem) return;
+      const idx = items.indexOf(bestItem);
+      if (idx === lastShownIdx) return;
+      lastShownIdx = idx;
+
+      const name  = bestItem.querySelector('.menu-item__name')?.textContent  || '';
+      const price = bestItem.querySelector('.menu-item__price')?.textContent || '';
+      showPeek(bestItem.dataset.img, name, price, bestItem);
+    };
+
     window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      if (y !== lastScrollY) { scrollDir = y > lastScrollY ? 'down' : 'up'; lastScrollY = y; }
+      if (!ticking) { requestAnimationFrame(checkScroll); ticking = true; }
     }, { passive: true });
-
-    const obs = new IntersectionObserver(entries => {
-      const entering = entries.filter(e => e.isIntersecting && e.target.dataset.img);
-      if (!entering.length) return;
-
-      /* Sort by vertical position (top → bottom) */
-      entering.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-
-      /* Scrolling down → show bottommost entering item (approaching item)
-         Scrolling up   → show topmost entering item (returning item)    */
-      const chosen = scrollDir === 'down'
-        ? entering[entering.length - 1].target
-        : entering[0].target;
-
-      const name  = chosen.querySelector('.menu-item__name')?.textContent  || '';
-      const price = chosen.querySelector('.menu-item__price')?.textContent || '';
-      showPeek(chosen.dataset.img, name, price, chosen);
-    }, {
-      rootMargin: '-38% 0px -38% 0px',
-      threshold: 0
-    });
-
-    container.querySelectorAll('.menu-item[data-img]').forEach(el => obs.observe(el));
   }
 
   /* ════════════════════════════════════════
