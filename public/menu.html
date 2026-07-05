@@ -447,7 +447,7 @@
 
   <!-- HEADER -->
   <header class="block-header">
-    <a href="/" class="block-header__book-btn">Ana Sayfa</a>
+    <a href="/#reserve" class="block-header__book-btn">Rezervasyon</a>
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
@@ -1080,6 +1080,8 @@
           const b = brand.data();
           if (b.siteName) document.getElementById('footerLogo').textContent = b.siteName;
         }
+        const navSnap = await db.collection('siteConfig').doc('nav').get();
+        if (navSnap.exists) applyNav(navSnap.data());
         const footerSnap = await db.collection('siteConfig').doc('footer').get();
         if (footerSnap.exists) {
           const f = footerSnap.data();
@@ -1102,6 +1104,20 @@
         }
       } catch(e) { /* ignore */ }
     }
+  }
+
+  function applyNav(d) {
+    const btn = document.querySelector('.block-header__book-btn');
+    if (btn) { if (d.btnLabel) btn.textContent = d.btnLabel; if (d.btnHref) btn.href = d.btnHref; }
+    const links = document.querySelectorAll('.block-header__menu-nav a');
+    for (let i = 0; i < 4; i++) {
+      if (!links[i]) continue;
+      if (d['link'+(i+1)+'label']) links[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'href'])  links[i].href        = d['link'+(i+1)+'href'];
+    }
+    const soc = document.querySelectorAll('.block-header__menu-social a');
+    if (d.instagram && soc[0]) soc[0].href = d.instagram;
+    if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
   }
 
   /* ════════════════════════════════════════

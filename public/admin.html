@@ -474,6 +474,10 @@
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
           Marka &amp; Görsel
         </button>
+        <button class="nav-item" data-section="nav" onclick="showSection(this,'nav')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Navigasyon
+        </button>
         <button class="nav-item" data-section="homepage" onclick="showSection(this,'homepage')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
           Ana Sayfa
@@ -755,6 +759,53 @@
             <div class="contact-grid">
               <div class="form-group"><label>Instagram Kullanıcı Adı</label><input id="b-instagram" placeholder="@podeatery"></div>
               <div class="form-group"><label>E-Posta</label><input id="b-email" placeholder="hello@podcoffee.com"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV EDITOR -->
+      <div class="section" id="section-nav">
+        <div class="section-header">
+          <h2>Navigasyon</h2>
+          <button class="btn btn-primary btn-sm" onclick="saveNav()">Kaydet</button>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Üst Sağ Buton</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Buton Yazısı</label><input id="nav-btnLabel" placeholder="Rezervasyon"></div>
+              <div class="form-group"><label>Buton Linki</label><input id="nav-btnHref" placeholder="/#reserve"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Menü Linkleri (4 adet)</span></div></div>
+          <div class="card-body" style="padding:1.25em;display:flex;flex-direction:column;gap:.75em">
+            <div class="contact-grid">
+              <div class="form-group"><label>1. Link Yazısı</label><input id="nav-l1label" placeholder="Ana Sayfa"></div>
+              <div class="form-group"><label>1. Link URL</label><input id="nav-l1href" placeholder="/"></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>2. Link Yazısı</label><input id="nav-l2label" placeholder="Menü"></div>
+              <div class="form-group"><label>2. Link URL</label><input id="nav-l2href" placeholder="/menu"></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>3. Link Yazısı</label><input id="nav-l3label" placeholder="Mekan"></div>
+              <div class="form-group"><label>3. Link URL</label><input id="nav-l3href" placeholder="/space"></div>
+            </div>
+            <div class="contact-grid">
+              <div class="form-group"><label>4. Link Yazısı</label><input id="nav-l4label" placeholder="İletişim"></div>
+              <div class="form-group"><label>4. Link URL</label><input id="nav-l4href" placeholder="/contact"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Sosyal Linkler</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="contact-grid">
+              <div class="form-group"><label>Instagram URL</label><input id="nav-instagram" placeholder="https://www.instagram.com/podeatery"></div>
+              <div class="form-group"><label>E-posta</label><input id="nav-email" placeholder="hello@podcoffee.com"></div>
             </div>
           </div>
         </div>
@@ -1402,7 +1453,7 @@ function doLogout() {
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
-const topbarTitles = { dashboard:'Dashboard', messages:'Mesajlar', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
+const topbarTitles = { dashboard:'Dashboard', messages:'Mesajlar', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', nav:'Navigasyon', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
 
 function showSection(btn, id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1418,7 +1469,7 @@ function showSection(btn, id) {
 ════════════════════════════════════════ */
 async function loadAll() {
   loadCldConfig();
-  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadHomepage(), loadMenupage(), loadSpacepage(), loadLegal(), loadCldConfig(), loadDashboard()]);
+  await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadNavSection(), loadHomepage(), loadMenupage(), loadSpacepage(), loadLegal(), loadCldConfig(), loadDashboard()]);
 }
 
 /* ════════════════════════════════════════
@@ -2079,6 +2130,48 @@ async function saveFooter() {
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   showToast('Footer kaydedildi', 'success');
+}
+
+/* ════════════════════════════════════════
+   NAV
+════════════════════════════════════════ */
+async function loadNavSection() {
+  const doc = await db.collection('siteConfig').doc('nav').get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('nav-btnLabel',  d.btnLabel);
+  v('nav-btnHref',   d.btnHref);
+  v('nav-l1label',   d.link1label);
+  v('nav-l1href',    d.link1href);
+  v('nav-l2label',   d.link2label);
+  v('nav-l2href',    d.link2href);
+  v('nav-l3label',   d.link3label);
+  v('nav-l3href',    d.link3href);
+  v('nav-l4label',   d.link4label);
+  v('nav-l4href',    d.link4href);
+  v('nav-instagram', d.instagram);
+  v('nav-email',     d.email);
+}
+
+async function saveNav() {
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  await db.collection('siteConfig').doc('nav').set({
+    btnLabel:   g('nav-btnLabel'),
+    btnHref:    g('nav-btnHref'),
+    link1label: g('nav-l1label'),
+    link1href:  g('nav-l1href'),
+    link2label: g('nav-l2label'),
+    link2href:  g('nav-l2href'),
+    link3label: g('nav-l3label'),
+    link3href:  g('nav-l3href'),
+    link4label: g('nav-l4label'),
+    link4href:  g('nav-l4href'),
+    instagram:  g('nav-instagram'),
+    email:      g('nav-email'),
+    updatedAt:  firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Navigasyon kaydedildi', 'success');
 }
 
 /* ════════════════════════════════════════

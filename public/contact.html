@@ -313,7 +313,7 @@
 
   <!-- HEADER -->
   <header class="block-header">
-    <a href="/#reserve" class="block-header__book-btn">Reserve</a>
+    <a href="/#reserve" class="block-header__book-btn">Rezervasyon</a>
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
@@ -323,10 +323,10 @@
   </header>
   <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
     <div class="block-header__menu-nav">
-      <a href="/#story">Our Story</a>
-      <a href="/menu">Menu</a>
-      <a href="/space">The Space</a>
-      <a href="/contact">Contact</a>
+      <a href="/">Ana Sayfa</a>
+      <a href="/menu">Menü</a>
+      <a href="/space">Mekan</a>
+      <a href="/contact">İletişim</a>
     </div>
     <div class="block-header__menu-social">
       <a href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
@@ -562,10 +562,12 @@
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
 
-      const [contactSnap, footerSnap] = await Promise.all([
+      const [contactSnap, footerSnap, navSnap] = await Promise.all([
         db.collection('siteConfig').doc('contact').get(),
-        db.collection('siteConfig').doc('footer').get()
+        db.collection('siteConfig').doc('footer').get(),
+        db.collection('siteConfig').doc('nav').get()
       ]);
+      if (navSnap.exists) applyNav(navSnap.data());
 
       const set = (id, val) => { if (!val) return; const e = document.getElementById(id); if (e) e.textContent = val; };
 
@@ -627,6 +629,20 @@
       }
     } catch(e) { console.warn('[POD] İçerik yüklenemedi:', e.message); }
   })();
+
+  function applyNav(d) {
+    const btn = document.querySelector('.block-header__book-btn');
+    if (btn) { if (d.btnLabel) btn.textContent = d.btnLabel; if (d.btnHref) btn.href = d.btnHref; }
+    const links = document.querySelectorAll('.block-header__menu-nav a');
+    for (let i = 0; i < 4; i++) {
+      if (!links[i]) continue;
+      if (d['link'+(i+1)+'label']) links[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'href'])  links[i].href        = d['link'+(i+1)+'href'];
+    }
+    const soc = document.querySelectorAll('.block-header__menu-social a');
+    if (d.instagram && soc[0]) soc[0].href = d.instagram;
+    if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
+  }
 
   async function submitContactForm() {
     const name  = document.getElementById('cf-name').value.trim();

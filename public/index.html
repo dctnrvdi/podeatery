@@ -896,7 +896,7 @@
 
   <!-- HEADER -->
   <header class="block-header">
-    <a href="/menu" class="block-header__book-btn">Menü</a>
+    <a href="/#reserve" class="block-header__book-btn">Rezervasyon</a>
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
@@ -1290,12 +1290,15 @@
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
 
-      const [hpDoc, brandDoc, contactDoc, footerDoc] = await Promise.all([
+      const [hpDoc, brandDoc, contactDoc, footerDoc, navDoc] = await Promise.all([
         db.collection('siteConfig').doc('homepage').get(),
         db.collection('siteConfig').doc('brand').get(),
         db.collection('siteConfig').doc('contact').get(),
         db.collection('siteConfig').doc('footer').get(),
+        db.collection('siteConfig').doc('nav').get(),
       ]);
+
+      if (navDoc.exists) applyNav(navDoc.data());
 
       /* ── HOMEPAGE ── */
       if (hpDoc.exists) {
@@ -1503,6 +1506,20 @@
       console.warn('[POD] Firestore içerik yüklenemedi:', e.message);
     }
   })();
+
+  function applyNav(d) {
+    const btn = document.querySelector('.block-header__book-btn');
+    if (btn) { if (d.btnLabel) btn.textContent = d.btnLabel; if (d.btnHref) btn.href = d.btnHref; }
+    const links = document.querySelectorAll('.block-header__menu-nav a');
+    for (let i = 0; i < 4; i++) {
+      if (!links[i]) continue;
+      if (d['link'+(i+1)+'label']) links[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'href'])  links[i].href        = d['link'+(i+1)+'href'];
+    }
+    const soc = document.querySelectorAll('.block-header__menu-social a');
+    if (d.instagram && soc[0]) soc[0].href = d.instagram;
+    if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
+  }
 
   function setTxt(id, val) {
     const el = document.getElementById(id);

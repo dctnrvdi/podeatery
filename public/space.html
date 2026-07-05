@@ -451,7 +451,7 @@
 
   <!-- HEADER -->
   <header class="block-header">
-    <a href="/#reserve" class="block-header__book-btn">Reserve</a>
+    <a href="/#reserve" class="block-header__book-btn">Rezervasyon</a>
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
@@ -461,10 +461,10 @@
   </header>
   <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
     <div class="block-header__menu-nav">
-      <a href="/#story">Our Story</a>
-      <a href="/menu">Menu</a>
-      <a href="/space">The Space</a>
-      <a href="/contact">Contact</a>
+      <a href="/">Ana Sayfa</a>
+      <a href="/menu">Menü</a>
+      <a href="/space">Mekan</a>
+      <a href="/contact">İletişim</a>
     </div>
     <div class="block-header__menu-social">
       <a href="https://www.instagram.com/podeatery" target="_blank" rel="noopener">@podeatery</a>
@@ -679,7 +679,12 @@
       const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-      const doc = await db.collection('siteConfig').doc('space').get();
+
+      const [doc, navDoc] = await Promise.all([
+        db.collection('siteConfig').doc('space').get(),
+        db.collection('siteConfig').doc('nav').get(),
+      ]);
+      if (navDoc.exists) applyNav(navDoc.data());
       if (!doc.exists) return;
       const d = doc.data();
 
@@ -790,6 +795,20 @@
       console.warn('[POD Space] Firestore içerik yüklenemedi:', e.message);
     }
   })();
+
+  function applyNav(d) {
+    const btn = document.querySelector('.block-header__book-btn');
+    if (btn) { if (d.btnLabel) btn.textContent = d.btnLabel; if (d.btnHref) btn.href = d.btnHref; }
+    const links = document.querySelectorAll('.block-header__menu-nav a');
+    for (let i = 0; i < 4; i++) {
+      if (!links[i]) continue;
+      if (d['link'+(i+1)+'label']) links[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'href'])  links[i].href        = d['link'+(i+1)+'href'];
+    }
+    const soc = document.querySelectorAll('.block-header__menu-social a');
+    if (d.instagram && soc[0]) soc[0].href = d.instagram;
+    if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
+  }
 
   function setSpMedia(selectorOrEl, url, parallax, direct) {
     const container = typeof selectorOrEl === 'string' ? document.querySelector(selectorOrEl) : selectorOrEl;
