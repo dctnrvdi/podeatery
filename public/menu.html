@@ -1008,16 +1008,29 @@
   }
 
   function bindPeekCard(container) {
+    let scrollDir = 'down';
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y !== lastScrollY) { scrollDir = y > lastScrollY ? 'down' : 'up'; lastScrollY = y; }
+    }, { passive: true });
+
     const obs = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const item   = entry.target;
-        const imgUrl = item.dataset.img;
-        if (!imgUrl) return;
-        const name  = item.querySelector('.menu-item__name')?.textContent  || '';
-        const price = item.querySelector('.menu-item__price')?.textContent || '';
-        showPeek(imgUrl, name, price, item);
-      });
+      const entering = entries.filter(e => e.isIntersecting && e.target.dataset.img);
+      if (!entering.length) return;
+
+      /* Sort by vertical position (top → bottom) */
+      entering.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+      /* Scrolling down → show bottommost entering item (approaching item)
+         Scrolling up   → show topmost entering item (returning item)    */
+      const chosen = scrollDir === 'down'
+        ? entering[entering.length - 1].target
+        : entering[0].target;
+
+      const name  = chosen.querySelector('.menu-item__name')?.textContent  || '';
+      const price = chosen.querySelector('.menu-item__price')?.textContent || '';
+      showPeek(chosen.dataset.img, name, price, chosen);
     }, {
       rootMargin: '-38% 0px -38% 0px',
       threshold: 0
