@@ -1098,10 +1098,19 @@
             const a = document.getElementById('footer-instagram');
             if (a) a.href = f.instagram;
           }
+          if (f.reserveText) { const e = document.querySelector('.block-footer__desc-wrap a.link span'); if(e) e.textContent = f.reserveText; }
+          if (f.reserveUrl)  { const e = document.querySelector('.block-footer__desc-wrap a.link'); if(e) e.href = f.reserveUrl; }
+          if (f.pagesTitle)  { const e = document.querySelector('.block-footer__menu-form > div:first-child .block-footer__eyebrow'); if(e) e.textContent = f.pagesTitle; }
+          if (f.newsletterTitle) { const e = document.querySelector('.block-footer__form .block-footer__eyebrow'); if(e) e.textContent = f.newsletterTitle; }
+          if (f.subscribeText)   { const e = document.querySelector('.block-footer__form .form__button .link span'); if(e) e.textContent = f.subscribeText; }
+          if (f.namePlaceholder)  { const e = document.querySelector('.form-footer input[type=text]');  if(e) e.placeholder = f.namePlaceholder; }
+          if (f.emailPlaceholder) { const e = document.querySelector('.form-footer input[type=email]'); if(e) e.placeholder = f.emailPlaceholder; }
           const copyrightEl = document.querySelector('.copyright-content span');
           if (copyrightEl && f.copyright) copyrightEl.textContent = f.copyright;
-          const newsletterEl = document.querySelector('.block-footer__form .block-footer__eyebrow');
-          if (newsletterEl && f.newsletterTitle) newsletterEl.textContent = f.newsletterTitle;
+          if (f.privacyText) { const e = document.querySelector('.terms a:first-child'); if(e) e.textContent = f.privacyText; }
+          if (f.privacyUrl)  { const e = document.querySelector('.terms a:first-child'); if(e) e.href = f.privacyUrl; }
+          if (f.termsText)   { const e = document.querySelector('.terms a:last-child');  if(e) e.textContent = f.termsText; }
+          if (f.termsUrl)    { const e = document.querySelector('.terms a:last-child');  if(e) e.href = f.termsUrl; }
         }
       } catch(e) { /* ignore */ }
     }
@@ -1120,6 +1129,12 @@
     const soc = document.querySelectorAll('.block-header__menu-social a');
     if (d.instagram && soc[0]) soc[0].href = d.instagram;
     if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
+    const footerLinks = document.querySelectorAll('.block-footer__menu-list a');
+    for (let i = 0; i < 4; i++) {
+      if (!footerLinks[i]) continue;
+      if (d['link'+(i+1)+'label']) footerLinks[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'href'])  footerLinks[i].href        = d['link'+(i+1)+'href'];
+    }
   }
 
   /* ════════════════════════════════════════

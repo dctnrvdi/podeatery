@@ -682,11 +682,22 @@
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Sayfa Linkleri</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group"><label>Bölüm Başlığı ("Sayfalar")</label><input id="ft-pagesTitle" placeholder="Sayfalar"></div>
+            <p style="font-size:.8em;color:var(--muted);margin-top:.25em">Link metinleri ve URL'leri Navigasyon bölümünden yönetilir.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bülten (Newsletter) Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
               <div class="form-group"><label>Bülten Başlığı</label><input id="ft-newsletterTitle" placeholder="Stay in the Loop"></div>
               <div class="form-group"><label>Abone Butonu Yazısı</label><input id="ft-subscribeText" placeholder="Subscribe"></div>
+            </div>
+            <div class="contact-grid" style="margin-top:.75em">
+              <div class="form-group"><label>İsim Alanı Placeholder</label><input id="ft-namePlaceholder" placeholder="Your Name"></div>
+              <div class="form-group"><label>E-posta Alanı Placeholder</label><input id="ft-emailPlaceholder" placeholder="Your Email"></div>
             </div>
           </div>
         </div>
@@ -696,6 +707,14 @@
             <div class="contact-grid">
               <div class="form-group"><label>Logo Yazısı (sol alt)</label><input id="ft-logotype" placeholder="POD"></div>
               <div class="form-group"><label>Telif Hakkı Metni</label><input id="ft-copyright" placeholder="© 2024 POD Coffee &amp; Eatery. All rights reserved."></div>
+            </div>
+            <div class="contact-grid" style="margin-top:.75em">
+              <div class="form-group"><label>Gizlilik Politikası Yazısı</label><input id="ft-privacyText" placeholder="Privacy Policy"></div>
+              <div class="form-group"><label>Gizlilik Politikası URL</label><input id="ft-privacyUrl" placeholder="/privacy"></div>
+            </div>
+            <div class="contact-grid" style="margin-top:.75em">
+              <div class="form-group"><label>Kullanım Koşulları Yazısı</label><input id="ft-termsText" placeholder="Terms of Use"></div>
+              <div class="form-group"><label>Kullanım Koşulları URL</label><input id="ft-termsUrl" placeholder="/terms"></div>
             </div>
           </div>
         </div>
@@ -2108,10 +2127,17 @@ async function loadFooter() {
   v('ft-reserveUrl',     d.reserveUrl);
   v('ft-instagram',      d.instagram);
   v('ft-email',          d.email);
-  v('ft-newsletterTitle',d.newsletterTitle);
-  v('ft-subscribeText',  d.subscribeText);
-  v('ft-logotype',       d.logotype);
-  v('ft-copyright',      d.copyright);
+  v('ft-newsletterTitle', d.newsletterTitle);
+  v('ft-subscribeText',   d.subscribeText);
+  v('ft-namePlaceholder', d.namePlaceholder);
+  v('ft-emailPlaceholder',d.emailPlaceholder);
+  v('ft-pagesTitle',      d.pagesTitle);
+  v('ft-logotype',        d.logotype);
+  v('ft-copyright',       d.copyright);
+  v('ft-privacyText',     d.privacyText);
+  v('ft-privacyUrl',      d.privacyUrl);
+  v('ft-termsText',       d.termsText);
+  v('ft-termsUrl',        d.termsUrl);
 }
 
 async function saveFooter() {
@@ -2123,10 +2149,17 @@ async function saveFooter() {
     reserveUrl:      g('ft-reserveUrl'),
     instagram:       g('ft-instagram'),
     email:           g('ft-email'),
-    newsletterTitle: g('ft-newsletterTitle'),
-    subscribeText:   g('ft-subscribeText'),
-    logotype:        g('ft-logotype'),
-    copyright:       g('ft-copyright'),
+    newsletterTitle:  g('ft-newsletterTitle'),
+    subscribeText:    g('ft-subscribeText'),
+    namePlaceholder:  g('ft-namePlaceholder'),
+    emailPlaceholder: g('ft-emailPlaceholder'),
+    pagesTitle:       g('ft-pagesTitle'),
+    logotype:         g('ft-logotype'),
+    copyright:        g('ft-copyright'),
+    privacyText:      g('ft-privacyText'),
+    privacyUrl:       g('ft-privacyUrl'),
+    termsText:        g('ft-termsText'),
+    termsUrl:         g('ft-termsUrl'),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   showToast('Footer kaydedildi', 'success');
