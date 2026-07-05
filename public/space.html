@@ -749,6 +749,10 @@
           vid.loop = true; vid.playsInline = true;
           vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
           if (img) img.replaceWith(vid); else cells[2].prepend(vid);
+          const playEl = cells[2].querySelector('.video-play');
+          const badgeEl = cells[2].querySelector('.sp-grid__badge');
+          if (playEl) playEl.style.display = 'none';
+          if (badgeEl) badgeEl.style.display = 'none';
         } else if (img) { img.src = d.img3; }
       }
       if (d.img4 && cells[3]) {
