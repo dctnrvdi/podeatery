@@ -42,7 +42,7 @@
     html { font-size: var(--size-font); }
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
-    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
 
     .eyebrow { font-family: var(--fp); font-size: .6875em; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--c8); display: inline-block; }
     .link { font-family: var(--fp); font-size: .875em; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; display: inline-flex; align-items: center; gap: .7em; transition: opacity .25s; }
@@ -627,7 +627,11 @@
         if (f.reserveUrl)      { const e = document.getElementById('footerReserveLink'); if(e) e.href = f.reserveUrl; }
         if (f.instagram)       { const e = document.getElementById('footerIgLink'); if(e) e.href = f.instagram; }
       }
-    } catch(e) { console.warn('[POD] İçerik yüklenemedi:', e.message); }
+    } catch(e) {
+      console.warn('[POD] İçerik yüklenemedi:', e.message);
+    } finally {
+      document.body.style.opacity = '1';
+    }
   })();
 
   function applyNav(d) {

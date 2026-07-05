@@ -43,7 +43,7 @@
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
     .lenis.lenis-stopped { overflow: hidden; }
-    body { font-family: var(--font-secondary); background-color: #fff; color: #1a1a1a; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-secondary); background-color: #fff; color: #1a1a1a; overflow-x: hidden; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
 
     /* ─── HEADER ── */
     body::before {
@@ -1104,6 +1104,7 @@
         }
       } catch(e) { /* ignore */ }
     }
+    document.body.style.opacity = '1';
   }
 
   function applyNav(d) {
