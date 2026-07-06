@@ -1328,6 +1328,9 @@
       tab.classList.add('active');
       document.querySelectorAll('.menu-content').forEach(c => c.classList.remove('is-active'));
       document.getElementById(tab.dataset.filter).classList.add('is-active');
+      peekCard.classList.remove('is-visible');
+      clearPeekActive();
+      peekCurrentUrl = '';
       observeReveals();
     });
   });
