@@ -77,11 +77,11 @@
     a { text-decoration: none; color: inherit; }
     ul { list-style: none; }
     button { cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
-    html { font-size: var(--size-font); }
+    html { font-size: var(--size-font); overflow-x: hidden; max-width: 100%; }
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
     .lenis.lenis-stopped { overflow: hidden; }
-    body { font-family: var(--font-secondary); background-color: #fff; color: #1a1a1a; overflow-x: hidden; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
+    body { font-family: var(--font-secondary); background-color: #fff; color: #1a1a1a; overflow-x: hidden; max-width: 100%; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
 
     /* ─── HEADER ── */
     body::before {

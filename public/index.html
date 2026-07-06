@@ -82,7 +82,7 @@
     input { font-family: inherit; }
 
     /* ─── BASE ───────────────────────────────────────────── */
-    html { font-size: var(--size-font); }
+    html { font-size: var(--size-font); overflow-x: hidden; max-width: 100%; }
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
     .lenis.lenis-stopped { overflow: hidden; }
@@ -91,6 +91,7 @@
       background-color: var(--color-1);
       color: var(--color-2);
       overflow-x: hidden;
+      max-width: 100%;
       -webkit-font-smoothing: antialiased;
     }
     body.is-loading { overflow: hidden; }
@@ -549,7 +550,7 @@
       width: 25%;
       transition: width .4s ease;
     }
-    .podSwiper { padding: 0 2.75em !important; overflow: visible !important; }
+    .podSwiper { padding: 0 2.75em !important; overflow: visible !important; max-width: 100%; }
     .swiper-slide {
       width: 22em !important;
       aspect-ratio: 560/700;

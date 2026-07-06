@@ -74,10 +74,10 @@
     button { cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
     input, textarea { font-family: inherit; }
 
-    html { font-size: var(--size-font); }
+    html { font-size: var(--size-font); overflow-x: hidden; max-width: 100%; }
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
-    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
+    body { font-family: var(--fs); background: #fff; color: var(--c2); overflow-x: hidden; max-width: 100%; -webkit-font-smoothing: antialiased; opacity: 0; transition: opacity .35s; }
 
     .eyebrow { font-family: var(--fp); font-size: .6875em; font-weight: 500; letter-spacing: .12em; color: var(--c8); display: inline-block; }
     .link { font-family: var(--fp); font-size: .875em; font-weight: 500; letter-spacing: .06em; display: inline-flex; align-items: center; gap: .7em; transition: opacity .25s; }
