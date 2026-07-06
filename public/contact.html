@@ -324,12 +324,15 @@
     .cpc-marquee__fade { position: absolute; top: 0; bottom: 0; width: 8em; z-index: 2; pointer-events: none; }
     .cpc-marquee__fade--l { left: 0; background: linear-gradient(to right, #03090D, transparent); }
     .cpc-marquee__fade--r { right: 0; background: linear-gradient(to left, #03090D, transparent); }
-    .cpc-marquee__wrap { padding: 1.1em 0; }
-    .cpc-marquee__inner { display: inline-flex; align-items: center; white-space: nowrap; animation: cpcScroll 18s linear infinite; }
+    .cpc-marquee__wrap { padding: .9em 0; }
+    .cpc-marquee__inner { display: inline-flex; align-items: center; white-space: nowrap; animation: cpcScroll 24s linear infinite; }
     .cpc-marquee:hover .cpc-marquee__inner { animation-play-state: paused; }
-    .cpc-marquee__inner a { display: inline-flex; align-items: center; color: rgba(248,242,229,.55); text-decoration: none; font-family: var(--fp); font-size: .625em; letter-spacing: .22em; text-transform: uppercase; transition: color .2s; }
-    .cpc-marquee__inner a:hover { color: #c8a96e; }
-    .cpc-marquee__sep { color: rgba(200,169,110,.4); padding: 0 2em; font-size: .5em; }
+    .cpc-credit { display: inline-flex; flex-direction: column; align-items: center; gap: .12em; white-space: nowrap; color: rgba(248,242,229,.3); text-decoration: none; transition: color .4s; }
+    .cpc-credit:hover { color: rgba(248,242,229,.75); }
+    .cpc-credit__label { font-family: var(--fp); font-size: .42em; letter-spacing: .32em; text-transform: uppercase; font-weight: 300; }
+    .cpc-credit__brand { font-family: var(--fp); font-size: .72em; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; transition: letter-spacing .65s cubic-bezier(.16,1,.3,1), color .4s, text-shadow .4s; }
+    .cpc-credit:hover .cpc-credit__brand { letter-spacing: .52em; color: #c8a96e; text-shadow: 0 0 20px rgba(200,169,110,.55), 0 0 55px rgba(200,169,110,.2); }
+    .cpc-marquee__sep { color: rgba(200,169,110,.18); padding: 0 3em; font-size: .4em; }
     @keyframes cpcScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
     /* ─── RESPONSIVE ── */
@@ -573,22 +576,14 @@
       <div class="cpc-marquee__fade cpc-marquee__fade--r"></div>
       <div class="cpc-marquee__wrap">
         <div class="cpc-marquee__inner">
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
-          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener" class="cpc-credit"><span class="cpc-credit__label">Designed &amp; Developed by</span><span class="cpc-credit__brand">CUTPASTECUT®</span></a><span class="cpc-marquee__sep">✦</span>
         </div>
       </div>
     </div>
