@@ -574,7 +574,10 @@
       <div class="section" id="section-drinks">
         <div class="section-header">
           <h2>İçecek Menüsü</h2>
-          <button class="btn btn-primary btn-sm" onclick="openCatModal('icecek')">+ Kategori Ekle</button>
+          <div style="display:flex;gap:.5em">
+            <button class="btn btn-ghost btn-sm" onclick="resetDrinksOnly()" title="İçecek kategorilerini, ürünlerini ve ek ürünleri sıfırlar. Yiyecek menüsüne dokunmaz.">↺ İçecekleri Güncelle</button>
+            <button class="btn btn-primary btn-sm" onclick="openCatModal('icecek')">+ Kategori Ekle</button>
+          </div>
         </div>
         <!-- Add-ons -->
         <div class="card" style="margin-bottom:1.5em">
@@ -1963,7 +1966,7 @@ const FULL_MENU_ITEMS = [
   { categoryId:'espresso', name:'Türk Kahvesi',            price:140, desc:'', order:14 },
   // POD ÖZEL
   { categoryId:'podspecial', name:'Muzlu Süt',                     price:240, desc:'', order:1 },
-  { categoryId:'podspecial', name:'Pod Latte',                     price:240, desc:'Bal ve Tarçın İlaveli', order:2 },
+  { categoryId:'podspecial', name:'Pod Latte',                     price:240, desc:'Bal ve tarçın ilaveli', order:2 },
   { categoryId:'podspecial', name:'Cookie Latte',                  price:240, desc:'Sıcak | Soğuk', order:3 },
   { categoryId:'podspecial', name:'Toffee Nut Latte',              price:240, desc:'Sıcak | Soğuk', order:4 },
   { categoryId:'podspecial', name:'Kavrulmuş Badem Latte',         price:240, desc:'Sıcak | Soğuk', order:5 },
@@ -1973,42 +1976,42 @@ const FULL_MENU_ITEMS = [
   { categoryId:'podspecial', name:'Beyaz Çikolata Frambuaz Latte', price:250, desc:'Sıcak | Soğuk', order:9 },
   // MATCHA BAR
   { categoryId:'matchabar', name:'Matcha',               price:230, desc:'', order:1 },
-  { categoryId:'matchabar', name:'Çilek Matcha',         price:270, desc:'Pod Yapımı Çilek Püresi', order:2 },
-  { categoryId:'matchabar', name:'Yaban Mersini Matcha', price:270, desc:'Pod Yapımı Yaban Mersini Püresi', order:3 },
-  { categoryId:'matchabar', name:'Ananas Matcha',        price:270, desc:'Pod Yapımı Ananas Püresi', order:4 },
-  { categoryId:'matchabar', name:'Mango Matcha',         price:270, desc:'Pod Yapımı Mango Püresi', order:5 },
-  { categoryId:'matchabar', name:'Şeftali Matcha',       price:270, desc:'Pod Yapımı Şeftali Püresi', order:6 },
+  { categoryId:'matchabar', name:'Çilek Matcha',         price:270, desc:'Pod yapımı çilek püresi', order:2 },
+  { categoryId:'matchabar', name:'Yaban Mersini Matcha', price:270, desc:'Pod yapımı yaban mersini püresi', order:3 },
+  { categoryId:'matchabar', name:'Ananas Matcha',        price:270, desc:'Pod yapımı ananas püresi', order:4 },
+  { categoryId:'matchabar', name:'Mango Matcha',         price:270, desc:'Pod yapımı mango püresi', order:5 },
+  { categoryId:'matchabar', name:'Şeftali Matcha',       price:270, desc:'Pod yapımı şeftali püresi', order:6 },
   // BREW BAR
   { categoryId:'brewbar', name:'V60',       price:260, desc:'', order:1 },
   { categoryId:'brewbar', name:'Chemex',    price:260, desc:'', order:2 },
   { categoryId:'brewbar', name:'Aeropress', price:260, desc:'', order:3 },
   // SMOOTHIE & PROTEIN BAR
-  { categoryId:'smoothie', name:'Yeşil Smoothie',         price:280, desc:'Avokado, Ispanak, Muz, Taze Elma Suyu, Chia', order:1 },
-  { categoryId:'smoothie', name:'Orman Meyveli Smoothie', price:280, desc:'Böğürtlen, Frambuaz, Yaban Mersini, Muz, Fıstık Ezmesi, Badem Sütü', order:2 },
-  { categoryId:'smoothie', name:'Kakao Smoothie',         price:280, desc:'Kakao, Muz, Fıstık Ezmesi, Chia, Badem Sütü', order:3 },
-  { categoryId:'smoothie', name:'Tropikal Smoothie',      price:280, desc:'Ananas, Mango, Muz, Fıstık Ezmesi, Chia', order:4 },
+  { categoryId:'smoothie', name:'Yeşil Smoothie',         price:280, desc:'Avokado, ıspanak, muz, taze sıkılmış yeşil elma suyu, chia tohumu', order:1 },
+  { categoryId:'smoothie', name:'Orman Meyveli Smoothie', price:280, desc:'Böğürtlen, frambuaz, yaban mersini, muz, fıstık ezmesi, chia tohumu, badem sütü', order:2 },
+  { categoryId:'smoothie', name:'Kakao Smoothie',         price:280, desc:'Kakao, muz, fıstık ezmesi, chia tohumu, badem sütü', order:3 },
+  { categoryId:'smoothie', name:'Tropikal Smoothie',      price:280, desc:'Ananas, mango, muz, fıstık ezmesi, chia tohumu, badem sütü', order:4 },
   // BUZ GİBİLER
-  { categoryId:'buzgibiler', name:'Muz & Maydonoz',  price:280, desc:'Pod Limonata, Muz, Maydonoz', order:1 },
-  { categoryId:'buzgibiler', name:'Orman Meyveleri', price:280, desc:'Pod Limonata, Böğürtlen, Frambuaz, Çilek, Nane', order:2 },
-  { categoryId:'buzgibiler', name:'Ananas',          price:280, desc:'Pod Limonata, Ananas, Çarkıfelek', order:3 },
+  { categoryId:'buzgibiler', name:'Muz & Maydanoz',  price:280, desc:'Pod yapımı limonata, muz, maydanoz', order:1 },
+  { categoryId:'buzgibiler', name:'Orman Meyveleri', price:280, desc:'Pod yapımı limonata, böğürtlen, frambuaz, çilek, nane', order:2 },
+  { categoryId:'buzgibiler', name:'Ananas',          price:280, desc:'Pod yapımı limonata, ananas, çarkıfelek meyvesi', order:3 },
   // DETOKS
-  { categoryId:'detoks', name:'Yeşil',   price:240, desc:'Maydonoz, Yeşil Elma, Kereviz, Salatalık, Limon', order:1 },
-  { categoryId:'detoks', name:'Turuncu', price:240, desc:'Portakal, Havuç, Limon, Zencefil', order:2 },
-  { categoryId:'detoks', name:'Kırmızı', price:240, desc:'Portakal, Kırmızı Elma, Havuç, Böğürtlen', order:3 },
+  { categoryId:'detoks', name:'Yeşil',   price:240, desc:'Maydanoz, yeşil elma, kereviz, salatalık, limon', order:1 },
+  { categoryId:'detoks', name:'Turuncu', price:240, desc:'Portakal, havuç, limon, zencefil', order:2 },
+  { categoryId:'detoks', name:'Kırmızı', price:240, desc:'Portakal, kırmızı elma, havuç, böğürtlen', order:3 },
   // TAZELEYİCİ SOĞUK ÇAYLAR
-  { categoryId:'sogukcay', name:'Limonata',         price:220, desc:'Taze Nane, Ev Yapımı Pod Limonata', order:1 },
+  { categoryId:'sogukcay', name:'Limonata',         price:220, desc:'Taze nane eşliğinde ev yapımı Pod limonata', order:1 },
   { categoryId:'sogukcay', name:'Portakal Suyu',    price:220, desc:'', order:2 },
   { categoryId:'sogukcay', name:'Cool Lime',        price:220, desc:'', order:3 },
   { categoryId:'sogukcay', name:'Berry Hibiscus',   price:220, desc:'', order:4 },
   { categoryId:'sogukcay', name:'Elma & Yasemin',   price:220, desc:'', order:5 },
   { categoryId:'sogukcay', name:'Mango & Frambuaz', price:220, desc:'', order:6 },
   // MELEZ TEA BİTKİ ÇAYLARI
-  { categoryId:'bitkicay', name:'Relax',        price:160, desc:'Rooibos, Papatya, Lavanta, Elma, Vanilya (5-7 dk)', order:1 },
-  { categoryId:'bitkicay', name:'Mystic',       price:160, desc:'Mango, Elma, Zerdeçal, Yeşil Çay, Zencefil, Tarçın (3-4 dk)', order:2 },
-  { categoryId:'bitkicay', name:'Soothe',       price:160, desc:'Rezene, Ihlamur, Zencefil, Nane, Vanilya (6 dk)', order:3 },
-  { categoryId:'bitkicay', name:'Boost',        price:160, desc:'Elma, Mürver, Kuşburnu, Ekinezya, Zencefil (6 dk)', order:4 },
-  { categoryId:'bitkicay', name:'Zencefil Çay', price:160, desc:'Taze Zencefil, Portakal, Limon (7-8 dk)', order:5 },
-  { categoryId:'bitkicay', name:'Demleme Çay',  price:60,  desc:'İnce Belli 60₺ / Fincan 70₺', order:6 },
+  { categoryId:'bitkicay', name:'Relax',        price:160, desc:'Rooibos, papatya, lavanta, doğal aroma, elma, vanilya · 5-7 dk', order:1 },
+  { categoryId:'bitkicay', name:'Mystic',       price:160, desc:'Mango, elma, zerdeçal, yeşil çay, yıldız anason, tarçın, zencefil, meyan kökü, kakule, karanfil, Hindistan cevizi aroması, pembe biber · 3-4 dk', order:2 },
+  { categoryId:'bitkicay', name:'Soothe',       price:160, desc:'Rezene, ıhlamur, zencefil, rooibos, papatya, limon otu, nane, vanilya, nergis çiçeği · 6 dk', order:3 },
+  { categoryId:'bitkicay', name:'Boost',        price:160, desc:'Elma, mürver, kuşburnu, doğal aroma, goji, yeşil limon, ekinezya, zencefil, hatmi çiçeği · 6 dk', order:4 },
+  { categoryId:'bitkicay', name:'Zencefil Çay', price:160, desc:'Taze zencefil dilimleri, dilim portakal ve dilim limon ile · 7-8 dk', order:5 },
+  { categoryId:'bitkicay', name:'Demleme Çay',  price:60,  desc:'İnce belli 60₺ / fincan 70₺', order:6 },
   // SOFT BAR
   { categoryId:'softbar', name:'Pınar Premium Su',    price:50,  desc:'', order:1 },
   { categoryId:'softbar', name:'Uludağ Premium Soda', price:120, desc:'', order:2 },
@@ -2021,8 +2024,8 @@ async function seedData() {
   FULL_MENU_CATS.forEach(c => batch.set(db.collection('menuCategories').doc(c.id), c));
   FULL_MENU_ITEMS.forEach(item => batch.set(db.collection('menuItems').doc(), item));
   const addons = [
-    { name:'Whey Protein', price:120, note:'+23 gr protein', order:1 },
-    { name:'Kolajen',      price:100, note:'', order:2 },
+    { name:'Whey Protein Tozu', price:120, note:'+23 gr protein içerir', order:1 },
+    { name:'Kolajen',           price:100, note:'', order:2 },
   ];
   addons.forEach(a => batch.set(db.collection('addons').doc(), a));
   await db.collection('siteConfig').doc('contact').set({
@@ -2050,6 +2053,35 @@ async function resetAndSeed() {
   addonSnap.docs.forEach(d => delBatch.delete(d.ref));
   await delBatch.commit();
   await seedData();
+}
+
+async function resetDrinksOnly() {
+  if (!confirm('İçecek kategorileri, ürünleri ve ek ürünler sıfırlanıp güncel listeyle yüklenecek. Yiyecek menüsüne dokunulmaz. Devam?')) return;
+  showToast('İçecek menüsü güncelleniyor…');
+  const [catSnap, itemSnap, addonSnap] = await Promise.all([
+    db.collection('menuCategories').where('tab','==','icecek').get(),
+    db.collection('menuItems').get(),
+    db.collection('addons').get(),
+  ]);
+  const drinkCatIds = new Set(catSnap.docs.map(d => d.id));
+  const drinkItems  = itemSnap.docs.filter(d => drinkCatIds.has(d.data().categoryId));
+  const delBatch = db.batch();
+  catSnap.docs.forEach(d => delBatch.delete(d.ref));
+  drinkItems.forEach(d => delBatch.delete(d.ref));
+  addonSnap.docs.forEach(d => delBatch.delete(d.ref));
+  await delBatch.commit();
+  const seedDrinkCatIds = new Set(FULL_MENU_CATS.filter(c => c.tab === 'icecek').map(c => c.id));
+  const addBatch = db.batch();
+  FULL_MENU_CATS.filter(c => c.tab === 'icecek').forEach(c => addBatch.set(db.collection('menuCategories').doc(c.id), c));
+  FULL_MENU_ITEMS.filter(i => seedDrinkCatIds.has(i.categoryId)).forEach(i => addBatch.set(db.collection('menuItems').doc(), i));
+  const addons = [
+    { name:'Whey Protein Tozu', price:120, note:'+23 gr protein içerir', order:1 },
+    { name:'Kolajen',           price:100, note:'', order:2 },
+  ];
+  addons.forEach(a => addBatch.set(db.collection('addons').doc(), a));
+  await addBatch.commit();
+  showToast('İçecek menüsü güncellendi!', 'success');
+  loadAll();
 }
 
 /* ════════════════════════════════════════
