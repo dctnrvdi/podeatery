@@ -113,6 +113,22 @@
     .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
     .block-header__toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .block-header__toggle.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+    .block-header__right { display: flex; align-items: center; gap: 0.75em; }
+    .open-badge { display: inline-flex; align-items: center; gap: 0.32em; }
+    .open-badge__dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,254,253,.2); flex-shrink: 0; transition: background .4s; }
+    .open-badge__text { font-family: var(--fp); font-size: 0.5em; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,254,253,.45); white-space: nowrap; transition: color .4s; }
+    .open-badge--open .open-badge__dot { background: #6bb87a; animation: badge-pulse 2.5s ease-in-out infinite; }
+    .open-badge--open .open-badge__text { color: rgba(255,254,253,.7); }
+    .open-badge--closed .open-badge__dot { background: rgba(255,254,253,.22); }
+    @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+    .cookie-banner { display: none; position: fixed; bottom: 1.5em; left: 50%; transform: translateX(-50%); width: 40em; max-width: calc(100% - 2em); background: rgba(3,9,13,.93); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-radius: 0.5em; padding: 1em 1.25em; z-index: 9998; align-items: center; gap: 1.25em; border: 1px solid rgba(255,254,253,.08); }
+    .cookie-banner__text { font-family: var(--fp); font-size: 0.6875em; font-weight: 300; letter-spacing: 0.02em; line-height: 1.55; color: rgba(255,254,253,.6); flex: 1; }
+    .cookie-banner__text a { color: rgba(255,254,253,.6); text-decoration: underline; text-underline-offset: 2px; }
+    .cookie-banner__btn { font-family: var(--fp); font-size: 0.625em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #FFFEFD; background: transparent; border: 1px solid rgba(255,254,253,.32); border-radius: 0.3em; padding: 0.65em 1.4em; cursor: pointer; white-space: nowrap; transition: background .25s; flex-shrink: 0; }
+    .cookie-banner__btn:hover { background: rgba(255,254,253,.1); }
+
     .block-header__menu {
       position: fixed; top: calc(1em + 3.75em + 0.5em); left: 0; right: 0;
       margin: 0 auto; max-width: 45em;
@@ -541,9 +557,15 @@
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
-    <button class="block-header__toggle" id="menuToggle" aria-label="Menüyü aç">
-      <span></span><span></span><span></span>
-    </button>
+    <div class="block-header__right">
+      <div class="open-badge" id="openBadge" aria-hidden="true">
+        <span class="open-badge__dot"></span>
+        <span class="open-badge__text">—</span>
+      </div>
+      <button class="block-header__toggle" id="menuToggle" aria-label="Menüyü aç">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </header>
 
   <nav class="block-header__menu" id="headerMenu" aria-hidden="true">
@@ -1193,6 +1215,7 @@
             document.getElementById('nav-email').href = `mailto:${d.email}`;
             document.getElementById('nav-email').textContent = d.email;
           }
+          updateOpenBadge(d.hours || {});
         }
         const brand = await db.collection('siteConfig').doc('brand').get();
         if (brand.exists) {
@@ -1372,6 +1395,47 @@
         btn.style.opacity = '';
         btn.style.pointerEvents = '';
       }
+    });
+  })();
+  </script>
+
+  <!-- cookie banner -->
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Çerez bildirimi">
+    <p class="cookie-banner__text">Bu site KVKK kapsamında çerez kullanmaktadır. Siteyi kullanmaya devam ederek bunu kabul etmiş olursunuz. <a href="/privacy">Gizlilik Politikası</a></p>
+    <button class="cookie-banner__btn" id="cookieAccept">Kabul Et</button>
+  </div>
+
+  <script>
+  function updateOpenBadge(hoursData) {
+    const badge = document.getElementById('openBadge');
+    if (!badge) return;
+    const defs = { mon:'08:00 – 21:00', tue:'08:00 – 21:00', wed:'08:00 – 21:00', thu:'08:00 – 21:00', fri:'08:00 – 21:00', sat:'09:00 – 21:00', sun:'09:00 – 21:00' };
+    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+    const tr = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+    const dayKey = keys[tr.getDay()];
+    const nowM = tr.getHours() * 60 + tr.getMinutes();
+    const raw = (hoursData && hoursData[dayKey]) || defs[dayKey];
+    const parts = raw.split(/\s*[–—]\s*/);
+    if (parts.length < 2) return;
+    const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
+    const openM = toM(parts[0]);
+    let closeM = toM(parts[1]);
+    if (closeM === 0) closeM = 1440;
+    const isOpen = nowM >= openM && nowM < closeM;
+    badge.classList.toggle('open-badge--open', isOpen);
+    badge.classList.toggle('open-badge--closed', !isOpen);
+    badge.querySelector('.open-badge__text').textContent = isOpen ? 'Açık' : 'Kapalı';
+  }
+  updateOpenBadge({});
+
+  (function(){
+    if (localStorage.getItem('pod_consent') === '1') return;
+    const b = document.getElementById('cookieBanner');
+    if (!b) return;
+    b.style.display = 'flex';
+    document.getElementById('cookieAccept').addEventListener('click', function(){
+      localStorage.setItem('pod_consent', '1');
+      b.style.display = 'none';
     });
   })();
   </script>
