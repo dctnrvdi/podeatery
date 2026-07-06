@@ -691,8 +691,19 @@
         <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Sayfa Linkleri</span></div></div>
           <div class="card-body" style="padding:1.25em">
-            <div class="form-group"><label>Bölüm Başlığı ("Sayfalar")</label><input id="ft-pagesTitle" placeholder="Sayfalar"></div>
-            <p style="font-size:.8em;color:var(--muted);margin-top:.25em">Link metinleri ve URL'leri Navigasyon bölümünden yönetilir.</p>
+            <div class="form-group" style="margin-bottom:1em"><label>Bölüm Başlığı ("Sayfalar")</label><input id="ft-pagesTitle" placeholder="Sayfalar"></div>
+            <p style="font-size:.8em;color:var(--muted);margin-bottom:.75em">Boş bırakılan satırlar footer'da gizlenir.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em .75em;align-items:center;margin-bottom:.35em">
+              <span style="font-size:.75em;opacity:.5;font-weight:500">Link Metni</span>
+              <span style="font-size:.75em;opacity:.5;font-weight:500">URL</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.4em">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em"><input id="ft-l1label" placeholder="Ana Sayfa"><input id="ft-l1href" placeholder="/"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em"><input id="ft-l2label" placeholder="Menü"><input id="ft-l2href" placeholder="/menu"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em"><input id="ft-l3label" placeholder="Mekan"><input id="ft-l3href" placeholder="/space"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em"><input id="ft-l4label" placeholder="İletişim"><input id="ft-l4href" placeholder="/contact"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5em"><input id="ft-l5label" placeholder="Instagram"><input id="ft-l5href" placeholder="https://instagram.com/..."></div>
+            </div>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -2219,6 +2230,10 @@ async function loadFooter() {
   v('ft-namePlaceholder', d.namePlaceholder);
   v('ft-emailPlaceholder',d.emailPlaceholder);
   v('ft-pagesTitle',      d.pagesTitle);
+  for (let i = 1; i <= 5; i++) {
+    v('ft-l'+i+'label', d['ftl'+i+'label']);
+    v('ft-l'+i+'href',  d['ftl'+i+'href']);
+  }
   v('ft-logotype',        d.logotype);
   v('ft-copyright',       d.copyright);
   v('ft-privacyText',     d.privacyText);
@@ -2241,6 +2256,11 @@ async function saveFooter() {
     namePlaceholder:  g('ft-namePlaceholder'),
     emailPlaceholder: g('ft-emailPlaceholder'),
     pagesTitle:       g('ft-pagesTitle'),
+    ftl1label: g('ft-l1label'), ftl1href: g('ft-l1href'),
+    ftl2label: g('ft-l2label'), ftl2href: g('ft-l2href'),
+    ftl3label: g('ft-l3label'), ftl3href: g('ft-l3href'),
+    ftl4label: g('ft-l4label'), ftl4href: g('ft-l4href'),
+    ftl5label: g('ft-l5label'), ftl5href: g('ft-l5href'),
     logotype:         g('ft-logotype'),
     copyright:        g('ft-copyright'),
     privacyText:      g('ft-privacyText'),

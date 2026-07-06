@@ -1360,7 +1360,22 @@
     }
     if (f.reserveText) { const el = document.querySelector('.block-footer__desc-wrap a.link span'); if(el) el.textContent = f.reserveText; }
     if (f.reserveUrl)  { const el = document.querySelector('.block-footer__desc-wrap a.link'); if(el) el.href = f.reserveUrl; }
-    if (f.instagram)   { const el = document.querySelector('.block-footer__menu-list a[href*="instagram"]'); if(el) el.href = f.instagram; }
+    const ftLinks = document.querySelectorAll('.block-footer__menu-list a');
+    let ftIdx = 0;
+    for (let i = 1; i <= 5; i++) {
+      const lbl = f['ftl'+i+'label'], href = f['ftl'+i+'href'];
+      if (!lbl && !href) continue;
+      const li = ftLinks[ftIdx] ? ftLinks[ftIdx].closest('li') : null;
+      if (!li) break;
+      if (lbl)  ftLinks[ftIdx].textContent = lbl;
+      if (href) ftLinks[ftIdx].href = href;
+      li.style.display = '';
+      ftIdx++;
+    }
+    for (let j = ftIdx; j < ftLinks.length; j++) {
+      const li = ftLinks[j] ? ftLinks[j].closest('li') : null;
+      if (li) li.style.display = 'none';
+    }
     if (f.pagesTitle)      { const el = document.querySelector('.block-footer__menu-form > div:first-child .block-footer__eyebrow'); if(el) el.textContent = f.pagesTitle; }
     if (f.newsletterTitle) { const el = document.querySelector('.block-footer__form .block-footer__eyebrow'); if(el) el.textContent = f.newsletterTitle; }
     if (f.subscribeText)   { const el = document.querySelector('.block-footer__form .form__button .link span'); if(el) el.textContent = f.subscribeText; }
@@ -1453,12 +1468,6 @@
     const soc = document.querySelectorAll('.block-header__menu-social a');
     if (d.instagram && soc[0]) soc[0].href = d.instagram;
     if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
-    const footerLinks = document.querySelectorAll('.block-footer__menu-list a');
-    for (let i = 0; i < 4; i++) {
-      if (!footerLinks[i]) continue;
-      if (d['link'+(i+1)+'label']) footerLinks[i].textContent = d['link'+(i+1)+'label'];
-      if (d['link'+(i+1)+'href'])  footerLinks[i].href        = d['link'+(i+1)+'href'];
-    }
   }
 
   function setTxt(id, val) {
