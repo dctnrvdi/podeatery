@@ -39,6 +39,11 @@
     .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
     .block-header__toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .block-header__toggle.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+    .block-header__left { display: flex; align-items: center; gap: .75em; }
+    .food-icon-cycle { position: relative; width: 1.5em; height: 1.5em; flex-shrink: 0; }
+    .food-svg { position: absolute; inset: 0; width: 100%; height: 100%; color: rgba(255,254,253,.5); opacity: 0; transform: scale(.5) rotate(-12deg); pointer-events: none; }
+    .food-svg.is-active { animation: food-pop .3s cubic-bezier(.34,1.56,.64,1) forwards; }
+    @keyframes food-pop { from { opacity: 0; transform: scale(.5) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
     .block-header__menu { position: fixed; top: calc(1em + 3.75em + .5em); left: 0; right: 0; margin: 0 auto; max-width: 45em; background: #FFFEFD; border-radius: .375em; overflow: hidden; pointer-events: none; opacity: 0; transform: translateY(-8px); transition: opacity .3s, transform .3s; z-index: 999; }
     .block-header__menu.is-open { pointer-events: auto; opacity: 1; transform: translateY(0); }
     .block-header__menu-nav { display: flex; flex-direction: column; align-items: center; padding: 2.25em 1.5em 1.5em; gap: 1.1em; }
@@ -83,7 +88,16 @@
 <body>
 
   <header class="block-header">
-    <a href="/menu" class="block-header__book-btn">Menü</a>
+    <div class="block-header__left">
+      <a href="/menu" class="block-header__book-btn">Menü</a>
+      <div class="food-icon-cycle" id="foodIcon" aria-hidden="true">
+        <svg class="food-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7c0-1 .8-1 .8-2M13 7c0-1 .8-1 .8-2"/><path d="M5 9h13l-1.8 11H6.8z"/><path d="M18 11.5h1.5a1.5 1.5 0 010 3H18"/><line x1="4" y1="22" x2="20" y2="22"/></svg>
+        <svg class="food-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2C9 2 6 5.5 6 11c0 5.5 3 11 6 11s6-5.5 6-11C18 5.5 15 2 12 2z"/><circle cx="12" cy="15" r="2.5"/></svg>
+        <svg class="food-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 15c0-2 1.2-4.5 2.5-6 .8-.7 2-.5 2.5.5C9.5 8 10.5 5 12.5 5c3 0 7.5 4 7.5 8 0 4-3 6-8 6C7 19 4 17.5 4 15z"/><circle cx="13.5" cy="12" r="2.5"/></svg>
+        <svg class="food-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 7c0-1 .7-1 .7-2M14 7c0-1 .7-1 .7-2"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M5 10a7 7 0 0014 0"/></svg>
+        <svg class="food-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a4 4 0 018 0v9H4z"/><path d="M12 10a4 4 0 018 0v9h-8z"/><line x1="12" y1="10" x2="12" y2="19"/></svg>
+      </div>
+    </div>
     <div class="block-header__logo">
       <a href="/" class="block-header__logo-text">POD</a>
     </div>
@@ -135,6 +149,14 @@ Sitedeki tüm içerik POD Coffee &amp; Eatery'e aittir ve izinsiz kullanılamaz.
       menu.classList.toggle('is-open');
       menu.setAttribute('aria-hidden', !menu.classList.contains('is-open'));
     });
+    /* ── Food icon cycle ── */
+    (function(){
+      const svgs = document.querySelectorAll('.food-svg');
+      if (!svgs.length) return;
+      let cur = 0;
+      svgs[0].classList.add('is-active');
+      setInterval(function(){ svgs[cur].classList.remove('is-active'); cur=(cur+1)%svgs.length; svgs[cur].classList.add('is-active'); }, 2400);
+    })();
   </script>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
