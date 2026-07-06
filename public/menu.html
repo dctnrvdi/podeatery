@@ -1128,7 +1128,7 @@
 
   function bindPeekCard(container) {
     const tabEl = container.closest('.menu-content');
-    const items = Array.from(container.querySelectorAll('.menu-item[data-img]'));
+    const items = Array.from(container.querySelectorAll('.menu-item[data-img]')).filter(el => !!el.dataset.img);
     if (!items.length) return;
 
     let activeIdx = -1;
