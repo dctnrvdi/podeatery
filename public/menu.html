@@ -938,10 +938,14 @@
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
       try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({menu:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
-      const [catSnap, itemSnap, addonSnap] = await Promise.all([
-        db.collection('menuCategories').get(),
-        db.collection('menuItems').get(),
-        db.collection('addons').get()
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
+      const [catSnap, itemSnap, addonSnap] = await Promise.race([
+        Promise.all([
+          db.collection('menuCategories').get(),
+          db.collection('menuItems').get(),
+          db.collection('addons').get()
+        ]),
+        timeout
       ]);
       const cats  = catSnap.docs.map(d => ({ id:d.id, ...d.data() }));
       const items = itemSnap.docs.map(d => ({ id:d.id, ...d.data() }));
@@ -1196,16 +1200,24 @@
     renderTab('yiyecek', data.yiyecek, data.addons);
     renderTab('icecek',  data.icecek,  data.addons);
 
-    // Apply brand/contact info to footer if available
+    // Show page immediately — menu content is ready
+    document.body.style.opacity = '1';
+
+    // Load secondary config in parallel (footer/nav/brand) — non-blocking
     if (db) {
       try {
-        const menuPageSnap = await db.collection('siteConfig').doc('menupage').get();
+        const [menuPageSnap, cfg, brand, navSnap, footerSnap] = await Promise.all([
+          db.collection('siteConfig').doc('menupage').get(),
+          db.collection('siteConfig').doc('contact').get(),
+          db.collection('siteConfig').doc('brand').get(),
+          db.collection('siteConfig').doc('nav').get(),
+          db.collection('siteConfig').doc('footer').get(),
+        ]);
         if (menuPageSnap.exists) {
           const mp = menuPageSnap.data();
           if (mp.pageTitle) document.getElementById('menuPageTitle').textContent = mp.pageTitle;
           if (mp.pageSub)   document.getElementById('menuPageSub').textContent   = mp.pageSub;
         }
-        const cfg = await db.collection('siteConfig').doc('contact').get();
         if (cfg.exists) {
           const d = cfg.data();
           if (d.instagram) {
@@ -1219,14 +1231,11 @@
           }
           updateOpenBadge(d.hours || {});
         }
-        const brand = await db.collection('siteConfig').doc('brand').get();
         if (brand.exists) {
           const b = brand.data();
           if (b.siteName) document.getElementById('footerLogo').textContent = b.siteName;
         }
-        const navSnap = await db.collection('siteConfig').doc('nav').get();
         if (navSnap.exists) applyNav(navSnap.data());
-        const footerSnap = await db.collection('siteConfig').doc('footer').get();
         if (footerSnap.exists) {
           const f = footerSnap.data();
           if (f.desc) document.getElementById('footerDesc').textContent = f.desc;
@@ -1269,7 +1278,6 @@
         }
       } catch(e) { /* ignore */ }
     }
-    document.body.style.opacity = '1';
   }
 
   function applyNav(d) {
