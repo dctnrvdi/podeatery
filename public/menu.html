@@ -869,6 +869,7 @@
     try {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
+      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({menu:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const [catSnap, itemSnap, addonSnap] = await Promise.all([
         db.collection('menuCategories').get(),
         db.collection('menuItems').get(),

@@ -597,7 +597,7 @@
       const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-
+      try { const _k='pod_v_contact_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({contact:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const [contactSnap, footerSnap, navSnap] = await Promise.all([
         db.collection('siteConfig').doc('contact').get(),
         db.collection('siteConfig').doc('footer').get(),

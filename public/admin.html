@@ -652,6 +652,27 @@
           <div class="dash-card"><div class="dash-card__label">İçecek Ürünü</div><div class="dash-card__value" id="dash-drink-count">—</div><div class="dash-card__sub">aktif ürün</div></div>
           <div class="dash-card"><div class="dash-card__label">Kategori</div><div class="dash-card__value" id="dash-cat-count">—</div><div class="dash-card__sub">toplam kategori</div></div>
         </div>
+        <div class="dash-grid" style="margin-bottom:1.5em">
+          <div class="dash-card"><div class="dash-card__label">Bugün Toplam Ziyaret</div><div class="dash-card__value" id="dash-today-total">—</div><div class="dash-card__sub">tüm sayfalar</div></div>
+          <div class="dash-card"><div class="dash-card__label">Bugün Menü</div><div class="dash-card__value" id="dash-today-menu">—</div><div class="dash-card__sub">menü sayfası</div></div>
+          <div class="dash-card"><div class="dash-card__label">Bu Hafta Toplam</div><div class="dash-card__value" id="dash-week-total">—</div><div class="dash-card__sub">son 7 gün</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Son 7 Gün — Sayfa Ziyaretleri</span></div></div>
+          <div class="card-body" style="padding:0">
+            <table style="width:100%;border-collapse:collapse;font-size:.8em" id="dash-analytics-table">
+              <thead><tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:.6em 1em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
+                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Ana Sayfa</th>
+                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Menü</th>
+                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Mekan</th>
+                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">İletişim</th>
+                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Toplam</th>
+              </tr></thead>
+              <tbody id="dash-analytics-body"><tr><td colspan="6" style="padding:1.5em;text-align:center;opacity:.4">Yükleniyor…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
         <div id="seedNotice" class="seed-notice" style="display:none">
           <p>Firestore henüz boş görünüyor. Mevcut menü verisini otomatik ekleyelim mi?</p>
           <button class="btn btn-accent btn-sm" onclick="seedData()">Veriyi Yükle</button>
@@ -1743,18 +1764,53 @@ async function markRead(id, btn) {
    DASHBOARD
 ════════════════════════════════════════ */
 async function loadDashboard() {
+  // Menu counts
   const [cats, items] = await Promise.all([
     db.collection('menuCategories').get(),
     db.collection('menuItems').get()
   ]);
-  const foodCats  = cats.docs.filter(d => d.data().tab === 'yiyecek');
-  const drinkCats = cats.docs.filter(d => d.data().tab === 'icecek');
   const foodItems  = items.docs.filter(d => { const c = cats.docs.find(x=>x.id===d.data().categoryId); return c && c.data().tab==='yiyecek'; });
   const drinkItems = items.docs.filter(d => { const c = cats.docs.find(x=>x.id===d.data().categoryId); return c && c.data().tab==='icecek'; });
   document.getElementById('dash-food-count').textContent  = foodItems.length;
   document.getElementById('dash-drink-count').textContent = drinkItems.length;
   document.getElementById('dash-cat-count').textContent   = cats.size;
   document.getElementById('seedNotice').style.display = cats.size === 0 ? 'flex' : 'none';
+
+  // Analytics — last 7 days
+  try {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push(d.toISOString().slice(0,10));
+    }
+    const snaps = await Promise.all(days.map(d => db.collection('analytics').doc(d).get()));
+    let weekTotal = 0;
+    const tbody = document.getElementById('dash-analytics-body');
+    tbody.innerHTML = '';
+    snaps.forEach((snap, i) => {
+      const d = snap.exists ? snap.data() : {};
+      const home = d.home||0, menu = d.menu||0, space = d.space||0, contact = d.contact||0;
+      const total = home + menu + space + contact;
+      weekTotal += total;
+      if (i === 0) {
+        document.getElementById('dash-today-total').textContent = total;
+        document.getElementById('dash-today-menu').textContent  = menu;
+      }
+      const isToday = i === 0;
+      const label = isToday ? 'Bugün' : days[i].slice(5).replace('-','/');
+      tbody.innerHTML += `<tr style="border-bottom:1px solid var(--border)${isToday?';font-weight:500':''}">
+        <td style="padding:.55em 1em">${label}</td>
+        <td style="padding:.55em 1em;text-align:right">${home||'—'}</td>
+        <td style="padding:.55em 1em;text-align:right">${menu||'—'}</td>
+        <td style="padding:.55em 1em;text-align:right">${space||'—'}</td>
+        <td style="padding:.55em 1em;text-align:right">${contact||'—'}</td>
+        <td style="padding:.55em 1em;text-align:right;font-weight:500">${total||'—'}</td>
+      </tr>`;
+    });
+    document.getElementById('dash-week-total').textContent = weekTotal;
+  } catch(e) {
+    document.getElementById('dash-analytics-body').innerHTML = '<tr><td colspan="6" style="padding:1em;opacity:.4;text-align:center">Veri yüklenemedi</td></tr>';
+  }
 }
 
 /* ════════════════════════════════════════
