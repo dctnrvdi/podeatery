@@ -1177,8 +1177,18 @@
 
       if (hitIdx === -1 || hitIdx === activeIdx) return;
 
-      /* Step at most ±1 so Lenis overshoot can never skip cards (e.g. 4→1) */
-      activeIdx = activeIdx === -1 ? hitIdx : activeIdx + (hitIdx > activeIdx ? 1 : -1);
+      if (activeIdx === -1) {
+        /* First activation: find the topmost item that has reached activationY,
+           so if item 0 scrolled past before the first tick we still start from 0 */
+        activeIdx = hitIdx;
+        for (let i = 0; i < hitIdx; i++) {
+          const ri = items[i].getBoundingClientRect();
+          if (ri.top <= activationY) { activeIdx = i; break; }
+        }
+      } else {
+        /* Step at most ±1 so Lenis overshoot can never skip cards (e.g. 4→1) */
+        activeIdx = activeIdx + (hitIdx > activeIdx ? 1 : -1);
+      }
 
       const item  = items[activeIdx];
       const name  = item.querySelector('.menu-item__name')?.textContent  || '';
