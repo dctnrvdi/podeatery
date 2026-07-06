@@ -764,9 +764,17 @@
     }
     .terms { display: flex; gap: 3em; }
     .terms a:hover { color: var(--color-3); }
-    .cpc-credit { text-align: center; padding: .5em 1em 1.25em; font-family: var(--font-primary); font-size: .5625em; letter-spacing: .2em; text-transform: uppercase; opacity: .28; }
-    .cpc-credit a { color: inherit; }
-    .cpc-credit a:hover { opacity: 1; }
+    .cpc-marquee { background: #03090D; overflow: hidden; position: relative; border-top: 1px solid rgba(255,255,255,.06); }
+    .cpc-marquee__fade { position: absolute; top: 0; bottom: 0; width: 8em; z-index: 2; pointer-events: none; }
+    .cpc-marquee__fade--l { left: 0; background: linear-gradient(to right, #03090D, transparent); }
+    .cpc-marquee__fade--r { right: 0; background: linear-gradient(to left, #03090D, transparent); }
+    .cpc-marquee__wrap { padding: 1.1em 0; }
+    .cpc-marquee__inner { display: inline-flex; align-items: center; white-space: nowrap; animation: cpcScroll 18s linear infinite; }
+    .cpc-marquee:hover .cpc-marquee__inner { animation-play-state: paused; }
+    .cpc-marquee__inner a { display: inline-flex; align-items: center; color: rgba(248,242,229,.55); text-decoration: none; font-family: var(--font-primary); font-size: .625em; letter-spacing: .22em; text-transform: uppercase; transition: color .2s; }
+    .cpc-marquee__inner a:hover { color: var(--color-3, #c8a96e); }
+    .cpc-marquee__sep { color: rgba(200,169,110,.4); padding: 0 2em; font-size: .5em; }
+    @keyframes cpcScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
     /* ─── SCROLL REVEAL ──────────────────────────────────── */
     @media (pointer: fine) {
@@ -1124,7 +1132,30 @@
         </div>
       </div>
     </div>
-    <div class="cpc-credit">Site by <a href="https://cutpastecut.com" target="_blank" rel="noopener">CutPasteCut</a></div>
+    <div class="cpc-marquee">
+      <div class="cpc-marquee__fade cpc-marquee__fade--l"></div>
+      <div class="cpc-marquee__fade cpc-marquee__fade--r"></div>
+      <div class="cpc-marquee__wrap">
+        <div class="cpc-marquee__inner">
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">Site by CutPasteCut</a><span class="cpc-marquee__sep">✦</span>
+          <a href="https://cutpastecut.com" target="_blank" rel="noopener">cutpastecut.com</a><span class="cpc-marquee__sep">✦</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
