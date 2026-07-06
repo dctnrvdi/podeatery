@@ -56,7 +56,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=block" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <style>
     /* ─── TOKENS ─────────────────────────────────────────── */
@@ -1219,13 +1219,16 @@
     window._podContentReady = new Promise(r => { window._podSignalReady = r; });
     setTimeout(window._podSignalReady, 7000);
 
-    setTimeout(() => {
+    Promise.race([
+      document.fonts.ready,
+      new Promise(r => setTimeout(r, 800))
+    ]).then(() => {
       const t = '0.65s ' + E;
       phraseL.style.cssText   += ';transition:transform ' + t + ';transform:translateY(0)';
       phraseR.style.cssText   += ';transition:transform ' + t + ' .06s;transform:translateY(0)';
       logoInner.style.cssText += ';transition:transform ' + t + ' .04s;transform:translateY(0)';
       logoWrap.style.cssText  += ';transition:width '    + t + ' .04s;width:auto';
-    }, 120);
+    });
 
     window._podContentReady.then(() => {
       const wait = Math.max(0, 1950 - (Date.now() - _pageStart));
@@ -1502,7 +1505,7 @@
     let cacheHit = false;
     try {
       const raw = localStorage.getItem(CACHE_KEY);
-      if (raw) { applyContent(JSON.parse(raw)); window._podSignalReady(); cacheHit = true; }
+      if (raw) { applyContent(JSON.parse(raw)); cacheHit = true; }
     } catch(e) {}
 
     try {
