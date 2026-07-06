@@ -40,30 +40,107 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--sidebar-bg);
+      background: #0d0d0b;
+      background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,169,110,0.07) 0%, transparent 70%);
       padding: 2em;
     }
-    .auth-box {
-      background: var(--white);
-      border-radius: 0.75em;
-      padding: 3em 2.5em;
+    .auth-card {
       width: 100%;
-      max-width: 26em;
+      max-width: 23em;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25em;
+      padding: 3em 2.75em 2.5em;
+      animation: authFadeIn 0.45s cubic-bezier(0.22,1,0.36,1);
     }
-    .auth-box__logo {
+    @keyframes authFadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .auth-card__brand {
+      text-align: center;
+      margin-bottom: 2.25em;
+    }
+    .auth-card__logo {
       font-family: var(--fp);
-      font-size: 1.5em;
+      font-size: 2.75em;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.28em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.45em;
+    }
+    .auth-card__sub {
+      font-family: var(--fp);
+      font-size: 0.625em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      margin-bottom: 0.25em;
+      color: rgba(255,255,255,0.28);
     }
-    .auth-box__sub {
-      font-size: 0.8125em;
-      color: var(--muted);
-      margin-bottom: 2em;
+    .auth-card__divider {
+      width: 2.5em;
+      height: 1px;
+      background: var(--accent);
+      margin: 0 auto 2em;
+      opacity: 0.5;
     }
-    .auth-box h2 { font-family: var(--fp); font-size: 1.25em; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.5em; }
+    .auth-card__label {
+      font-family: var(--fp);
+      font-size: 0.65em;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      margin-bottom: 1.75em;
+    }
+    .auth-card .form-group label { color: rgba(255,255,255,0.35); }
+    .auth-card .form-group input {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .auth-card .form-group input::placeholder { color: rgba(255,255,255,0.18); }
+    .auth-card .form-group input:focus {
+      border-color: rgba(200,169,110,0.5);
+      background: rgba(255,255,255,0.07);
+    }
+    .auth-card__btn {
+      margin-top: 1.5em;
+      background: var(--accent) !important;
+      color: #111 !important;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+    .auth-card__btn:hover { opacity: 0.88; }
+    .auth-card .auth-error { color: rgba(194,100,79,0.9); margin-top: 0.875em; }
+    .auth-card__foot {
+      font-size: 0.6875em;
+      color: rgba(255,255,255,0.18);
+      text-align: center;
+      margin-top: 2em;
+      line-height: 1.6;
+    }
+    .auth-card__foot span { cursor: pointer; }
+    .auth-card__foot span:hover { color: rgba(255,255,255,0.45); }
+
+    /* Setup card — wider for form fields */
+    .auth-card--setup { max-width: 30em; }
+    .auth-card--setup .form-group label { color: var(--muted); }
+    .auth-card--setup .form-group input {
+      background: var(--white);
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .auth-card--setup .form-group input::placeholder { color: rgba(0,0,0,0.25); }
+    .auth-card--setup .form-group input:focus { border-color: var(--accent); background: var(--white); }
+    .auth-card--setup .auth-card__logo,
+    .auth-card--setup .auth-card__sub { color: var(--text); }
+    .auth-card--setup .auth-card__logo { color: var(--text); }
+    .auth-card--setup .auth-card__sub { color: var(--muted); }
+    .auth-card--setup .auth-card__label { color: var(--muted); }
+    .auth-card--setup { background: var(--white); border-color: var(--border); }
+    .auth-card--setup .auth-card__btn { background: var(--text) !important; color: var(--white) !important; }
+
     .form-group { display: flex; flex-direction: column; gap: 0.4em; margin-bottom: 1em; }
     .form-group label { font-family: var(--fp); font-size: 0.625em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
     .form-group input, .form-group select, .form-group textarea {
@@ -74,7 +151,7 @@
       color: var(--text);
       background: var(--white);
       width: 100%;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s;
     }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
     .form-group textarea { resize: vertical; min-height: 4em; }
@@ -390,45 +467,47 @@
 
 <!-- ─── SETUP SCREEN ── -->
 <div id="setupScreen" class="fullscreen" style="display:none">
-  <div class="auth-box">
-    <div class="auth-box__logo">POD</div>
-    <div class="auth-box__sub">Admin Panel — Firebase Kurulumu</div>
-    <h2>Firebase Config</h2>
-    <p class="settings-note">
-      Firebase projenizin ayarlarından aşağıdaki bilgileri girin.<br>
-      <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Proje Ayarları → Genel → Web Uygulaması
+  <div class="auth-card auth-card--setup">
+    <div class="auth-card__brand">
+      <div class="auth-card__logo">POD</div>
+      <div class="auth-card__sub">Coffee &amp; Eatery</div>
+    </div>
+    <div class="auth-card__divider"></div>
+    <div class="auth-card__label">Firebase Kurulumu</div>
+    <p class="settings-note" style="margin-bottom:1.25em">
+      <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent)">Firebase Console</a> → Proje Ayarları → Web Uygulaması → Config
     </p>
     <div class="form-group"><label>API Key</label><input id="s-apiKey" placeholder="AIza..."></div>
     <div class="form-group"><label>Auth Domain</label><input id="s-authDomain" placeholder="proje.firebaseapp.com"></div>
     <div class="form-group"><label>Project ID</label><input id="s-projectId" placeholder="proje-id"></div>
     <div class="form-group"><label>Storage Bucket</label><input id="s-storageBucket" placeholder="proje.appspot.com"></div>
     <div class="form-group"><label>Messaging Sender ID</label><input id="s-messagingSenderId" placeholder="123456789"></div>
-    <div class="form-group"><label>App ID</label><input id="s-appId" placeholder="1:123:web:abc..."></div>
-    <button class="btn btn-primary btn-full" onclick="saveSetup()" style="margin-top:.5em">Bağlan &amp; Devam Et</button>
+    <div class="form-group" style="margin-bottom:0"><label>App ID</label><input id="s-appId" placeholder="1:123:web:abc..."></div>
+    <button class="btn btn-full auth-card__btn" onclick="saveSetup()">Bağlan &amp; Devam Et</button>
     <div id="setupError" class="auth-error"></div>
-    <p class="setup-note">
-      Henüz Firebase projeniz yoksa:
-      <ol class="setup-steps">
-        <li>Firebase Console'da yeni proje oluşturun</li>
-        <li>Firestore Database'i etkinleştirin (Test Mode)</li>
-        <li>Authentication → Email/Password etkinleştirin</li>
-        <li>Users sekmesinden admin hesabı ekleyin</li>
-      </ol>
-    </p>
+    <div class="auth-card__foot">
+      Firestore &amp; Email/Password Auth aktif olmalı.<br>
+      Users sekmesinden admin hesabı ekleyin.
+    </div>
   </div>
 </div>
 
 <!-- ─── LOGIN SCREEN ── -->
 <div id="loginScreen" class="fullscreen" style="display:none">
-  <div class="auth-box">
-    <div class="auth-box__logo">POD</div>
-    <div class="auth-box__sub">Admin Panel</div>
-    <h2>Giriş Yap</h2>
-    <div class="form-group"><label>E-Posta</label><input id="loginEmail" type="email" placeholder="admin@podcoffee.com"></div>
-    <div class="form-group"><label>Şifre</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
-    <button class="btn btn-primary btn-full" id="loginBtn" onclick="doLogin()" style="margin-top:.5em">Giriş Yap</button>
+  <div class="auth-card">
+    <div class="auth-card__brand">
+      <div class="auth-card__logo">POD</div>
+      <div class="auth-card__sub">Coffee &amp; Eatery</div>
+    </div>
+    <div class="auth-card__divider"></div>
+    <div class="auth-card__label">Admin Girişi</div>
+    <div class="form-group"><label>E-Posta</label><input id="loginEmail" type="email" placeholder="ornek@email.com" autocomplete="email"></div>
+    <div class="form-group" style="margin-bottom:0"><label>Şifre</label><input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-full auth-card__btn" id="loginBtn" onclick="doLogin()">Giriş Yap</button>
     <div id="loginError" class="auth-error"></div>
-    <p style="font-size:.75em;color:var(--muted);margin-top:1.5em;text-align:center;cursor:pointer" onclick="showSetup()">⚙ Firebase ayarlarını değiştir</p>
+    <div class="auth-card__foot">
+      <span onclick="showSetup()">⚙ Firebase ayarlarını değiştir</span>
+    </div>
   </div>
 </div>
 
