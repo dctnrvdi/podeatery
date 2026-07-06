@@ -437,10 +437,48 @@
       .copyright { margin: 0 1em; }
       .copyright-content { flex-direction: column; gap: 0.5em; align-items: flex-start; }
     }
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      /* Filter bar sticky offset for mobile header */
+      .filter-bar { padding: 0 1.25em; top: 3.5em; }
+
+      /* Gradient panel → compact accent strip above items */
+      .cat-section__image {
+        order: -1;
+        height: 5.5em;
+        min-height: 0 !important;
+      }
+      .cat-section__image-caption { display: none; }
+      .cat-section__image-inner::after { display: none; }
+
+      /* Tighter text area */
+      .cat-section__text { padding: 1.75em 1.25em !important; }
+      .cat-label { margin-bottom: 1.25em; gap: .6em; }
+      .cat-label__name { font-size: 1.75em; }
+      .cat-label__number { display: none; }
+
+      /* Menu items */
+      .menu-item { padding: .7em .5em; }
+      .menu-item__name { font-size: .9em; }
+      .menu-item__desc { font-size: .775em; }
+
+      /* Addons / extras */
+      .addons-box { padding: .875em 1em; }
+      .addon-item { flex-wrap: wrap; gap: .2em .5em; }
+      .addon-note { display: block; font-size: .85em; }
+
+      /* Page intro */
+      .page-intro { padding: 6em 1.25em 1.75em; gap: .75em; }
       .page-intro__title { font-size: 3em; }
-      .cat-label__name { font-size: 1.875em; }
-      .filter-tab { margin-right: 1.5em; }
+      .page-intro__sub { font-size: .8em; max-width: 100%; }
+
+      /* Footer */
+      .block-footer__figure { height: 11em; }
+    }
+    @media (max-width: 480px) {
+      html { font-size: 13px; }
+      .page-intro__title { font-size: 2.6em; }
+      .cat-label__name { font-size: 1.5em; }
+      .filter-tab { font-size: .7em; margin-right: 1.25em; padding: 1em 0; }
     }
   </style>
 </head>
