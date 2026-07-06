@@ -454,12 +454,50 @@
     .seed-notice { background: var(--accent-light); border: 1px solid var(--accent); border-radius: .5em; padding: 1em 1.25em; margin-bottom: 1.5em; display: flex; align-items: center; justify-content: space-between; gap: 1em; }
     .seed-notice p { font-size: .875em; color: #7a5a2a; flex: 1; }
 
+    /* ─── MOBILE NAV ── */
+    .mob-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      padding: 0.4em;
+      cursor: pointer;
+      color: var(--text);
+      line-height: 0;
+      margin-right: 0.5em;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .sidebar-overlay.open { display: block; }
+
     @media (max-width: 768px) {
       :root { --sidebar-w: 0px; }
-      .sidebar { display: none; }
+      .mob-menu-btn { display: inline-flex; }
+      .sidebar {
+        display: flex;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+        width: 16em;
+        z-index: 110;
+      }
+      .sidebar.mob-open { transform: translateX(0); }
       .admin-main { margin-left: 0; }
       .contact-grid, .settings-grid, .hours-editor { grid-template-columns: 1fr; }
       .dash-grid { grid-template-columns: 1fr 1fr; }
+      .section { padding: 1.25em; }
+      .section-header { margin-bottom: 1.25em; flex-wrap: wrap; gap: .6em; }
+      .section-header h2 { font-size: 1.1em; }
+      .card-body table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .item-row { flex-wrap: wrap; }
+      .admin-topbar { padding: 0 1em; }
+    }
+    @media (max-width: 480px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .auth-card { padding: 2.25em 1.75em 2em; }
     }
   </style>
 </head>
@@ -513,6 +551,7 @@
 
 <!-- ─── ADMIN APP ── -->
 <div id="adminApp">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileNav()"></div>
   <div class="admin-layout">
 
     <!-- SIDEBAR -->
@@ -594,7 +633,12 @@
     <!-- MAIN -->
     <div class="admin-main">
       <div class="admin-topbar">
-        <span class="admin-topbar__title" id="topbarTitle">Dashboard</span>
+        <div style="display:flex;align-items:center;gap:.25em">
+          <button class="mob-menu-btn" onclick="toggleMobileNav()" aria-label="Menü">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect y="4" width="22" height="2" rx="1" fill="currentColor"/><rect y="10" width="22" height="2" rx="1" fill="currentColor"/><rect y="16" width="22" height="2" rx="1" fill="currentColor"/></svg>
+          </button>
+          <span class="admin-topbar__title" id="topbarTitle">Dashboard</span>
+        </div>
         <div class="admin-topbar__actions">
           <a href="/" target="_blank" class="btn btn-ghost btn-sm">↗ Siteyi Gör</a>
         </div>
@@ -1628,6 +1672,19 @@ function showSection(btn, id) {
   if (id === 'messages')    loadMessages();
   if (id === 'subscribers') loadSubscribers();
   if (id === 'settings')    loadBrevoConfig();
+  closeMobileNav();
+}
+
+function toggleMobileNav() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const open = sidebar.classList.toggle('mob-open');
+  overlay.classList.toggle('open', open);
+}
+
+function closeMobileNav() {
+  document.querySelector('.sidebar').classList.remove('mob-open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
 }
 
 /* ════════════════════════════════════════
