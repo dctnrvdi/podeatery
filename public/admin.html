@@ -952,6 +952,24 @@
           <button class="btn btn-primary btn-sm" onclick="saveNav()">Kaydet</button>
         </div>
         <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Header Logo</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <div class="form-group">
+              <label>Logo Görseli — boş bırakılırsa "POD" yazısı görünür</label>
+              <div style="display:flex;gap:.5em;align-items:center">
+                <input id="nav-logoUrl" placeholder="https://... veya yükle" style="flex:1">
+                <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+                  Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'nav-logoUrl','nav/logo')">
+                </label>
+              </div>
+            </div>
+            <div id="nav-logoPreview" style="margin-top:.75em;display:none">
+              <img style="max-height:3em;border-radius:.3em;background:#03090D;padding:.25em .5em">
+            </div>
+            <p style="font-size:.8em;color:#999;margin-top:.5em">Önerilen: şeffaf arka plan PNG veya SVG, yükseklik ~60px, beyaz renk</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Üst Sağ Buton</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
@@ -2472,6 +2490,7 @@ async function loadNavSection() {
   if (!doc.exists) return;
   const d = doc.data();
   const v = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  v('nav-logoUrl',   d.logoUrl);
   v('nav-btnLabel',  d.btnLabel);
   v('nav-btnHref',   d.btnHref);
   v('nav-l1label',   d.link1label);
@@ -2484,11 +2503,22 @@ async function loadNavSection() {
   v('nav-l4href',    d.link4href);
   v('nav-instagram', d.instagram);
   v('nav-email',     d.email);
+  if (d.logoUrl) {
+    const prev = document.getElementById('nav-logoPreview');
+    if (prev) { prev.style.display = ''; prev.querySelector('img').src = d.logoUrl; }
+  }
+  document.getElementById('nav-logoUrl')?.addEventListener('input', function() {
+    const prev = document.getElementById('nav-logoPreview');
+    if (!prev) return;
+    if (this.value) { prev.style.display = ''; prev.querySelector('img').src = this.value; }
+    else prev.style.display = 'none';
+  });
 }
 
 async function saveNav() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   await db.collection('siteConfig').doc('nav').set({
+    logoUrl:    g('nav-logoUrl'),
     btnLabel:   g('nav-btnLabel'),
     btnHref:    g('nav-btnHref'),
     link1label: g('nav-l1label'),

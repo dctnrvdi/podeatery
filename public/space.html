@@ -127,6 +127,7 @@
     .block-header__book-btn:hover { background: rgba(255,254,253,.1); }
     .block-header__logo { position: absolute; left: 50%; transform: translateX(-50%); }
     .block-header__logo-text { font-family: var(--fp); font-size: 1.125em; font-weight: 600; letter-spacing: .18em; color: #FFFEFD; }
+    .block-header__logo-img { height: 1.875em; width: auto; display: block; object-fit: contain; }
     .block-header__toggle { display: flex; flex-direction: column; gap: 4px; padding: .4em; }
     .block-header__toggle span { display: block; width: 22px; height: 1.5px; background: #FFFEFD; border-radius: 1px; transition: transform .3s, opacity .3s; transform-origin: center; }
     .block-header__toggle.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
@@ -930,6 +931,10 @@
     const soc = document.querySelectorAll('.block-header__menu-social a');
     if (d.instagram && soc[0]) soc[0].href = d.instagram;
     if (d.email     && soc[1]) { soc[1].href = 'mailto:'+d.email; soc[1].textContent = d.email; }
+    if (d.logoUrl) {
+      const logoEl = document.querySelector('.block-header__logo-text');
+      if (logoEl) logoEl.innerHTML = `<img src="${d.logoUrl}" alt="Logo" class="block-header__logo-img">`;
+    }
   }
 
   function setSpMedia(selectorOrEl, url, parallax, direct) {
