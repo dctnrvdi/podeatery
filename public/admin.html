@@ -452,6 +452,10 @@
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/></svg>
           Mesajlar <span id="msgBadge" style="display:none;background:var(--danger);color:#fff;border-radius:9px;font-size:.65em;padding:.15em .5em;margin-left:.4em"></span>
         </button>
+        <button class="nav-item" data-section="subscribers" onclick="showSection(this,'subscribers')">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          Aboneler
+        </button>
         <span class="sidebar__section-label">Menü</span>
         <button class="nav-item" data-section="food" onclick="showSection(this,'food')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
@@ -1159,6 +1163,30 @@
       </div>
 
       <!-- SETTINGS -->
+      <div class="section" id="section-subscribers">
+        <div class="section-header">
+          <h2>Aboneler</h2>
+          <div style="display:flex;gap:.5em">
+            <button class="btn btn-ghost btn-sm" onclick="exportSubscribersCSV()">CSV İndir</button>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('bulkMailPanel').style.display = document.getElementById('bulkMailPanel').style.display==='none'?'block':'none'">Toplu Mail Gönder</button>
+          </div>
+        </div>
+        <div id="bulkMailPanel" style="display:none;margin-bottom:1.5em">
+          <div class="card">
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Toplu E-posta</span></div></div>
+            <div class="card-body" style="padding:1.25em;display:flex;flex-direction:column;gap:.75em">
+              <div class="form-group"><label>Konu</label><input id="bulk-subject" placeholder="E-posta konusu"></div>
+              <div class="form-group"><label>İçerik (HTML destekler)</label><textarea id="bulk-body" rows="8" style="width:100%;padding:.6em .8em;background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;resize:vertical;font-size:.875em;font-family:inherit"></textarea></div>
+              <div style="display:flex;align-items:center;gap:.75em">
+                <button class="btn btn-primary btn-sm" onclick="sendBulkEmail()">Tüm Abonelere Gönder</button>
+                <span id="bulkMailStatus" style="font-size:.8em;opacity:.6"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="subscribersList"></div>
+      </div>
+
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
         <div class="card" style="margin-bottom:1em">
@@ -1195,6 +1223,30 @@
               </div>
             </div>
             <button class="btn btn-primary btn-sm" onclick="saveCldConfig()">Cloudinary Ayarlarını Kaydet</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Brevo — Toplu E-posta</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p class="settings-note">
+              Ücretsiz hesap için <a href="https://app.brevo.com/account/register" target="_blank">app.brevo.com</a>'a kayıt olun.<br>
+              Günde 300 e-posta ücretsiz · API Key: SMTP &amp; API → API Keys → Create an API Key
+            </p>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Brevo API Key</label>
+                <input id="cfg-brevoKey" type="password" placeholder="xkeysib-...">
+              </div>
+              <div class="form-group">
+                <label>Gönderen Adı</label>
+                <input id="cfg-brevoName" placeholder="POD Coffee &amp; Eatery">
+              </div>
+              <div class="form-group">
+                <label>Gönderen E-posta</label>
+                <input id="cfg-brevoEmail" placeholder="hello@podcoffee.com">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBrevoConfig()">Brevo Ayarlarını Kaydet</button>
           </div>
         </div>
         <div class="card">
@@ -1475,7 +1527,7 @@ function doLogout() {
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
-const topbarTitles = { dashboard:'Dashboard', messages:'Mesajlar', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', nav:'Navigasyon', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
+const topbarTitles = { dashboard:'Dashboard', messages:'Mesajlar', subscribers:'Aboneler', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', nav:'Navigasyon', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
 
 function showSection(btn, id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1483,7 +1535,9 @@ function showSection(btn, id) {
   if (btn) btn.classList.add('active');
   document.getElementById('section-' + id).classList.add('active');
   document.getElementById('topbarTitle').textContent = topbarTitles[id] || id;
-  if (id === 'messages') loadMessages();
+  if (id === 'messages')    loadMessages();
+  if (id === 'subscribers') loadSubscribers();
+  if (id === 'settings')    loadBrevoConfig();
 }
 
 /* ════════════════════════════════════════
@@ -1491,6 +1545,7 @@ function showSection(btn, id) {
 ════════════════════════════════════════ */
 async function loadAll() {
   loadCldConfig();
+  loadBrevoConfig();
   await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadNavSection(), loadHomepage(), loadMenupage(), loadSpacepage(), loadLegal(), loadCldConfig(), loadDashboard()]);
 }
 
@@ -2522,6 +2577,146 @@ function closeConfirm() {
 /* ════════════════════════════════════════
    TOASTS
 ════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   SUBSCRIBERS
+════════════════════════════════════════ */
+async function loadSubscribers() {
+  const list = document.getElementById('subscribersList');
+  list.innerHTML = '<div class="loading-overlay"><div class="spinner"></div></div>';
+  try {
+    const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
+    if (snap.empty) {
+      list.innerHTML = '<p style="opacity:.5;padding:1em 0">Henüz abone yok.</p>';
+      return;
+    }
+    let html = `<div class="card"><div class="card-body" style="padding:0">
+      <table style="width:100%;border-collapse:collapse;font-size:.875em">
+        <thead><tr style="border-bottom:1px solid var(--border)">
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Ad</th>
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">E-posta</th>
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Kaynak</th>
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
+          <th style="padding:.75em 1em"></th>
+        </tr></thead><tbody>`;
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      const date = d.subscribedAt ? new Date(d.subscribedAt.seconds * 1000).toLocaleDateString('tr-TR') : '—';
+      html += `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:.65em 1em">${escHtml(d.name||'—')}</td>
+        <td style="padding:.65em 1em">${escHtml(d.email||'')}</td>
+        <td style="padding:.65em 1em;opacity:.6">${escHtml(d.source||'')}</td>
+        <td style="padding:.65em 1em;opacity:.6">${date}</td>
+        <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick="deleteSubscriber('${doc.id}',this)">Sil</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>
+      <div style="padding:.75em 1em;border-top:1px solid var(--border);opacity:.5;font-size:.8em">${snap.size} abone</div>
+    </div>`;
+    list.innerHTML = html;
+  } catch(e) {
+    list.innerHTML = `<p style="color:var(--danger)">Hata: ${escHtml(e.message)}</p>`;
+  }
+}
+
+async function deleteSubscriber(id, btn) {
+  if (!confirm('Bu aboneyi silmek istediğinize emin misiniz?')) return;
+  btn.disabled = true;
+  try {
+    await db.collection('subscribers').doc(id).delete();
+    showToast('Abone silindi.', 'success');
+    loadSubscribers();
+  } catch(e) {
+    showToast('Hata: ' + e.message, 'error');
+    btn.disabled = false;
+  }
+}
+
+async function exportSubscribersCSV() {
+  try {
+    const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
+    const rows = [['Ad','E-posta','Kaynak','Tarih']];
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      const date = d.subscribedAt ? new Date(d.subscribedAt.seconds * 1000).toLocaleDateString('tr-TR') : '';
+      rows.push([d.name||'', d.email||'', d.source||'', date]);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'pod-aboneler.csv'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    showToast('CSV hatası: ' + e.message, 'error');
+  }
+}
+
+function loadBrevoConfig() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('pod_brevo') || '{}');
+    if (cfg.key)   document.getElementById('cfg-brevoKey').value   = cfg.key;
+    if (cfg.name)  document.getElementById('cfg-brevoName').value  = cfg.name;
+    if (cfg.email) document.getElementById('cfg-brevoEmail').value = cfg.email;
+  } catch(e) {}
+}
+
+function saveBrevoConfig() {
+  const cfg = {
+    key:   document.getElementById('cfg-brevoKey').value.trim(),
+    name:  document.getElementById('cfg-brevoName').value.trim(),
+    email: document.getElementById('cfg-brevoEmail').value.trim(),
+  };
+  if (!cfg.key) { showToast('API Key gerekli.', 'error'); return; }
+  localStorage.setItem('pod_brevo', JSON.stringify(cfg));
+  showToast('Brevo ayarları kaydedildi.', 'success');
+}
+
+async function sendBulkEmail() {
+  const subject = document.getElementById('bulk-subject').value.trim();
+  const body    = document.getElementById('bulk-body').value.trim();
+  const status  = document.getElementById('bulkMailStatus');
+  if (!subject || !body) { showToast('Konu ve içerik zorunludur.', 'error'); return; }
+  const brevo = JSON.parse(localStorage.getItem('pod_brevo') || '{}');
+  if (!brevo.key) { showToast('Önce Ayarlar → Brevo API Key girin.', 'error'); return; }
+  if (!confirm('Tüm abonelere e-posta gönderilecek. Devam?')) return;
+
+  try {
+    const snap = await db.collection('subscribers').get();
+    if (snap.empty) { showToast('Abone listesi boş.', 'error'); return; }
+
+    const to = snap.docs.map(d => ({ name: d.data().name || d.data().email, email: d.data().email }));
+    status.textContent = `Gönderiliyor… (${to.length} alıcı)`;
+
+    const payload = {
+      sender: { name: brevo.name || 'POD Coffee & Eatery', email: brevo.email || 'no-reply@podcoffee.com' },
+      to,
+      subject,
+      htmlContent: body,
+    };
+
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': brevo.key, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      status.textContent = `Gönderildi! (${to.length} alıcı)`;
+      showToast(`E-posta ${to.length} aboneye gönderildi.`, 'success');
+      document.getElementById('bulk-subject').value = '';
+      document.getElementById('bulk-body').value = '';
+    } else {
+      const err = await res.json().catch(() => ({}));
+      const msg = err.message || res.statusText;
+      status.textContent = 'Hata: ' + msg;
+      showToast('Brevo hatası: ' + msg, 'error');
+    }
+  } catch(e) {
+    status.textContent = 'Hata: ' + e.message;
+    showToast('Hata: ' + e.message, 'error');
+  }
+}
+
 function showToast(msg, type='') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;

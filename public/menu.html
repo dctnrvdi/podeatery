@@ -1214,6 +1214,42 @@
   }, { passive: true });
 
   init();
+
+  /* ── Newsletter subscribe ── */
+  (function() {
+    const btn = document.querySelector('.block-footer__form .form__button .link');
+    if (!btn) return;
+    btn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const nameEl  = document.querySelector('.block-footer__form .form-footer input[type=text]');
+      const emailEl = document.querySelector('.block-footer__form .form-footer input[type=email]');
+      const name  = nameEl  ? nameEl.value.trim()  : '';
+      const email = emailEl ? emailEl.value.trim() : '';
+      if (!email) { alert('Lütfen e-posta adresinizi girin.'); return; }
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      try {
+        const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+        if (!firebase.apps.length) firebase.initializeApp(cfg);
+        const db = firebase.firestore();
+        const existing = await db.collection('subscribers').where('email','==',email).limit(1).get();
+        if (!existing.empty) {
+          alert('Bu e-posta zaten kayıtlı!');
+        } else {
+          await db.collection('subscribers').add({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'menu' });
+          if (nameEl)  nameEl.value  = '';
+          if (emailEl) emailEl.value = '';
+          alert('Abone oldunuz, teşekkürler!');
+        }
+      } catch(err) {
+        console.error(err);
+        alert('Bir hata oluştu, lütfen tekrar deneyin.');
+      } finally {
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+      }
+    });
+  })();
   </script>
 </body>
 </html>
