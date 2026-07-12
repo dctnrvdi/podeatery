@@ -1136,6 +1136,7 @@
   const peekName  = document.getElementById('peekName');
   const peekPrice = document.getElementById('peekPrice');
   let peekCurrentUrl = '';
+  let peekPendingUrl = null;
   let peekHideTimer;
   let peekActiveItem = null;
 
@@ -1156,31 +1157,45 @@
   function showPeek(imgUrl, name, price, itemEl) {
     clearTimeout(peekHideTimer);
 
-    /* highlight the active menu item */
     clearPeekActive();
     if (itemEl) {
       itemEl.classList.add('is-peeking');
       peekActiveItem = itemEl;
     }
 
-    if (imgUrl !== peekCurrentUrl) {
-      peekImg.classList.add('is-fading');
-      setTimeout(() => {
-        peekImg.src = imgUrl;
-        peekCurrentUrl = imgUrl;
-        const reveal = () => peekImg.classList.remove('is-fading');
-        if (peekImg.decode) peekImg.decode().then(reveal).catch(reveal);
-        else peekImg.onload = reveal;
-      }, 200);
-    }
     peekName.textContent  = name;
     peekPrice.textContent = price;
     peekCard.classList.add('is-visible');
+
+    if (imgUrl !== peekCurrentUrl) {
+      peekPendingUrl = imgUrl;
+
+      const tmp = new Image();
+      tmp.src = imgUrl;
+
+      const swap = () => {
+        if (peekPendingUrl !== imgUrl) return; // newer request superseded this
+        peekCurrentUrl = imgUrl;
+        peekImg.classList.add('is-fading');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          peekImg.src = imgUrl;
+          peekImg.classList.remove('is-fading');
+        }));
+      };
+
+      if (tmp.complete && tmp.naturalWidth > 0) {
+        swap(); // already cached and decoded
+      } else {
+        tmp.onload = () => tmp.decode ? tmp.decode().then(swap).catch(swap) : swap();
+        tmp.onerror = swap;
+      }
+    }
 
     peekHideTimer = setTimeout(() => {
       peekCard.classList.remove('is-visible');
       clearPeekActive();
       peekCurrentUrl = '';
+      peekPendingUrl = null;
     }, 6000);
   }
 
@@ -1234,14 +1249,14 @@
      INIT
   ════════════════════════════════════════ */
   async function init() {
+    // Reveal page immediately — loading state is already visible in HTML
+    document.body.style.opacity = '1';
+
     let data = await fetchFromFirestore();
     if (!data) data = STATIC;
 
     renderTab('yiyecek', data.yiyecek, data.addons);
     renderTab('icecek',  data.icecek,  data.addons);
-
-    // Show page immediately — menu content is ready
-    document.body.style.opacity = '1';
 
     // Load secondary config in parallel (footer/nav/brand) — non-blocking
     if (db) {
