@@ -1070,6 +1070,7 @@
     try {
       el.innerHTML = categories.map((cat, i) => renderCategory(cat, i, i % 2 !== 0, addons)).join('');
       bindHoverEvents(el);
+      preloadTabImages(el);
       observeReveals();
     } catch(err) {
       console.error('[POD] renderTab error:', tabId, err);
@@ -1085,6 +1086,15 @@
      HOVER / TAP IMAGE LOGIC
   ════════════════════════════════════════ */
   const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
+
+  function preloadTabImages(container) {
+    if (!isTouchDevice()) return;
+    const urls = [...new Set(
+      Array.from(container.querySelectorAll('.menu-item[data-img]'))
+        .map(el => el.dataset.img).filter(Boolean)
+    )];
+    urls.forEach((url, i) => setTimeout(() => { new Image().src = url; }, i * 120));
+  }
 
   function bindHoverEvents(container) {
     container.querySelectorAll('.menu-item[data-img]').forEach(item => {
