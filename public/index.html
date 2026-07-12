@@ -602,6 +602,7 @@
       z-index: 2;
     }
     .slider-dots-mobile { display: none; }
+    .slider-counter-mobile { display: none; }
     .swiper-slide__content .eyebrow { color: rgba(248,242,229,.65); margin-bottom: 0.45em; }
     .swiper-slide__title {
       font-family: var(--font-primary);
@@ -879,7 +880,7 @@
       .block-content-intro { grid-template-columns: 1fr; gap: 1.5em; padding: 4em 1.5em; }
       .block-content-intro__eyebrow,
       .block-content-intro__body { grid-column: span 1; }
-      .block-media-intro { flex-direction: column; padding: 4em 1.5em; }
+      .block-media-intro { flex-direction: column; padding: 2.5em 1.5em; gap: 1.25em; }
       .block-media-intro__eyebrow { width: 100%; }
       .block-media-intro__image { max-width: 100%; width: 100%; }
       .block-media-intro__content { max-width: 100%; }
@@ -895,8 +896,9 @@
       .copyright { margin: 0 1em; padding: 1.5em 0; }
       .copyright-content { flex-direction: column; gap: 0.5em; align-items: flex-start; }
       .block-text-image { padding: 2em 1.5em 3em; }
-      .block-slider__header { padding: 0 1.5em; }
+      .block-slider__header { padding: 0 1.5em; display: flex; align-items: baseline; justify-content: space-between; }
       .block-slider { overflow: visible; padding: 3em 0 3.5em; }
+      .slider-counter-mobile { display: block; font-family: var(--font-primary); font-size: .7em; letter-spacing: .1em; color: rgba(3,9,13,.45); flex-shrink: 0; }
       .podSwiper { padding: 0 1.5em !important; position: relative !important; }
       .swiper-slide {
         width: 72vw !important;
@@ -1077,6 +1079,7 @@
     <section class="block-slider">
       <div class="block-slider__header">
         <h2 class="title-m" id="sliderTitle" data-reveal>Explore Everything POD Has to Offer</h2>
+        <div class="slider-counter-mobile" id="sliderCounter" aria-live="polite">01 / 04</div>
         <div class="block-slider__nav">
           <button class="swiper-btn-prev" aria-label="Previous slide">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
@@ -1379,7 +1382,11 @@
           swipeStartIdx = sw.activeIndex;
           if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
-          if (isMobile) updateDots(sw.activeIndex);
+          if (isMobile) {
+            updateDots(sw.activeIndex);
+            const counter = document.getElementById('sliderCounter');
+            if (counter) counter.textContent = String(sw.activeIndex + 1).padStart(2, '0') + ' / ' + String(sw.slides.length).padStart(2, '0');
+          }
         }
       }
     });
@@ -1394,6 +1401,8 @@
         btn.addEventListener('click', () => podSwiper.slideTo(i));
         dotsEl.appendChild(btn);
       }
+      const counter = document.getElementById('sliderCounter');
+      if (counter) counter.textContent = '01 / ' + String(slideCount).padStart(2, '0');
     }
 
     function updateDots(idx) {
