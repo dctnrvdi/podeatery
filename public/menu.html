@@ -274,6 +274,7 @@
       aspect-ratio: 2/3;
       border-radius: 1em;
       overflow: hidden;
+      background: #1c1612;
       box-shadow: 0 12px 40px rgba(3,9,13,.32), 0 2px 8px rgba(3,9,13,.12);
       z-index: 200;
       opacity: 0;
@@ -1166,8 +1167,10 @@
       peekImg.classList.add('is-fading');
       setTimeout(() => {
         peekImg.src = imgUrl;
-        peekImg.onload = () => peekImg.classList.remove('is-fading');
         peekCurrentUrl = imgUrl;
+        const reveal = () => peekImg.classList.remove('is-fading');
+        if (peekImg.decode) peekImg.decode().then(reveal).catch(reveal);
+        else peekImg.onload = reveal;
       }, 200);
     }
     peekName.textContent  = name;
