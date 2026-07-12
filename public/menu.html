@@ -273,7 +273,6 @@
       max-width: 148px;
       border-radius: 1em;
       overflow: hidden;
-      background: #03090D;
       box-shadow: 0 12px 40px rgba(3,9,13,.32), 0 2px 8px rgba(3,9,13,.12);
       z-index: 200;
       opacity: 0;
@@ -1162,29 +1161,17 @@
       peekActiveItem = itemEl;
     }
 
+    if (imgUrl !== peekCurrentUrl) {
+      peekImg.classList.add('is-fading');
+      setTimeout(() => {
+        peekImg.src = imgUrl;
+        peekImg.onload = () => peekImg.classList.remove('is-fading');
+        peekCurrentUrl = imgUrl;
+      }, 200);
+    }
     peekName.textContent  = name;
     peekPrice.textContent = price;
-
-    if (imgUrl !== peekCurrentUrl) {
-      peekCurrentUrl = imgUrl;
-      const wasVisible = peekCard.classList.contains('is-visible');
-      peekImg.classList.add('is-fading');
-      const swap = () => {
-        peekImg.src = imgUrl;
-        if (peekImg.complete && peekImg.naturalWidth > 0) {
-          peekImg.classList.remove('is-fading');
-          peekCard.classList.add('is-visible');
-        } else {
-          peekImg.onload = () => {
-            peekImg.classList.remove('is-fading');
-            peekCard.classList.add('is-visible');
-          };
-        }
-      };
-      wasVisible ? setTimeout(swap, 220) : swap();
-    } else {
-      peekCard.classList.add('is-visible');
-    }
+    peekCard.classList.add('is-visible');
 
     peekHideTimer = setTimeout(() => {
       peekCard.classList.remove('is-visible');
