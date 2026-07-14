@@ -1088,13 +1088,18 @@
   ════════════════════════════════════════ */
   const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
 
+  function clOpt(url, t) {
+    if (!url || !url.includes('/upload/')) return url;
+    return url.replace('/upload/', '/upload/' + t + '/');
+  }
+
   function preloadTabImages(container) {
     if (!isTouchDevice()) return;
     const urls = [...new Set(
       Array.from(container.querySelectorAll('.menu-item[data-img]'))
         .map(el => el.dataset.img).filter(Boolean)
     )];
-    urls.forEach((url, i) => setTimeout(() => { new Image().src = url; }, i * 120));
+    urls.forEach((url, i) => setTimeout(() => { new Image().src = clOpt(url, 'f_auto,q_auto,w_400'); }, i * 120));
   }
 
   function bindHoverEvents(container) {
@@ -1109,7 +1114,7 @@
       if (!isTouchDevice()) {
         /* Desktop hover */
         item.addEventListener('mouseenter', () => {
-          overlay.style.backgroundImage = `url(${imgUrl})`;
+          overlay.style.backgroundImage = `url(${clOpt(imgUrl, 'f_auto,q_auto,w_1200')})`;
           overlay.classList.add('is-visible');
         });
         item.addEventListener('mouseleave', () => {
@@ -1171,14 +1176,14 @@
       peekPendingUrl = imgUrl;
 
       const tmp = new Image();
-      tmp.src = imgUrl;
+      tmp.src = clOpt(imgUrl, 'f_auto,q_auto,w_400');
 
       const swap = () => {
         if (peekPendingUrl !== imgUrl) return; // newer request superseded this
         peekCurrentUrl = imgUrl;
         peekImg.classList.add('is-fading');
         requestAnimationFrame(() => requestAnimationFrame(() => {
-          peekImg.src = imgUrl;
+          peekImg.src = clOpt(imgUrl, 'f_auto,q_auto,w_400');
           peekImg.classList.remove('is-fading');
         }));
       };
@@ -1409,7 +1414,7 @@
   const imgModalPrice = document.getElementById('imgModalPrice');
 
   function openImgModal(url, name, price) {
-    imgModalImg.src = url;
+    imgModalImg.src = clOpt(url, 'f_auto,q_auto,w_1200');
     imgModalName.textContent = name;
     imgModalPrice.textContent = price || '';
     imgModal.classList.add('is-open');
