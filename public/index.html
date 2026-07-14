@@ -809,6 +809,7 @@
       pointer-events: none;
     }
     .form__button { margin-top: 0.625em; display: flex; justify-content: flex-end; }
+    .pod-hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; pointer-events: none; }
     .copyright { padding: 2.5em 0; margin: 0 2.5em; }
     .block-footer__logotype {
       font-family: var(--font-primary);
@@ -1199,6 +1200,7 @@
             <div class="form-footer">
               <div class="field"><input type="text" placeholder="Your Name" autocomplete="name"></div>
               <div class="field"><input type="email" placeholder="Your Email" autocomplete="email"></div>
+              <div class="pod-hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
               <div class="form__button">
                 <a href="#" class="link">
                   <span>Subscribe</span>
@@ -1669,20 +1671,33 @@
       e.preventDefault();
       const nameEl  = document.querySelector('.block-footer__form .form-footer input[type=text]');
       const emailEl = document.querySelector('.block-footer__form .form-footer input[type=email]');
+      const hpEl    = document.querySelector('.block-footer__form .pod-hp input');
       const name  = nameEl  ? nameEl.value.trim()  : '';
       const email = emailEl ? emailEl.value.trim() : '';
+
+      if (hpEl && hpEl.value) { alert('Abone oldunuz, teşekkürler!'); return; }
       if (!email) { alert('Lütfen e-posta adresinizi girin.'); return; }
+
+      const RL_KEY = 'pod_sub_ts';
+      const last = localStorage.getItem(RL_KEY);
+      if (last && Date.now() - parseInt(last) < 86400000) {
+        alert('Bu tarayıcıdan zaten abone oldunuz. Farklı bir e-posta için lütfen daha sonra tekrar deneyin.');
+        return;
+      }
+
       btn.style.opacity = '0.5';
       btn.style.pointerEvents = 'none';
       try {
         const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
         if (!firebase.apps.length) firebase.initializeApp(cfg);
         const db = firebase.firestore();
-        const existing = await db.collection('subscribers').where('email','==',email).limit(1).get();
-        if (!existing.empty) {
+        const docRef = db.collection('subscribers').doc(email.toLowerCase());
+        const existing = await docRef.get();
+        if (existing.exists) {
           alert('Bu e-posta zaten kayıtlı!');
         } else {
-          await db.collection('subscribers').add({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home' });
+          await docRef.set({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home' });
+          localStorage.setItem(RL_KEY, Date.now().toString());
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
           alert('Abone oldunuz, teşekkürler!');
