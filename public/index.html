@@ -569,7 +569,7 @@
       position: absolute;
       top: 0; left: 0; height: 100%;
       background-color: var(--color-2);
-      width: 25%;
+      width: 0;
       transition: width .4s ease;
     }
     .podSwiper { padding: 0 2.75em !important; overflow: visible !important; max-width: 100%; }
@@ -1380,7 +1380,7 @@
         slideChangeTransitionStart(sw) {
           const bar = document.getElementById('swiperBar');
           swipeStartIdx = sw.activeIndex;
-          if (bar) bar.style.width = (25 + (sw.activeIndex / (sw.slides.length - 1)) * 75) + '%';
+          if (bar) bar.style.width = ((sw.activeIndex + 1) / sw.slides.length * 100) + '%';
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
           if (isMobile) {
             updateDots(sw.activeIndex);
@@ -1390,6 +1390,10 @@
         }
       }
     });
+
+    /* init bar to slide 1 position */
+    const bar = document.getElementById('swiperBar');
+    if (bar) bar.style.width = (1 / podSwiper.slides.length * 100) + '%';
 
     if (isMobile) {
       const dotsEl = document.querySelector('.slider-dots-mobile');
