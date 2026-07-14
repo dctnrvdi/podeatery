@@ -1384,11 +1384,9 @@
           updateBar(sw);
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
           if (isMobile) {
-            const n = sw.slides.length;
-            const idx = sw.isEnd ? n : sw.activeIndex + 1;
             updateDots(sw.activeIndex);
             const counter = document.getElementById('sliderCounter');
-            if (counter) counter.textContent = String(idx).padStart(2, '0') + ' / ' + String(n).padStart(2, '0');
+            if (counter) counter.textContent = String(sw.activeIndex + 1).padStart(2, '0') + ' / ' + String(sw.slides.length).padStart(2, '0');
           }
         }
       }
@@ -1397,8 +1395,7 @@
     function updateBar(sw) {
       const bar = document.getElementById('swiperBar');
       if (!bar || !sw.slides.length) return;
-      const pct = sw.isEnd ? 100 : (sw.activeIndex + 1) / sw.slides.length * 100;
-      bar.style.width = pct + '%';
+      bar.style.width = ((sw.activeIndex + 1) / sw.slides.length * 100) + '%';
     }
     window.updateSliderBar = function() { updateBar(podSwiper); };
 
