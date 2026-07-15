@@ -1352,15 +1352,17 @@
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     let swipeStartIdx = 0;
     let swipeStartX = 0;
+    let slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
 
     const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
       spaceBetween: isMobile ? 16 : 20,
       grabCursor: !isMobile,
+      loop: true,
       navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
       on: {
         touchStart(sw, e) {
-          swipeStartIdx = sw.activeIndex;
+          swipeStartIdx = sw.realIndex;
           const t = e.touches ? e.touches[0] : e;
           swipeStartX = t.clientX;
         },
@@ -1370,8 +1372,8 @@
           const dx = t.clientX - swipeStartX;
           if (Math.abs(dx) < 20) return;
           const step = dx < 0 ? 1 : -1;
-          const target = Math.max(0, Math.min(swipeStartIdx + step, sw.slides.length - 1));
-          sw.slideTo(target, 300, true);
+          const nextReal = ((swipeStartIdx + step) + slideCount) % slideCount;
+          sw.slideToLoop(nextReal, 300);
           sw.allowSlideNext = false;
           sw.allowSlidePrev = false;
           requestAnimationFrame(() => {
@@ -1380,13 +1382,12 @@
           });
         },
         slideChangeTransitionStart(sw) {
-          swipeStartIdx = sw.activeIndex;
           updateBar(sw);
           if (isMobile && navigator.vibrate) navigator.vibrate(10);
           if (isMobile) {
-            updateDots(sw.activeIndex);
+            updateDots(sw.realIndex);
             const counter = document.getElementById('sliderCounter');
-            if (counter) counter.textContent = String(sw.activeIndex + 1).padStart(2, '0') + ' / ' + String(sw.slides.length).padStart(2, '0');
+            if (counter) counter.textContent = String(sw.realIndex + 1).padStart(2, '0') + ' / ' + String(slideCount).padStart(2, '0');
           }
         }
       }
@@ -1394,8 +1395,8 @@
 
     function updateBar(sw) {
       const bar = document.getElementById('swiperBar');
-      if (!bar || !sw.slides.length) return;
-      bar.style.width = ((sw.activeIndex + 1) / sw.slides.length * 100) + '%';
+      if (!bar || !slideCount) return;
+      bar.style.width = ((sw.realIndex + 1) / slideCount * 100) + '%';
     }
     window.updateSliderBar = function() { updateBar(podSwiper); };
 
@@ -1403,12 +1404,11 @@
 
     if (isMobile) {
       const dotsEl = document.querySelector('.slider-dots-mobile');
-      const slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
       for (let i = 0; i < slideCount; i++) {
         const btn = document.createElement('button');
         btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
         btn.setAttribute('aria-label', (i + 1) + '. slayt');
-        btn.addEventListener('click', () => podSwiper.slideTo(i));
+        btn.addEventListener('click', () => podSwiper.slideToLoop(i));
         dotsEl.appendChild(btn);
       }
       const counter = document.getElementById('sliderCounter');
@@ -1474,14 +1474,21 @@
     if (h.sliderImages && h.sliderImages.length) {
       const wrapper = document.querySelector('.podSwiper .swiper-wrapper');
       if (wrapper) {
-        wrapper.innerHTML = h.sliderImages.map((url, i) => {
+        const images = h.sliderImages.slice(0, 10);
+        slideCount = images.length;
+        wrapper.innerHTML = images.map((url, i) => {
           const isVid = /\.(mp4|webm|mov)(\?|$)/i.test(url);
           const media = isVid
             ? `<video src="${url}" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>`
             : `<img src="${clOpt(url, 'f_auto,q_auto,w_800')}" alt="Slide ${i+1}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`;
           return `<div class="swiper-slide" style="position:relative">${media}</div>`;
         }).join('');
-        if (window.podSwiper) { window.podSwiper.update(); if (window.updateSliderBar) window.updateSliderBar(); }
+        if (window.podSwiper) {
+          window.podSwiper.loopDestroy();
+          window.podSwiper.loopCreate();
+          window.podSwiper.update();
+          if (window.updateSliderBar) window.updateSliderBar();
+        }
       }
     }
 
