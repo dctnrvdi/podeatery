@@ -1351,35 +1351,45 @@
     /* ── SWIPER ── */
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     let slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
+    let currentIdx = 0; // logical index — drives bar & counter, decoupled from Swiper's activeIndex
 
     const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
       spaceBetween: isMobile ? 16 : 20,
       grabCursor: !isMobile,
-      loop: true,
-      loopedSlides: slideCount,
-      navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
       on: {
+        // Mobile: Swiper handles native swipe — sync currentIdx from it
         slideChange(sw) {
-          updateBar(sw);
-          if (isMobile && navigator.vibrate) navigator.vibrate(10);
-          if (isMobile) {
-            updateDots(sw.realIndex);
-            const counter = document.getElementById('sliderCounter');
-            if (counter) counter.textContent = String(sw.realIndex + 1).padStart(2, '0') + ' / ' + String(slideCount).padStart(2, '0');
-          }
+          if (!isMobile) return;
+          currentIdx = sw.activeIndex;
+          renderUI();
+          if (navigator.vibrate) navigator.vibrate(10);
         }
       }
     });
 
-    function updateBar(sw) {
-      const bar = document.getElementById('swiperBar');
-      if (!bar || !slideCount) return;
-      bar.style.width = ((sw.realIndex + 1) / slideCount * 100) + '%';
-    }
-    window.updateSliderBar = function() { updateBar(podSwiper); };
+    // Desktop prev/next — fully manual, loop wraps end→start
+    document.querySelector('.swiper-btn-next')?.addEventListener('click', () => goTo(currentIdx + 1));
+    document.querySelector('.swiper-btn-prev')?.addEventListener('click', () => goTo(currentIdx - 1));
 
-    updateBar(podSwiper);
+    function goTo(n) {
+      currentIdx = ((n % slideCount) + slideCount) % slideCount;
+      podSwiper.slideTo(currentIdx, 500);
+      renderUI();
+    }
+
+    function renderUI() {
+      const bar = document.getElementById('swiperBar');
+      if (bar && slideCount) bar.style.width = ((currentIdx + 1) / slideCount * 100) + '%';
+      if (isMobile) {
+        updateDots(currentIdx);
+        const counter = document.getElementById('sliderCounter');
+        if (counter) counter.textContent = String(currentIdx + 1).padStart(2, '0') + ' / ' + String(slideCount).padStart(2, '0');
+      }
+    }
+
+    window.updateSliderBar = function() { currentIdx = 0; renderUI(); };
+    renderUI();
 
     if (isMobile) {
       const dotsEl = document.querySelector('.slider-dots-mobile');
@@ -1387,7 +1397,7 @@
         const btn = document.createElement('button');
         btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
         btn.setAttribute('aria-label', (i + 1) + '. slayt');
-        btn.addEventListener('click', () => podSwiper.slideToLoop(i));
+        btn.addEventListener('click', () => goTo(i));
         dotsEl.appendChild(btn);
       }
       const counter = document.getElementById('sliderCounter');
@@ -1463,11 +1473,7 @@
           return `<div class="swiper-slide" style="position:relative">${media}</div>`;
         }).join('');
         if (window.podSwiper) {
-          window.podSwiper.params.loopedSlides = slideCount;
-          window.podSwiper.loopDestroy();
-          window.podSwiper.loopCreate();
           window.podSwiper.update();
-          window.podSwiper.slideToLoop(0, 0, false);
           if (window.updateSliderBar) window.updateSliderBar();
         }
       }
