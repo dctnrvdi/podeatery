@@ -1351,32 +1351,23 @@
     /* ── SWIPER ── */
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     let slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
-    let currentIdx = 0; // logical index — drives bar & counter, decoupled from Swiper's activeIndex
+    let currentIdx = 0;
 
     const podSwiper = new Swiper('.podSwiper', {
       slidesPerView: 'auto',
       spaceBetween: isMobile ? 16 : 20,
       grabCursor: !isMobile,
+      loop: true,
+      autoplay: { delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true },
+      navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
       on: {
-        // Mobile: Swiper handles native swipe — sync currentIdx from it
         slideChange(sw) {
-          if (!isMobile) return;
-          currentIdx = sw.activeIndex;
+          currentIdx = sw.realIndex;
           renderUI();
-          if (navigator.vibrate) navigator.vibrate(10);
+          if (isMobile && navigator.vibrate) navigator.vibrate(10);
         }
       }
     });
-
-    // Desktop prev/next — fully manual, loop wraps end→start
-    document.querySelector('.swiper-btn-next')?.addEventListener('click', () => goTo(currentIdx + 1));
-    document.querySelector('.swiper-btn-prev')?.addEventListener('click', () => goTo(currentIdx - 1));
-
-    function goTo(n) {
-      currentIdx = ((n % slideCount) + slideCount) % slideCount;
-      podSwiper.slideTo(currentIdx, 500);
-      renderUI();
-    }
 
     function renderUI() {
       const bar = document.getElementById('swiperBar');
@@ -1397,7 +1388,7 @@
         const btn = document.createElement('button');
         btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
         btn.setAttribute('aria-label', (i + 1) + '. slayt');
-        btn.addEventListener('click', () => goTo(i));
+        btn.addEventListener('click', () => podSwiper.slideToLoop(i, 300));
         dotsEl.appendChild(btn);
       }
       const counter = document.getElementById('sliderCounter');
