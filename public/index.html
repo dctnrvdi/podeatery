@@ -572,6 +572,15 @@
       width: 0;
       transition: width .4s ease;
     }
+    .slider-counter-pill {
+      font-family: var(--font-primary);
+      font-size: .625em;
+      letter-spacing: .08em;
+      color: rgba(3,9,13,.45);
+      padding: 0 .8em;
+      flex-shrink: 0;
+      border-left: 1px solid rgba(3,9,13,.12);
+    }
     .podSwiper { padding: 0 2.75em !important; overflow: visible !important; max-width: 100%; }
     .swiper-slide {
       width: 22em !important;
@@ -1080,12 +1089,13 @@
     <section class="block-slider">
       <div class="block-slider__header">
         <h2 class="title-m" id="sliderTitle" data-reveal>Explore Everything POD Has to Offer</h2>
-        <div class="slider-counter-mobile" id="sliderCounter" aria-live="polite">01 / 04</div>
+        <div class="slider-counter-mobile" id="sliderCounter" aria-live="polite">01/04</div>
         <div class="block-slider__nav">
           <button class="swiper-btn-prev" aria-label="Previous slide">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
           </button>
           <div class="swiper-progress"><div class="swiper-progress-bar" id="swiperBar"></div></div>
+          <span id="sliderCounterDesktop" class="slider-counter-pill" aria-live="polite">01/04</span>
           <button class="swiper-btn-next" aria-label="Next slide">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
           </button>
@@ -1353,53 +1363,66 @@
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     let slideCount = document.querySelectorAll('.podSwiper .swiper-slide').length;
     let currentIdx = 0;
-
-    const podSwiper = new Swiper('.podSwiper', {
-      slidesPerView: 'auto',
-      spaceBetween: isMobile ? 16 : 20,
-      grabCursor: !isMobile,
-      loop: true,
-      autoplay: { delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true },
-      navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
-      on: {
-        slideChange(sw) {
-          currentIdx = sw.realIndex;
-          renderUI();
-          if (isMobile && navigator.vibrate) navigator.vibrate(10);
-        }
-      }
-    });
+    let podSwiper = null;
 
     function renderUI() {
+      const n = slideCount || 1;
+      const txt = String(currentIdx + 1).padStart(2, '0') + '/' + String(n).padStart(2, '0');
       const bar = document.getElementById('swiperBar');
-      if (bar && slideCount) bar.style.width = ((currentIdx + 1) / slideCount * 100) + '%';
-      if (isMobile) {
-        updateDots(currentIdx);
-        const counter = document.getElementById('sliderCounter');
-        if (counter) counter.textContent = String(currentIdx + 1).padStart(2, '0') + ' / ' + String(slideCount).padStart(2, '0');
-      }
-    }
-
-    window.updateSliderBar = function(newCount) { if (newCount) slideCount = newCount; currentIdx = 0; renderUI(); };
-    renderUI();
-
-    if (isMobile) {
-      const dotsEl = document.querySelector('.slider-dots-mobile');
-      for (let i = 0; i < slideCount; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
-        btn.setAttribute('aria-label', (i + 1) + '. slayt');
-        btn.addEventListener('click', () => podSwiper.slideToLoop(i, 300));
-        dotsEl.appendChild(btn);
-      }
-      const counter = document.getElementById('sliderCounter');
-      if (counter) counter.textContent = '01 / ' + String(slideCount).padStart(2, '0');
+      if (bar) bar.style.width = ((currentIdx + 1) / n * 100) + '%';
+      const cM = document.getElementById('sliderCounter');
+      const cD = document.getElementById('sliderCounterDesktop');
+      if (cM) cM.textContent = txt;
+      if (cD) cD.textContent = txt;
+      if (isMobile) updateDots(currentIdx);
     }
 
     function updateDots(idx) {
       document.querySelectorAll('.slider-dot').forEach((d, i) =>
         d.classList.toggle('is-active', i === idx));
     }
+
+    function initDots() {
+      if (!isMobile) return;
+      const dotsEl = document.querySelector('.slider-dots-mobile');
+      if (!dotsEl) return;
+      dotsEl.innerHTML = '';
+      for (let i = 0; i < slideCount; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'slider-dot' + (i === 0 ? ' is-active' : '');
+        btn.setAttribute('aria-label', (i + 1) + '. slayt');
+        btn.addEventListener('click', () => { if (podSwiper) podSwiper.slideToLoop(i, 300); });
+        dotsEl.appendChild(btn);
+      }
+    }
+
+    function createSwiper(count) {
+      if (count) slideCount = count;
+      currentIdx = 0;
+      if (podSwiper) { podSwiper.destroy(true, true); podSwiper = null; }
+      podSwiper = new Swiper('.podSwiper', {
+        slidesPerView: 'auto',
+        spaceBetween: isMobile ? 16 : 20,
+        grabCursor: !isMobile,
+        loop: slideCount > 1,
+        loopedSlides: slideCount,
+        autoplay: { delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true },
+        navigation: { nextEl: '.swiper-btn-next', prevEl: '.swiper-btn-prev' },
+        on: {
+          slideChange(sw) {
+            currentIdx = sw.realIndex;
+            renderUI();
+            if (isMobile && navigator.vibrate) navigator.vibrate(10);
+          }
+        }
+      });
+      window.podSwiper = podSwiper;
+      initDots();
+      renderUI();
+    }
+
+    createSwiper();
+    window.updateSliderBar = function(newCount) { createSwiper(newCount); };
   </script>
 
   <!-- Firebase -->
@@ -1456,7 +1479,6 @@
       const wrapper = document.querySelector('.podSwiper .swiper-wrapper');
       if (wrapper) {
         const images = h.sliderImages.slice(0, 10);
-        slideCount = images.length;
         wrapper.innerHTML = images.map((url, i) => {
           const isVid = /\.(mp4|webm|mov)(\?|$)/i.test(url);
           const media = isVid
@@ -1464,13 +1486,7 @@
             : `<img src="${clOpt(url, 'f_auto,q_auto,w_800')}" alt="Slide ${i+1}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`;
           return `<div class="swiper-slide" style="position:relative">${media}</div>`;
         }).join('');
-        if (window.podSwiper) {
-          window.podSwiper.loopDestroy();
-          window.podSwiper.loopCreate();
-          window.podSwiper.update();
-          window.podSwiper.autoplay.start();
-          if (window.updateSliderBar) window.updateSliderBar(images.length);
-        }
+        if (window.updateSliderBar) window.updateSliderBar(images.length);
       }
     }
 

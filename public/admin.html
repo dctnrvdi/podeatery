@@ -1146,7 +1146,8 @@
             <div class="form-group"><label>Slider Başlığı</label><input id="hp-sliderTitle" placeholder="Explore Everything POD Has to Offer"></div>
             <p style="font-size:.8125em;color:var(--muted);margin-bottom:1em">Her satıra bir görsel URL veya yükle — virgülle ayır ya da alt alta ekle</p>
             <div id="sliderImagesContainer"></div>
-            <button class="btn btn-ghost btn-sm" onclick="addSliderRow()" style="margin-top:.75em">+ Görsel Ekle</button>
+            <button id="btnAddSlider" class="btn btn-ghost btn-sm" onclick="addSliderRow()" style="margin-top:.75em">+ Görsel Ekle</button>
+            <span id="sliderCountLabel" style="font-size:.8em;color:var(--muted);margin-left:.5em">0 / 10</span>
           </div>
         </div>
       </div>
@@ -2589,22 +2590,48 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ════════════════════════════════════════
    HOMEPAGE EDITOR
 ════════════════════════════════════════ */
+const MAX_SLIDER = 10;
 let sliderImageCount = 0;
 
+function updateSliderMeta() {
+  const container = document.getElementById('sliderImagesContainer');
+  const count = container ? container.querySelectorAll('.slider-row').length : 0;
+  const btn = document.getElementById('btnAddSlider');
+  const label = document.getElementById('sliderCountLabel');
+  if (btn) btn.disabled = count >= MAX_SLIDER;
+  if (label) label.textContent = count + ' / ' + MAX_SLIDER;
+}
+
+function moveSliderRow(row, dir) {
+  const container = document.getElementById('sliderImagesContainer');
+  const rows = [...container.querySelectorAll('.slider-row')];
+  const idx = rows.indexOf(row);
+  const target = idx + dir;
+  if (target < 0 || target >= rows.length) return;
+  if (dir === -1) container.insertBefore(row, rows[target]);
+  else container.insertBefore(rows[target], row);
+}
+
 function addSliderRow(url='') {
+  const container = document.getElementById('sliderImagesContainer');
+  if (container.querySelectorAll('.slider-row').length >= MAX_SLIDER) return;
   sliderImageCount++;
   const i = sliderImageCount;
-  const container = document.getElementById('sliderImagesContainer');
   const row = document.createElement('div');
-  row.id = `sliderRow-${i}`;
+  row.className = 'slider-row';
   row.style.cssText = 'display:flex;gap:.5em;align-items:center;margin-bottom:.5em';
   row.innerHTML = `
-    <input id="sliderImg-${i}" value="${escHtml(url)}" placeholder="https://..." style="flex:1">
+    <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">
+      <button class="btn btn-ghost btn-sm btn-icon" style="height:1.3em;padding:0 .35em;font-size:.85em;line-height:1" onclick="moveSliderRow(this.closest('.slider-row'),-1)" title="Yukarı taşı">↑</button>
+      <button class="btn btn-ghost btn-sm btn-icon" style="height:1.3em;padding:0 .35em;font-size:.85em;line-height:1" onclick="moveSliderRow(this.closest('.slider-row'),1)" title="Aşağı taşı">↓</button>
+    </div>
+    <input id="sliderImg-${i}" class="slider-row-input" value="${escHtml(url)}" placeholder="https://..." style="flex:1">
     <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">
       Yükle<input type="file" accept="image/*,video/*" style="display:none" onchange="uploadFile(this,'sliderImg-${i}','homepage/slider')">
     </label>
-    <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger);flex-shrink:0" onclick="document.getElementById('sliderRow-${i}').remove()">×</button>`;
+    <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger);flex-shrink:0" onclick="this.closest('.slider-row').remove();updateSliderMeta()">×</button>`;
   container.appendChild(row);
+  updateSliderMeta();
 }
 
 async function loadHomepage() {
@@ -2649,12 +2676,13 @@ async function loadHomepage() {
   document.getElementById('sliderImagesContainer').innerHTML = '';
   sliderImageCount = 0;
   (d.sliderImages || []).forEach(url => addSliderRow(url));
+  updateSliderMeta();
 }
 
 async function saveHomepage() {
   const g = id => document.getElementById(id)?.value.trim() || '';
   const sliderImages = [];
-  document.querySelectorAll('[id^="sliderImg-"]').forEach(el => { if(el.value.trim()) sliderImages.push(el.value.trim()); });
+  document.querySelectorAll('.slider-row-input').forEach(el => { if(el.value.trim()) sliderImages.push(el.value.trim()); });
   await db.collection('siteConfig').doc('homepage').set({
     phraseLeft:   g('hp-phraseLeft'),
     phraseRight:  g('hp-phraseRight'),
