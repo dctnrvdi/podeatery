@@ -1200,6 +1200,7 @@
             <div class="form-footer">
               <div class="field"><input type="text" placeholder="Your Name" autocomplete="name"></div>
               <div class="field"><input type="email" placeholder="Your Email" autocomplete="email"></div>
+              <div class="field"><input type="date" placeholder="Doğum Tarihiniz" autocomplete="bday"></div>
               <div class="pod-hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
               <div class="form__button">
                 <a href="#" class="link">
@@ -1379,7 +1380,7 @@
       }
     }
 
-    window.updateSliderBar = function() { currentIdx = 0; renderUI(); };
+    window.updateSliderBar = function(newCount) { if (newCount) slideCount = newCount; currentIdx = 0; renderUI(); };
     renderUI();
 
     if (isMobile) {
@@ -1464,8 +1465,11 @@
           return `<div class="swiper-slide" style="position:relative">${media}</div>`;
         }).join('');
         if (window.podSwiper) {
+          window.podSwiper.loopDestroy();
+          window.podSwiper.loopCreate();
           window.podSwiper.update();
-          if (window.updateSliderBar) window.updateSliderBar();
+          window.podSwiper.autoplay.start();
+          if (window.updateSliderBar) window.updateSliderBar(images.length);
         }
       }
     }
@@ -1653,9 +1657,11 @@
       e.preventDefault();
       const nameEl  = document.querySelector('.block-footer__form .form-footer input[type=text]');
       const emailEl = document.querySelector('.block-footer__form .form-footer input[type=email]');
+      const dateEl  = document.querySelector('.block-footer__form .form-footer input[type=date]');
       const hpEl    = document.querySelector('.block-footer__form .pod-hp input');
-      const name  = nameEl  ? nameEl.value.trim()  : '';
-      const email = emailEl ? emailEl.value.trim() : '';
+      const name      = nameEl  ? nameEl.value.trim()  : '';
+      const email     = emailEl ? emailEl.value.trim() : '';
+      const birthDate = dateEl  ? dateEl.value         : '';
 
       if (hpEl && hpEl.value) { alert('Abone oldunuz, teşekkürler!'); return; }
       if (!email) { alert('Lütfen e-posta adresinizi girin.'); return; }
@@ -1678,10 +1684,11 @@
         if (existing.exists) {
           alert('Bu e-posta zaten kayıtlı!');
         } else {
-          await docRef.set({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home' });
+          await docRef.set({ name, email, birthDate, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home' });
           localStorage.setItem(RL_KEY, Date.now().toString());
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
+          if (dateEl)  dateEl.value  = '';
           alert('Abone oldunuz, teşekkürler!');
         }
       } catch(err) {
