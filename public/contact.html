@@ -337,6 +337,18 @@
     .form-footer .field { position: relative; }
     .form-footer .field input { width: 100%; background: transparent; border: 0; outline: none; padding: 0 .75em .55em; font-size: .875em; font-weight: 500; letter-spacing: .06em; font-family: var(--fp); text-transform: none; color: var(--c2); }
     .form-footer .field input::placeholder { opacity: .65; color: var(--c2); }
+    .bday-toggle {
+      background: none; border: none; padding: 0 .75em .55em; cursor: pointer;
+      font-family: var(--fp); font-size: 0.875em; font-weight: 500;
+      letter-spacing: 0.06em; color: rgba(3,9,13,.35);
+      width: 100%; text-align: left;
+      transition: color .2s;
+    }
+    .bday-toggle:hover { color: rgba(3,9,13,.6); }
+    .bday-toggle span { font-size: .875em; opacity: .7; }
+    .field--bday input[type=date] { display: none; }
+    .field--bday.bday-open .bday-toggle { display: none; }
+    .field--bday.bday-open input[type=date] { display: block; }
     .form-footer .field::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: .95em; border: 1px solid rgba(3,9,13,.18); border-top: none; border-radius: 0 0 .45em .45em; pointer-events: none; }
     .form__button { margin-top: .625em; display: flex; justify-content: flex-end; }
     .copyright { padding: 2.5em 0; margin: 0 2.5em; }
@@ -597,7 +609,10 @@
             <div class="form-footer">
               <div class="field"><input type="text" placeholder="Your Name"></div>
               <div class="field"><input type="email" placeholder="Your Email"></div>
-              <div class="field"><input type="date" placeholder="Doğum Tarihiniz" autocomplete="bday"></div>
+              <div class="field field--bday">
+                <button type="button" class="bday-toggle" onclick="this.parentElement.classList.add('bday-open')">+ Doğum tarihi ekle <span>(isteğe bağlı)</span></button>
+                <input type="date" autocomplete="bday">
+              </div>
               <div class="pod-hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
               <div class="form__button">
                 <a href="#" class="link">
@@ -889,7 +904,7 @@
           localStorage.setItem(RL_KEY, Date.now().toString());
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
-          if (dateEl)  dateEl.value  = '';
+          if (dateEl)  { dateEl.value = ''; dateEl.closest('.field--bday')?.classList.remove('bday-open'); }
           alert('Abone oldunuz, teşekkürler!');
         }
       } catch(err) {
