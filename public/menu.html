@@ -1099,11 +1099,22 @@
 
   function preloadTabImages(container) {
     if (!isTouchDevice()) return;
-    const urls = [...new Set(
-      Array.from(container.querySelectorAll('.menu-item[data-img]'))
-        .map(el => el.dataset.img).filter(Boolean)
-    )];
-    urls.forEach((url, i) => setTimeout(() => { new Image().src = clOpt(url, 'f_auto,q_auto,w_400'); }, i * 120));
+    const sections = Array.from(container.querySelectorAll('.cat-section'));
+    if (!sections.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        obs.unobserve(entry.target);
+        const items = Array.from(entry.target.querySelectorAll('.menu-item[data-img]'))
+          .filter(el => !!el.dataset.img);
+        items.forEach((el, i) => {
+          setTimeout(() => { new Image().src = clOpt(el.dataset.img, 'f_auto,q_auto,w_400'); }, i * 80);
+        });
+      });
+    }, { rootMargin: '400px 0px' });
+
+    sections.forEach(s => obs.observe(s));
   }
 
   function bindHoverEvents(container) {
