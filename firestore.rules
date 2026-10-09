@@ -2,26 +2,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Site config & menu — herkes okuyabilir, kimse yazamaz (sadece Firebase Console)
-    match /siteConfig/{doc}      { allow read: if true; allow write: if false; }
-    match /menuCategories/{doc}  { allow read: if true; allow write: if false; }
-    match /menuItems/{doc}       { allow read: if true; allow write: if false; }
-    match /addons/{doc}          { allow read: if true; allow write: if false; }
+    // Site config & menu — herkes okuyabilir, sadece giriş yapmış admin yazabilir
+    function isAdmin() { return request.auth != null; }
+    match /siteConfig/{doc}      { allow read: if true; allow write: if isAdmin(); }
+    match /menuCategories/{doc}  { allow read: if true; allow write: if isAdmin(); }
+    match /menuItems/{doc}       { allow read: if true; allow write: if isAdmin(); }
+    match /addons/{doc}          { allow read: if true; allow write: if isAdmin(); }
 
     // Subscribers — email doc ID ile get izni var (duplicate check için), list yok
     match /subscribers/{docId} {
       allow get: if true;
-      allow list: if false;
+      allow list: if isAdmin();
       allow create: if request.resource.data.keys().hasAll(['email', 'subscribedAt'])
                    && request.resource.data.email is string
                    && request.resource.data.email.size() > 3
                    && request.resource.data.email.size() < 200;
-      allow update, delete: if false;
+      allow update, delete: if isAdmin();
     }
 
     // Mesajlar — sadece yaz, oku yok (admin Firebase Console'dan okur)
     match /messages/{doc} {
-      allow read: if false;
+      allow read: if isAdmin();
       allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message', 'createdAt'])
                    && request.resource.data.name is string
                    && request.resource.data.name.size() > 0
@@ -32,7 +33,7 @@ service cloud.firestore {
                    && request.resource.data.message is string
                    && request.resource.data.message.size() > 0
                    && request.resource.data.message.size() < 2000;
-      allow update, delete: if false;
+      allow update, delete: if isAdmin();
     }
 
     // Analytics — sadece yaz

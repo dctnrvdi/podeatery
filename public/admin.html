@@ -1906,8 +1906,8 @@ function renderItemRow(doc) {
       </div>
       <span class="item-row__price">${d.price ? d.price + ' ₺' : ''}</span>
       <div class="item-row__actions">
-        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick="openItemModal('${doc.id}','${d.categoryId}','${escHtml(d.name)}',${d.price||0},'${escHtml(d.desc||'')}',${d.order||1},'${escHtml(d.imageUrl||'')}')">✎</button>
-        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick="confirmDelete('Ürün silinsin mi?','${escHtml(d.name)} kalıcı olarak silinecek.',()=>deleteItem('${doc.id}'))">×</button>
+        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick='openItemModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.categoryId||""))},${escHtml(JSON.stringify(d.name||""))},${d.price||0},${escHtml(JSON.stringify(d.desc||""))},${d.order||1},${escHtml(JSON.stringify(d.imageUrl||""))})'>✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick='confirmDelete("Ürün silinsin mi?",${escHtml(JSON.stringify((d.name||"") + " kalıcı olarak silinecek."))},()=>deleteItem(${escHtml(JSON.stringify(doc.id))}))'>×</button>
       </div>
     </div>
   `;
@@ -1948,8 +1948,8 @@ async function deleteCat(id) {
   const batch = db.batch();
   itemsSnap.docs.forEach(d => batch.delete(d.ref));
   batch.delete(db.collection('menuCategories').doc(id));
-  await batch.commit();
-  showToast('Kategori silindi', 'success');
+  try { await batch.commit(); showToast('Kategori silindi', 'success'); }
+  catch(e) { showToast('Kategori silinemedi: ' + e.message, 'error'); }
   await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
 }
 
@@ -1998,8 +1998,10 @@ async function saveItem() {
 }
 
 async function deleteItem(id) {
-  await db.collection('menuItems').doc(id).delete();
-  showToast('Ürün silindi', 'success');
+  try {
+    await db.collection('menuItems').doc(id).delete();
+    showToast('Ürün silindi', 'success');
+  } catch(e) { showToast('Ürün silinemedi: ' + e.message, 'error'); }
   await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadDashboard()]);
 }
 
