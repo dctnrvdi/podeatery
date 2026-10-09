@@ -453,7 +453,7 @@
       <!-- Phone -->
       <div class="info-block" data-reveal>
         <span class="info-block__label">Telefon</span>
-        <span class="info-block__value"><a id="contactPhoneLink" href="tel:+902121234567"><span id="contactPhoneText">+90 212 123 45 67</span></a></span>
+        <span class="info-block__value"><a id="contactPhoneLink" href="tel:+905457630763"><span id="contactPhoneText">0545 763 07 63</span></a></span>
         <span class="info-block__note">Rezervasyon için arayabilirsiniz</span>
       </div>
 
@@ -466,7 +466,7 @@
       <!-- Address -->
       <div class="info-block" data-reveal>
         <span class="info-block__label">Adres</span>
-        <span class="info-block__value" id="contactAddress">Karaköy, Istanbul</span>
+        <span class="info-block__value" id="contactAddress">Kazımdirik, 367/8 Sk No:5/K, Bornova / İzmir</span>
         <span class="info-block__note" id="contactAddressNote">Türkiye</span>
       </div>
 
@@ -487,10 +487,10 @@
       <div data-reveal>
         <span class="info-block__label" style="margin-bottom:1.25em;display:block">Mesaj Gönder</span>
         <div class="contact-form" id="contactForm">
-          <div class="field"><input id="cf-name" type="text" placeholder="Adınız Soyadınız" required></div>
-          <div class="field"><input id="cf-email" type="email" placeholder="E-Posta Adresiniz" required></div>
+          <div class="field"><input id="cf-name" type="text" maxlength="99" placeholder="Adınız Soyadınız" required></div>
+          <div class="field"><input id="cf-email" type="email" maxlength="199" placeholder="E-Posta Adresiniz" required></div>
           <div class="field"><input id="cf-phone" type="tel" placeholder="Telefon (opsiyonel)"></div>
-          <div class="field"><textarea id="cf-msg" placeholder="Mesajınız veya rezervasyon talebiniz…" rows="4"></textarea></div>
+          <div class="field"><textarea id="cf-msg" maxlength="1999" required placeholder="Mesajınız veya rezervasyon talebiniz…" rows="4"></textarea></div>
           <div class="pod-hp" aria-hidden="true"><input id="cf-hp" type="text" name="website" tabindex="-1" autocomplete="off"></div>
           <div class="contact-form__submit">
             <button id="cfSubmitBtn" type="button" class="link" style="color:var(--c2);background:none;border:none;cursor:pointer;padding:0;font-family:inherit" onclick="submitContactForm()">
@@ -570,8 +570,8 @@
       <span class="eyebrow">Rezervasyon</span>
       <h3>Masanızı önceden ayırtın</h3>
       <p>Kalabalık saatlerde yer bulabilmek için rezervasyon yaptırmanızı öneririz. Telefon veya formu kullanabilirsiniz.</p>
-      <a id="reservePhoneLink" href="tel:+902121234567" class="link" style="color:var(--c2)">
-        <span id="reservePhoneText">+90 212 123 45 67</span>
+      <a id="reservePhoneLink" href="tel:+905457630763" class="link" style="color:var(--c2)">
+        <span id="reservePhoneText">0545 763 07 63</span>
         <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
       </a>
     </div>
@@ -584,7 +584,7 @@
         <div class="block-footer__figure"></div>
         <div class="block-footer__desc-wrap">
           <div class="block-footer__description">
-            <p>Istanbul's favourite coffee corner. A space to slow down, connect, and savour the little things.</p>
+            <p>Good Coffee. Healthy Foods. Better Days.</p>
           </div>
           <a id="footerReserveLink" href="/contact" class="link">
             <span id="footerReserveText">Reserve a Table</span>
@@ -597,7 +597,7 @@
           <div>
             <span class="eyebrow block-footer__eyebrow">Navigate</span>
             <ul class="block-footer__menu-list">
-              <li><a href="/#story" class="link">Our Story</a></li>
+              <li><a href="/space" class="link">Our Story</a></li>
               <li><a href="/menu" class="link">Menu</a></li>
               <li><a href="/space" class="link">The Space</a></li>
               <li><a href="/contact" class="link">Contact</a></li>
@@ -664,7 +664,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script>
-    const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+    const lenis = (typeof Lenis !== 'undefined') ? new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true }) : { raf(){}, stop(){}, start(){}, on(e, cb){ if (e === 'scroll') window.addEventListener('scroll', cb, { passive: true }); }, scrollTo(t){ if (typeof t === 'number') window.scrollTo({ top: t, behavior: 'smooth' }); else if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth' }); } }; // CDN yüklenemezse site yine çalışsın
     (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
 
     /* Yol tarifi — iOS'ta Apple Maps, diğerlerinde Google Maps */
@@ -697,9 +697,10 @@
   (async function applyContent() {
     try {
       const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      setTimeout(() => { document.body.style.opacity = '1'; }, 1200); // yavaş bağlantıda sayfa boş kalmasın
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-      try { const _k='pod_v_contact_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({contact:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_contact_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({contact:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const [contactSnap, footerSnap, navSnap] = await Promise.all([
         db.collection('siteConfig').doc('contact').get(),
         db.collection('siteConfig').doc('footer').get(),
@@ -768,6 +769,8 @@
         if (f.reserveText)     set('footerReserveText', f.reserveText);
         if (f.reserveUrl)      { const e = document.getElementById('footerReserveLink'); if(e) e.href = f.reserveUrl; }
         const ftLinks = document.querySelectorAll('.block-footer__menu-list a');
+        const hasFt = [1,2,3,4,5].some(i => f['ftl'+i+'label'] || f['ftl'+i+'href']);
+        if (hasFt) {
         let ftIdx = 0;
         for (let i = 1; i <= 5; i++) {
           const lbl = f['ftl'+i+'label'], href = f['ftl'+i+'href'];
@@ -782,6 +785,7 @@
         for (let j = ftIdx; j < ftLinks.length; j++) {
           const li = ftLinks[j] ? ftLinks[j].closest('li') : null;
           if (li) li.style.display = 'none';
+        }
         }
         if (f.privacyText) { const e = document.querySelector('.terms a:first-child'); if(e) e.textContent = f.privacyText; }
         if (f.privacyUrl)  { const e = document.querySelector('.terms a:first-child'); if(e) e.href = f.privacyUrl; }
@@ -829,7 +833,9 @@
       return;
     }
 
-    if (!name || !email) { status.textContent = 'Lütfen adınızı ve e-postanızı girin.'; status.style.color = '#c2644f'; return; }
+    if (!name || !email || !msg) { status.textContent = 'Lütfen adınızı, e-postanızı ve mesajınızı yazın.'; status.style.color = '#c2644f'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = 'Lütfen geçerli bir e-posta adresi girin.'; status.style.color = '#c2644f'; return; }
+    if (name.length > 99 || email.length > 199 || msg.length > 1999) { status.textContent = 'Mesaj çok uzun; lütfen 2000 karakterin altında tutun.'; status.style.color = '#c2644f'; return; }
 
     const RL_KEY = 'pod_msg_ts';
     const last = localStorage.getItem(RL_KEY);
@@ -933,17 +939,17 @@
     const tr = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
     const dayKey = keys[tr.getDay()];
     const nowM = tr.getHours() * 60 + tr.getMinutes();
-    const raw = (hoursData && hoursData[dayKey]) || defs[dayKey];
-    const parts = raw.split(/\s*[–—]\s*/);
-    if (parts.length < 2) return;
-    const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
-    const openM = toM(parts[0]);
-    let closeM = toM(parts[1]);
-    if (closeM === 0) closeM = 1440;
-    const isOpen = nowM >= openM && nowM < closeM;
-    badge.classList.toggle('open-badge--open', isOpen);
-    badge.classList.toggle('open-badge--closed', !isOpen);
-    badge.querySelector('.open-badge__text').textContent = isOpen ? 'Açık' : 'Kapalı';
+    const raw = String((hoursData && hoursData[dayKey]) || defs[dayKey]).trim();
+    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = o ? 'Açık' : 'Kapalı'; };
+    if (/kapal|closed/i.test(raw)) { setOpen(false); return; }
+    const mm = raw.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
+    if (!mm) return;
+    const openM = +mm[1] * 60 + +mm[2];
+    let closeM = +mm[3] * 60 + +mm[4];
+    if (closeM <= openM) closeM += 1440;            // gece yarısından sonra kapanış
+    let now = nowM;
+    if (now < openM && closeM > 1440) now += 1440;  // örn. 00:20, dünkü vardiya hâlâ açık
+    setOpen(now >= openM && now < closeM);
   }
   updateOpenBadge({});
 

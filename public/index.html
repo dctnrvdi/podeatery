@@ -1036,7 +1036,7 @@
       </div>
       <div class="block-hero__content">
         <div class="block-hero__eyebrow-wrap">
-          <span class="eyebrow" id="heroEyebrow">Istanbul · 2019</span>
+          <span class="eyebrow" id="heroEyebrow">İzmir · 2022</span>
         </div>
         <div class="block-hero__title-wrap">
           <span class="title-xl" id="heroTitle">A place to slow&nbsp;down &amp; savour the moment</span>
@@ -1147,7 +1147,7 @@
       <div class="block-media-intro__content" data-reveal="2">
         <h2 class="title-m">From Bean to Cup</h2>
         <p>We source our beans directly from small farms across Ethiopia, Colombia, and Guatemala. Each batch is roasted in-house to bring out its unique character — then brewed to order.</p>
-        <a id="craftCtaLink" href="#" class="link">
+        <a id="craftCtaLink" href="/menu" class="link">
           <span id="craftCtaText">Our Coffee Story</span>
           <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#03090D"/><path d="M5.96159 9.12923L7.52061 9.1595L12.3944 9.17464L12.8561 9.19734L12.8636 9.1595L12.2355 8.68271L9.87427 6.32149L10.4343 5.76145L14.1048 9.43195L14.1048 9.67413L10.4267 13.3522L9.87427 12.7997L12.2506 10.4234L12.8636 9.96171L12.8561 9.90874L12.3793 9.93144L7.70224 9.94658L5.96916 9.96928L5.96159 9.12923Z" fill="#F8F2E5"/></svg>
         </a>
@@ -1165,7 +1165,7 @@
         <div class="block-card-content-box__left">
           <div>
             <span class="eyebrow" id="visitEyebrow">Visit Us</span>
-            <h2 class="title-s" id="visitTitle">Find Us<br>in Istanbul</h2>
+            <h2 class="title-s" id="visitTitle">Bornova'da<br>Seni Bekliyoruz.</h2>
           </div>
           <a id="getInTouchLink" href="mailto:hello@podcoffee.com" class="link" style="color:var(--color-1)">
             <span id="getInTouchText">Get in Touch</span>
@@ -1180,7 +1180,7 @@
           </div>
           <div class="block-card-content-box__location">
             <span class="eyebrow">Location</span>
-            <p>Istanbul, Turkey<br>@podeatery</p>
+            <p>Bornova, İzmir<br>@podeatery</p>
           </div>
         </div>
       </div>
@@ -1197,7 +1197,7 @@
         </div>
         <div class="block-footer__desc-wrap">
           <div class="block-footer__description">
-            <p>Istanbul's favourite coffee corner. A space to slow down, connect, and savour the little things.</p>
+            <p>Good Coffee. Healthy Foods. Better Days.</p>
           </div>
           <a href="#reserve" class="link">
             <span>Reserve a Table</span>
@@ -1243,8 +1243,8 @@
       <div class="copyright-content">
         <span>© 2024 POD Coffee &amp; Eatery. All rights reserved.</span>
         <div class="terms">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Use</a>
         </div>
       </div>
     </div>
@@ -1282,7 +1282,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script>
     /* ── LENIS ── */
-    const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+    const lenis = (typeof Lenis !== 'undefined') ? new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true }) : { raf(){}, stop(){}, start(){}, on(e, cb){ if (e === 'scroll') window.addEventListener('scroll', cb, { passive: true }); }, scrollTo(t){ if (typeof t === 'number') window.scrollTo({ top: t, behavior: 'smooth' }); else if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth' }); } }; // CDN yüklenemezse site yine çalışsın
     (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
 
     /* ── PRELOADER ── */
@@ -1415,6 +1415,7 @@
       if (count) slideCount = count;
       currentIdx = 0;
       if (podSwiper) { podSwiper.destroy(true, true); podSwiper = null; }
+      if (typeof Swiper === 'undefined') return; // CDN yüklenemezse slider atlanır, sayfa çalışır
       podSwiper = new Swiper('.podSwiper', {
         slidesPerView: 'auto',
         spaceBetween: isMobile ? 16 : 20,
@@ -1509,7 +1510,8 @@
     if (b.email) {
       document.querySelectorAll('a[href^="mailto:"]').forEach(a => {
         a.href = `mailto:${b.email}`;
-        if (a.querySelector('span')) a.querySelector('span').textContent = b.email;
+        const sp = a.querySelector('span');
+        if (sp && /@/.test(sp.textContent)) sp.textContent = b.email; // sadece e-posta yazan etiketleri değiştir
       });
     }
 
@@ -1527,6 +1529,8 @@
     if (f.reserveText) { const el = document.querySelector('.block-footer__desc-wrap a.link span'); if(el) el.textContent = f.reserveText; }
     if (f.reserveUrl)  { const el = document.querySelector('.block-footer__desc-wrap a.link'); if(el) el.href = f.reserveUrl; }
     const ftLinks = document.querySelectorAll('.block-footer__menu-list a');
+    const hasFt = [1,2,3,4,5].some(i => f['ftl'+i+'label'] || f['ftl'+i+'href']);
+    if (hasFt) {
     let ftIdx = 0;
     for (let i = 1; i <= 5; i++) {
       const lbl = f['ftl'+i+'label'], href = f['ftl'+i+'href'];
@@ -1541,6 +1545,7 @@
     for (let j = ftIdx; j < ftLinks.length; j++) {
       const li = ftLinks[j] ? ftLinks[j].closest('li') : null;
       if (li) li.style.display = 'none';
+    }
     }
     if (f.pagesTitle)      { const el = document.querySelector('.block-footer__menu-form > div:first-child .block-footer__eyebrow'); if(el) el.textContent = f.pagesTitle; }
     if (f.newsletterTitle) { const el = document.querySelector('.block-footer__form .block-footer__eyebrow'); if(el) el.textContent = f.newsletterTitle; }
@@ -1578,11 +1583,11 @@
       hoursEl.innerHTML = `<span class="eyebrow">Saatler</span>
         ${days.map(([day, v]) => `<p style="margin-top:.35em"><small style="opacity:.5">${day}</small><br>${v}</p>`).join('')}`;
     }
-    updateOpenBadge(hrs);
+    if (typeof updateOpenBadge === 'function') updateOpenBadge(hrs);
     const locEl = document.querySelector('.block-card-content-box__location');
     if (locEl) {
       locEl.innerHTML = `<span class="eyebrow">Adres</span>
-        <p>${c.address || 'Istanbul, Turkey'}</p>
+        <p>${c.address || 'Bornova, İzmir'}</p>
         ${c.instagram ? `<p style="margin-top:.25em">${c.instagram}</p>` : ''}`;
     }
   }
@@ -1600,7 +1605,7 @@
       const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-      try { const _k='pod_v_home_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({home:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_home_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({home:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const [hpDoc, brandDoc, contactDoc, footerDoc, navDoc] = await Promise.all([
         db.collection('siteConfig').doc('homepage').get(),
         db.collection('siteConfig').doc('brand').get(),
@@ -1749,17 +1754,17 @@
     const tr = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
     const dayKey = keys[tr.getDay()];
     const nowM = tr.getHours() * 60 + tr.getMinutes();
-    const raw = (hoursData && hoursData[dayKey]) || defs[dayKey];
-    const parts = raw.split(/\s*[–—]\s*/);
-    if (parts.length < 2) return;
-    const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
-    const openM = toM(parts[0]);
-    let closeM = toM(parts[1]);
-    if (closeM === 0) closeM = 1440;
-    const isOpen = nowM >= openM && nowM < closeM;
-    badge.classList.toggle('open-badge--open', isOpen);
-    badge.classList.toggle('open-badge--closed', !isOpen);
-    badge.querySelector('.open-badge__text').textContent = isOpen ? 'Açık' : 'Kapalı';
+    const raw = String((hoursData && hoursData[dayKey]) || defs[dayKey]).trim();
+    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = o ? 'Açık' : 'Kapalı'; };
+    if (/kapal|closed/i.test(raw)) { setOpen(false); return; }
+    const mm = raw.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
+    if (!mm) return;
+    const openM = +mm[1] * 60 + +mm[2];
+    let closeM = +mm[3] * 60 + +mm[4];
+    if (closeM <= openM) closeM += 1440;            // gece yarısından sonra kapanış
+    let now = nowM;
+    if (now < openM && closeM > 1440) now += 1440;  // örn. 00:20, dünkü vardiya hâlâ açık
+    setOpen(now >= openM && now < closeM);
   }
   updateOpenBadge({});
 

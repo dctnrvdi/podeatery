@@ -632,7 +632,7 @@
         <div class="block-footer__figure" id="footerFigure"></div>
         <div class="block-footer__desc-wrap">
           <div class="block-footer__description">
-            <p id="footerDesc">Istanbul'un sevilen kahve köşesi. Yavaşlamak, bağlanmak ve küçük şeylerin tadını çıkarmak için bir yer.</p>
+            <p id="footerDesc">Bornova'nın sevilen kahve köşesi. Yavaşlamak, bağlanmak ve küçük şeylerin tadını çıkarmak için bir yer.</p>
           </div>
           <a href="/contact" class="link">
             <span>Rezervasyon Yap</span>
@@ -673,8 +673,8 @@
       <div class="copyright-content">
         <span>© 2025 POD Coffee &amp; Eatery. Tüm hakları saklıdır.</span>
         <div class="terms">
-          <a href="#">Gizlilik Politikası</a>
-          <a href="#">Kullanım Koşulları</a>
+          <a href="/privacy">Gizlilik Politikası</a>
+          <a href="/terms">Kullanım Koşulları</a>
         </div>
       </div>
     </div>
@@ -959,7 +959,7 @@
     try {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
-      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({menu:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({menu:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
       const [catSnap, itemSnap, addonSnap] = await Promise.race([
         Promise.all([
@@ -1296,9 +1296,9 @@
         if (cfg.exists) {
           const d = cfg.data();
           if (d.instagram) {
-            document.getElementById('nav-instagram').href = `https://www.instagram.com/${d.instagram.replace('@','')}`;
+            document.getElementById('nav-instagram').href = (/^https?:/.test(d.instagram) ? d.instagram : `https://www.instagram.com/${d.instagram.replace('@','')}`);
             document.getElementById('nav-instagram').textContent = d.instagram;
-            document.getElementById('footer-instagram').href = `https://www.instagram.com/${d.instagram.replace('@','')}`;
+            document.getElementById('footer-instagram').href = (/^https?:/.test(d.instagram) ? d.instagram : `https://www.instagram.com/${d.instagram.replace('@','')}`);
           }
           if (d.email) {
             document.getElementById('nav-email').href = `mailto:${d.email}`;
@@ -1322,6 +1322,8 @@
               : `<img src="${f.image}" alt="">`;
           }
           const ftLinks = document.querySelectorAll('.block-footer__menu-list a');
+          const hasFt = [1,2,3,4,5].some(i => f['ftl'+i+'label'] || f['ftl'+i+'href']);
+          if (hasFt) {
           let ftIdx = 0;
           for (let i = 1; i <= 5; i++) {
             const lbl = f['ftl'+i+'label'], href = f['ftl'+i+'href'];
@@ -1336,6 +1338,7 @@
           for (let j = ftIdx; j < ftLinks.length; j++) {
             const li = ftLinks[j] ? ftLinks[j].closest('li') : null;
             if (li) li.style.display = 'none';
+          }
           }
           if (f.reserveText) { const e = document.querySelector('.block-footer__desc-wrap a.link span'); if(e) e.textContent = f.reserveText; }
           if (f.reserveUrl)  { const e = document.querySelector('.block-footer__desc-wrap a.link'); if(e) e.href = f.reserveUrl; }
@@ -1376,7 +1379,7 @@
   /* ════════════════════════════════════════
      LENIS
   ════════════════════════════════════════ */
-  const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+  const lenis = (typeof Lenis !== 'undefined') ? new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true }) : { raf(){}, stop(){}, start(){}, on(e, cb){ if (e === 'scroll') window.addEventListener('scroll', cb, { passive: true }); }, scrollTo(t){ if (typeof t === 'number') window.scrollTo({ top: t, behavior: 'smooth' }); else if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth' }); } }; // CDN yüklenemezse site yine çalışsın
   (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
 
   /* ── HEADER MENU ── */
@@ -1471,11 +1474,12 @@
         const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
         if (!firebase.apps.length) firebase.initializeApp(cfg);
         const db = firebase.firestore();
-        const existing = await db.collection('subscribers').where('email','==',email).limit(1).get();
-        if (!existing.empty) {
+        const docRef = db.collection('subscribers').doc(email.toLowerCase());
+        const existing = await docRef.get();
+        if (existing.exists) {
           alert('Bu e-posta zaten kayıtlı!');
         } else {
-          await db.collection('subscribers').add({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'menu' });
+          await docRef.set({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'menu' });
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
           alert('Abone oldunuz, teşekkürler!');
@@ -1506,17 +1510,17 @@
     const tr = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
     const dayKey = keys[tr.getDay()];
     const nowM = tr.getHours() * 60 + tr.getMinutes();
-    const raw = (hoursData && hoursData[dayKey]) || defs[dayKey];
-    const parts = raw.split(/\s*[–—]\s*/);
-    if (parts.length < 2) return;
-    const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
-    const openM = toM(parts[0]);
-    let closeM = toM(parts[1]);
-    if (closeM === 0) closeM = 1440;
-    const isOpen = nowM >= openM && nowM < closeM;
-    badge.classList.toggle('open-badge--open', isOpen);
-    badge.classList.toggle('open-badge--closed', !isOpen);
-    badge.querySelector('.open-badge__text').textContent = isOpen ? 'Açık' : 'Kapalı';
+    const raw = String((hoursData && hoursData[dayKey]) || defs[dayKey]).trim();
+    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = o ? 'Açık' : 'Kapalı'; };
+    if (/kapal|closed/i.test(raw)) { setOpen(false); return; }
+    const mm = raw.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
+    if (!mm) return;
+    const openM = +mm[1] * 60 + +mm[2];
+    let closeM = +mm[3] * 60 + +mm[4];
+    if (closeM <= openM) closeM += 1440;            // gece yarısından sonra kapanış
+    let now = nowM;
+    if (now < openM && closeM > 1440) now += 1440;  // örn. 00:20, dünkü vardiya hâlâ açık
+    setOpen(now >= openM && now < closeM);
   }
   updateOpenBadge({});
 

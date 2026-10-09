@@ -566,7 +566,7 @@
         alt="POD interior">
     </div>
     <div class="sp-hero__content" data-reveal>
-      <span class="eyebrow sp-hero__eyebrow">Istanbul · The Space</span>
+      <span class="eyebrow sp-hero__eyebrow">Bornova · The Space</span>
       <h1 class="sp-hero__title">Our<br>Corner</h1>
     </div>
     <div class="sp-hero__scroll">
@@ -622,7 +622,7 @@
   <section class="sp-quote">
     <div class="sp-quote__line"></div>
     <blockquote class="sp-quote__text" data-reveal>"Sessizliğin ve sıcaklığın buluştuğu bir köşe."</blockquote>
-    <span class="sp-quote__attr" id="quoteAttr" data-reveal="1">— POD Coffee &amp; Eatery, Istanbul</span>
+    <span class="sp-quote__attr" id="quoteAttr" data-reveal="1">— POD Coffee &amp; Eatery, Bornova</span>
   </section>
 
   <!-- ── ASYMMETRIC ROW ── -->
@@ -670,7 +670,7 @@
         <div class="block-footer__figure"></div>
         <div class="block-footer__desc-wrap">
           <div class="block-footer__description">
-            <p>Istanbul's favourite coffee corner. A space to slow down, connect, and savour the little things.</p>
+            <p>Good Coffee. Healthy Foods. Better Days.</p>
           </div>
           <a href="/contact" class="link">
             <span>Reserve a Table</span>
@@ -683,7 +683,7 @@
           <div>
             <span class="eyebrow block-footer__eyebrow">Navigate</span>
             <ul class="block-footer__menu-list">
-              <li><a href="/#story" class="link">Our Story</a></li>
+              <li><a href="/space" class="link">Our Story</a></li>
               <li><a href="/menu" class="link">Menu</a></li>
               <li><a href="/space" class="link">The Space</a></li>
               <li><a href="/contact" class="link">Contact</a></li>
@@ -710,7 +710,7 @@
       <div class="block-footer__logotype">POD</div>
       <div class="copyright-content">
         <span>© 2024 POD Coffee &amp; Eatery. All rights reserved.</span>
-        <div class="terms"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div>
+        <div class="terms"><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a></div>
       </div>
     </div>
     <div class="cpc-marquee">
@@ -747,7 +747,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script>
-    const lenis = new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true });
+    const lenis = (typeof Lenis !== 'undefined') ? new Lenis({ lerp: 0.1, duration: 1.2, smoothWheel: true }) : { raf(){}, stop(){}, start(){}, on(e, cb){ if (e === 'scroll') window.addEventListener('scroll', cb, { passive: true }); }, scrollTo(t){ if (typeof t === 'number') window.scrollTo({ top: t, behavior: 'smooth' }); else if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth' }); } }; // CDN yüklenemezse site yine çalışsın
     (function tick(t) { lenis.raf(t); requestAnimationFrame(tick); })(0);
 
     /* header */
@@ -791,16 +791,16 @@
   (async function applySpaceContent() {
     try {
       const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      setTimeout(() => { document.body.style.opacity = '1'; }, 1200); // yavaş bağlantıda sayfa boş kalmasın
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-      try { const _k='pod_v_space_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toISOString().slice(0,10)).set({space:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_space_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({space:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
       const [doc, navDoc] = await Promise.all([
         db.collection('siteConfig').doc('space').get(),
         db.collection('siteConfig').doc('nav').get(),
       ]);
       if (navDoc.exists) applyNav(navDoc.data());
-      if (!doc.exists) return;
-      const d = doc.data();
+      const d = doc.exists ? doc.data() : {};
 
       /* Hero */
       if (d.title) {
@@ -894,6 +894,8 @@
         if (f.reserveText) { const e = document.querySelector('.block-footer__desc-wrap a.link span'); if(e) e.textContent = f.reserveText; }
         if (f.reserveUrl)  { const e = document.querySelector('.block-footer__desc-wrap a.link'); if(e) e.href = f.reserveUrl; }
         const ftLinks = document.querySelectorAll('.block-footer__menu-list a');
+        const hasFt = [1,2,3,4,5].some(i => f['ftl'+i+'label'] || f['ftl'+i+'href']);
+        if (hasFt) {
         let ftIdx = 0;
         for (let i = 1; i <= 5; i++) {
           const lbl = f['ftl'+i+'label'], href = f['ftl'+i+'href'];
@@ -908,6 +910,7 @@
         for (let j = ftIdx; j < ftLinks.length; j++) {
           const li = ftLinks[j] ? ftLinks[j].closest('li') : null;
           if (li) li.style.display = 'none';
+        }
         }
         if (f.pagesTitle)  { const e = document.querySelector('.block-footer__menu-form > div:first-child .block-footer__eyebrow'); if(e) e.textContent = f.pagesTitle; }
         if (f.newsletterTitle) { const e = document.querySelector('.block-footer__form .block-footer__eyebrow'); if(e) e.textContent = f.newsletterTitle; }
@@ -989,11 +992,12 @@
         const cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
         if (!firebase.apps.length) firebase.initializeApp(cfg);
         const db = firebase.firestore();
-        const existing = await db.collection('subscribers').where('email','==',email).limit(1).get();
-        if (!existing.empty) {
+        const docRef = db.collection('subscribers').doc(email.toLowerCase());
+        const existing = await docRef.get();
+        if (existing.exists) {
           alert('Bu e-posta zaten kayıtlı!');
         } else {
-          await db.collection('subscribers').add({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'space' });
+          await docRef.set({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'space' });
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
           alert('Abone oldunuz, teşekkürler!');
@@ -1024,17 +1028,17 @@
     const tr = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
     const dayKey = keys[tr.getDay()];
     const nowM = tr.getHours() * 60 + tr.getMinutes();
-    const raw = (hoursData && hoursData[dayKey]) || defs[dayKey];
-    const parts = raw.split(/\s*[–—]\s*/);
-    if (parts.length < 2) return;
-    const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
-    const openM = toM(parts[0]);
-    let closeM = toM(parts[1]);
-    if (closeM === 0) closeM = 1440;
-    const isOpen = nowM >= openM && nowM < closeM;
-    badge.classList.toggle('open-badge--open', isOpen);
-    badge.classList.toggle('open-badge--closed', !isOpen);
-    badge.querySelector('.open-badge__text').textContent = isOpen ? 'Açık' : 'Kapalı';
+    const raw = String((hoursData && hoursData[dayKey]) || defs[dayKey]).trim();
+    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = o ? 'Açık' : 'Kapalı'; };
+    if (/kapal|closed/i.test(raw)) { setOpen(false); return; }
+    const mm = raw.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
+    if (!mm) return;
+    const openM = +mm[1] * 60 + +mm[2];
+    let closeM = +mm[3] * 60 + +mm[4];
+    if (closeM <= openM) closeM += 1440;            // gece yarısından sonra kapanış
+    let now = nowM;
+    if (now < openM && closeM > 1440) now += 1440;  // örn. 00:20, dünkü vardiya hâlâ açık
+    setOpen(now >= openM && now < closeM);
   }
   updateOpenBadge({});
 

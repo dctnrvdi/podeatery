@@ -543,7 +543,7 @@
     <div class="form-group" style="margin-bottom:0"><label>Şifre</label><div style="position:relative"><input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:42px"><button type="button" onclick="var i=document.getElementById('loginPassword');var b=this;i.type=i.type==='password'?'text':'password';b.innerHTML=i.type==='password'?'<svg width=16 height=16 viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\'/><circle cx=\'12\' cy=\'12\' r=\'3\'/></svg>':'<svg width=16 height=16 viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94\'/><path d=\'M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19\'/><line x1=\'1\' y1=\'1\' x2=\'23\' y2=\'23\'/></svg>'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#888;padding:0;display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <button class="btn btn-full auth-card__btn" id="loginBtn" onclick="doLogin()">Giriş Yap</button>
     <div id="loginError" class="auth-error"></div>
-    <div class="auth-card__foot">
+    <div class="auth-card__foot" style="display:none">
       <span onclick="showSetup()">⚙ Firebase ayarlarını değiştir</span>
     </div>
   </div>
@@ -681,10 +681,6 @@
           <p>Firestore henüz boş görünüyor. Mevcut menü verisini otomatik ekleyelim mi?</p>
           <button class="btn btn-accent btn-sm" onclick="seedData()">Veriyi Yükle</button>
         </div>
-        <div class="seed-notice" style="margin-top:1em;background:rgba(200,169,110,.08);border-color:rgba(200,169,110,.3)">
-          <p style="color:rgba(255,255,255,.7)">Menü verisi güncellendi mi? Firestore'u sıfırlayıp yeni tam menüyü yükle.</p>
-          <button class="btn btn-accent btn-sm" onclick="resetAndSeed()">Menüyü Güncelle</button>
-        </div>
         <div class="card">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hızlı Erişim</span></div></div>
           <div class="card-body">
@@ -727,7 +723,6 @@
         <div class="section-header">
           <h2>İçecek Menüsü</h2>
           <div style="display:flex;gap:.5em">
-            <button class="btn btn-ghost btn-sm" onclick="resetDrinksOnly()" title="İçecek kategorilerini, ürünlerini ve ek ürünleri sıfırlar. Yiyecek menüsüne dokunmaz.">↺ İçecekleri Güncelle</button>
             <button class="btn btn-primary btn-sm" onclick="openCatModal('icecek')">+ Kategori Ekle</button>
           </div>
         </div>
@@ -1367,7 +1362,7 @@
 
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
-        <div class="card" style="margin-bottom:1em">
+        <div class="card" style="margin-bottom:1em;display:none">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Firebase Yapılandırması</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <p class="settings-note">Değiştirmek istiyorsanız yeni config bilgilerini girin. Boş bırakılan alanlar mevcut değerini korur.</p>
@@ -1430,7 +1425,6 @@
         <div class="card">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Veri İşlemleri</span></div></div>
           <div class="card-body" style="padding:1.25em;display:flex;gap:.75em;flex-wrap:wrap">
-            <button class="btn btn-accent btn-sm" onclick="seedData()">Örnek Veri Yükle</button>
             <button class="btn btn-ghost btn-sm" onclick="exportData()">Veriyi Dışa Aktar (JSON)</button>
           </div>
         </div>
@@ -1459,7 +1453,18 @@
           <option value="grad-2">Derin Kahve</option>
           <option value="grad-3">Açık Krem</option>
           <option value="grad-4">Orta Tawny</option>
+          <option value="grad-5">Açık Yeşil</option>
+          <option value="grad-6">Pudra</option>
+          <option value="grad-7">Kum</option>
+          <option value="grad-8">Vanilya</option>
+          <option value="grad-9">Nane</option>
+          <option value="grad-10">Gri Yeşil</option>
+          <option value="grad-11">Gül Kurusu</option>
           <option value="grad-smoothie">Yeşil (Smoothie)</option>
+          <option value="grad-seasonal">Sezonluk (Sarı)</option>
+          <option value="grad-coffee">Kahve</option>
+          <option value="grad-ice">Buz Mavisi</option>
+          <option value="grad-herbal">Bitki Yeşili</option>
         </select>
       </div>
     </div>
@@ -1686,9 +1691,10 @@ async function doLogin() {
   try {
     await auth.signInWithEmailAndPassword(email, pass);
   } catch(e) {
-    const msgs = { 'auth/wrong-password':'Şifre hatalı.', 'auth/user-not-found':'Kullanıcı bulunamadı.', 'auth/invalid-email':'Geçersiz e-posta.', 'auth/too-many-requests':'Çok fazla deneme. Lütfen bekleyin.' };
+    const msgs = { 'auth/wrong-password':'Şifre hatalı.', 'auth/user-not-found':'Kullanıcı bulunamadı.', 'auth/invalid-email':'Geçersiz e-posta.', 'auth/invalid-credential':'E-posta veya şifre hatalı.', 'auth/invalid-login-credentials':'E-posta veya şifre hatalı.', 'auth/missing-password':'Şifre girin.', 'auth/network-request-failed':'İnternet bağlantısı yok, tekrar deneyin.', 'auth/too-many-requests':'Çok fazla deneme. Lütfen bekleyin.' };
     errEl.textContent = msgs[e.code] || e.message;
     errEl.classList.add('show');
+  } finally {
     btn.innerHTML = 'Giriş Yap';
     btn.disabled = false;
   }
@@ -1761,12 +1767,12 @@ async function loadMessages() {
       el.className = 'msg-card' + (d.read ? '' : ' unread');
       el.innerHTML = `
         <div class="msg-card__header">
-          <span class="msg-card__name">${d.name || '—'}</span>
+          <span class="msg-card__name">${escHtml(d.name || '—')}</span>
           <span class="msg-card__date">${date}</span>
         </div>
-        <div class="msg-card__email">${d.email || ''}</div>
-        <div class="msg-card__body">${(d.message || '').replace(/\n/g,'<br>')}</div>
-        ${d.phone ? `<div class="msg-card__phone">📞 ${d.phone}</div>` : ''}
+        <div class="msg-card__email">${escHtml(d.email || '')}</div>
+        <div class="msg-card__body">${escHtml(d.message || '').replace(/\n/g,'<br>')}</div>
+        ${d.phone ? `<div class="msg-card__phone">📞 ${escHtml(d.phone)}</div>` : ''}
         ${!d.read ? `<button class="btn btn-ghost btn-sm" style="margin-top:.75em;font-size:.75em" onclick="markRead('${doc.id}',this)">Okundu İşaretle</button>` : '<div style="font-size:.7em;color:var(--muted);margin-top:.5em">✓ Okundu</div>'}
       `;
       list.appendChild(el);
@@ -1804,7 +1810,7 @@ async function loadDashboard() {
     const days = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(); d.setDate(d.getDate() - i);
-      days.push(d.toISOString().slice(0,10));
+      days.push(d.toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'}));
     }
     const snaps = await Promise.all(days.map(d => db.collection('analytics').doc(d).get()));
     let weekTotal = 0;
@@ -1882,8 +1888,8 @@ function renderCategoryList(container, catSnap, itemSnap, tab) {
         </div>
         <div class="card-header__actions">
           <button class="btn btn-ghost btn-sm" onclick="openItemModal(null,'${catDoc.id}')">+ Ürün</button>
-          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick="openCatModal('${tab}','${catDoc.id}','${escHtml(cat.name)}',${cat.order},'${cat.gradient||'grad-1'}')">✎</button>
-          <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick="confirmDelete('Kategori silinsin mi?','${escHtml(cat.name)} ve tüm ürünleri silinecek.',()=>deleteCat('${catDoc.id}'))">×</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick='openCatModal(${escHtml(JSON.stringify(tab))},${escHtml(JSON.stringify(catDoc.id))},${escHtml(JSON.stringify(cat.name||""))},${Number(cat.order)||1},${escHtml(JSON.stringify(cat.gradient||"grad-1"))})'>✎</button>
+          <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick='confirmDelete("Kategori silinsin mi?",${escHtml(JSON.stringify((cat.name||"")+" ve tüm ürünleri silinecek."))},()=>deleteCat(${escHtml(JSON.stringify(catDoc.id))}))'>×</button>
         </div>
       </div>
       <div class="card-body" id="items-${catDoc.id}">
@@ -1927,7 +1933,7 @@ function openCatModal(tab, id='', name='', order=1, gradient='grad-1') {
 async function saveCat() {
   const id       = document.getElementById('catId').value;
   const tab      = document.getElementById('catTab').value;
-  const name     = document.getElementById('catName').value.trim().toUpperCase();
+  const name     = document.getElementById('catName').value.trim().toLocaleUpperCase('tr-TR');
   const order    = parseInt(document.getElementById('catOrder').value) || 1;
   const gradient = document.getElementById('catGradient').value;
   if (!name) return showToast('Kategori adı gerekli', 'error');
@@ -2016,8 +2022,8 @@ async function loadAddons() {
       <div style="flex:1"><div class="addon-row__name">${escHtml(d.name)}</div>${d.note?`<div class="addon-row__note">${escHtml(d.note)}</div>`:''}</div>
       <span class="addon-row__price">+${d.price} ₺</span>
       <div style="display:flex;gap:.35em">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="openAddonModal('${doc.id}','${escHtml(d.name)}',${d.price},'${escHtml(d.note||'')}',${d.order||1})">✎</button>
-        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" onclick="confirmDelete('Ek ürün silinsin mi?','${escHtml(d.name)} silinecek.',()=>deleteAddon('${doc.id}'))">×</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick='openAddonModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.name||""))},${Number(d.price)||0},${escHtml(JSON.stringify(d.note||""))},${Number(d.order)||1})'>✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" onclick='confirmDelete("Ek ürün silinsin mi?",${escHtml(JSON.stringify((d.name||"")+" silinecek."))},()=>deleteAddon(${escHtml(JSON.stringify(doc.id))}))'>×</button>
       </div>
     </div>`;
   }).join('');
@@ -2102,7 +2108,7 @@ async function saveContact() {
     visitLine2:     g('c-visitLine2'),
     getInTouchText: g('c-getInTouchText'),
     getInTouchUrl:  g('c-getInTouchUrl'),
-    mapEmbedUrl:    g('c-mapEmbedUrl'),
+    mapEmbedUrl:    (m => (m.match(/src=["']([^"']+)/) || [null, m])[1])(g('c-mapEmbedUrl')),
     phone:     g('c-phone'),
     email:     g('c-email'),
     address:   g('c-address'),
@@ -2302,6 +2308,11 @@ const FULL_MENU_ITEMS = [
 ];
 
 async function seedData() {
+  // Güvenlik: menü doluyken asla çalışmaz (çift kayıt / veri kaybı olmasın)
+  try {
+    if (!(await db.collection('menuCategories').limit(1).get()).empty) { showToast('Menü zaten dolu, örnek veri yüklenmedi.', 'error'); return; }
+  } catch(e) { showToast('Kontrol edilemedi: ' + e.message, 'error'); return; }
+  if (!confirm('Örnek menü verisi yüklenecek. Devam?')) return;
   showToast('Veri yükleniyor…');
   const batch = db.batch();
   FULL_MENU_CATS.forEach(c => batch.set(db.collection('menuCategories').doc(c.id), c));
@@ -2311,14 +2322,15 @@ async function seedData() {
     { name:'Kolajen',           price:100, note:'', order:2 },
   ];
   addons.forEach(a => batch.set(db.collection('addons').doc(), a));
-  await db.collection('siteConfig').doc('contact').set({
+  const contactRef = db.collection('siteConfig').doc('contact');
+  if (!(await contactRef.get()).exists) await contactRef.set({
     phone:'+90 212 123 45 67', email:'hello@podcoffee.com',
     address:'Karaköy, Istanbul', instagram:'@podeatery',
     hours:{ mon:'08:00 – 21:00', tue:'08:00 – 21:00', wed:'08:00 – 21:00',
             thu:'08:00 – 21:00', fri:'08:00 – 21:00', sat:'09:00 – 21:00', sun:'09:00 – 21:00' }
   });
-  await batch.commit();
-  showToast('Tüm veriler yüklendi!', 'success');
+  try { await batch.commit(); showToast('Tüm veriler yüklendi!', 'success'); }
+  catch(e) { showToast('Yüklenemedi: ' + e.message, 'error'); }
   loadAll();
 }
 
@@ -2882,7 +2894,7 @@ async function loadSubscribers() {
         <td style="padding:.65em 1em">${escHtml(d.email||'')}</td>
         <td style="padding:.65em 1em;opacity:.6">${escHtml(d.source||'')}</td>
         <td style="padding:.65em 1em;opacity:.6">${date}</td>
-        <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick="deleteSubscriber('${doc.id}',this)">Sil</button></td>
+        <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick='deleteSubscriber(${escHtml(JSON.stringify(doc.id))},this)'>Sil</button></td>
       </tr>`;
     });
     html += `</tbody></table></div>
@@ -2960,33 +2972,38 @@ async function sendBulkEmail() {
     const snap = await db.collection('subscribers').get();
     if (snap.empty) { showToast('Abone listesi boş.', 'error'); return; }
 
-    const to = snap.docs.map(d => ({ name: d.data().name || d.data().email, email: d.data().email }));
+    const to = snap.docs.map(d => ({ name: d.data().name || d.data().email, email: d.data().email })).filter(r => r.email);
     status.textContent = `Gönderiliyor… (${to.length} alıcı)`;
 
-    const payload = {
-      sender: { name: brevo.name || 'POD Coffee & Eatery', email: brevo.email || 'no-reply@podcoffee.com' },
-      to,
-      subject,
-      htmlContent: body,
-    };
-
-    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: { 'api-key': brevo.key, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      status.textContent = `Gönderildi! (${to.length} alıcı)`;
-      showToast(`E-posta ${to.length} aboneye gönderildi.`, 'success');
-      document.getElementById('bulk-subject').value = '';
-      document.getElementById('bulk-body').value = '';
-    } else {
-      const err = await res.json().catch(() => ({}));
-      const msg = err.message || res.statusText;
-      status.textContent = 'Hata: ' + msg;
-      showToast('Brevo hatası: ' + msg, 'error');
+    // Her aboneye ayrı e-posta: alıcılar birbirinin adresini görmez (KVKK)
+    const CHUNK = 500;
+    let sent = 0;
+    for (let i = 0; i < to.length; i += CHUNK) {
+      const payload = {
+        sender: { name: brevo.name || 'POD Coffee & Eatery', email: brevo.email || 'no-reply@podcoffee.com' },
+        subject,
+        htmlContent: body,
+        messageVersions: to.slice(i, i + CHUNK).map(r => ({ to: [r] })),
+      };
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'api-key': brevo.key, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const msg = err.message || res.statusText;
+        status.textContent = `Hata: ${msg} (${sent} alıcıya gönderildi)`;
+        showToast('Brevo hatası: ' + msg, 'error');
+        return;
+      }
+      sent += Math.min(CHUNK, to.length - i);
+      status.textContent = `Gönderiliyor… (${sent}/${to.length})`;
     }
+    status.textContent = `Gönderildi! (${sent} alıcı)`;
+    showToast(`E-posta ${sent} aboneye gönderildi.`, 'success');
+    document.getElementById('bulk-subject').value = '';
+    document.getElementById('bulk-body').value = '';
   } catch(e) {
     status.textContent = 'Hata: ' + e.message;
     showToast('Hata: ' + e.message, 'error');
@@ -3007,6 +3024,16 @@ function showToast(msg, type='') {
 /* ════════════════════════════════════════
    UTILS
 ════════════════════════════════════════ */
+/* Hata yakalama: kaydet/sil işlemleri başarısız olursa sahibine kırmızı uyarı göster */
+['saveCldConfig','markRead','saveCat','saveAddon','deleteAddon','saveLegal','saveContact','saveFooter','saveNav','saveBrand','saveHomepage','saveMenupage','saveSpacepage','deleteCat','deleteItem','saveItem','exportData'].forEach(n => {
+  const f = window[n];
+  if (typeof f !== 'function') return;
+  window[n] = async function(...args) {
+    try { return await f.apply(this, args); }
+    catch (e) { console.error(n, e); showToast('İşlem başarısız: ' + (e && e.message ? e.message : e), 'error'); }
+  };
+});
+
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
