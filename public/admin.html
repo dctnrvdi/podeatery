@@ -2843,7 +2843,7 @@ function confirmDelete(title, msg, cb) {
   document.getElementById('confirmMsg').textContent   = msg;
   confirmCallback = cb;
   document.getElementById('confirmBackdrop').classList.add('show');
-  document.getElementById('confirmOkBtn').onclick = () => { closeConfirm(); if(confirmCallback) confirmCallback(); };
+  document.getElementById('confirmOkBtn').onclick = () => { const run = cb; closeConfirm(); if (run) run(); };
 }
 function closeConfirm() {
   document.getElementById('confirmBackdrop').classList.remove('show');
