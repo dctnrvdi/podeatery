@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Toplu Fotoğraf Yükleme — POD Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+:root {
+  --bg: #f6f5f2; --white: #fff; --text: #1a1a1a; --muted: #888; --muted2: #bbb; --border: #e8e6e2;
+  --accent: #c8a96e; --accent-light: #f5ead8; --dark: #111210;
+  --success: #779580; --success-light: #edf4f0; --danger: #c2644f; --danger-light: #fdf0ed;
+  --warn: #b8893a; --warn-light: #fbf3e4;
+  --fp: 'Josefin Sans', sans-serif; --fs: 'Jost', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--fs); font-size: 15px; line-height: 1.5; min-height: 100vh; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hidden { display: none !important; }
+
+/* top bar */
+.bar { background: var(--dark); color: #f3f0ea; display: flex; align-items: center; gap: 18px; padding: 14px 28px; position: sticky; top: 0; z-index: 20; }
+.bar__logo { font-family: var(--fp); font-weight: 700; font-size: 22px; letter-spacing: .18em; }
+.bar__title { font-size: 14px; color: #bdb8ad; padding-left: 18px; border-left: 1px solid #2c2c2a; }
+.bar__right { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 13px; color: #9d988e; }
+.bar a { color: #e5d3ad; text-decoration: none; }
+.bar a:hover { text-decoration: underline; }
+.linkbtn { background: none; border: 0; color: #9d988e; font-size: 13px; text-decoration: underline; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 36px 28px 140px; }
+h1 { font-family: var(--fp); font-weight: 600; font-size: 26px; letter-spacing: .02em; }
+.lead { color: #5c5a55; margin-top: 6px; max-width: 64ch; }
+
+/* login */
+.login { max-width: 380px; margin: 9vh auto; background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 34px 30px; }
+.login h1 { font-size: 20px; margin-bottom: 4px; }
+.field { display: block; margin-top: 16px; }
+.field span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.field input { width: 100%; padding: 11px 13px; border: 1px solid var(--border); border-radius: 8px; background: #fbfaf8; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 8px; padding: 11px 20px; font-weight: 500; background: var(--dark); color: #fff; transition: opacity .15s; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn--accent { background: var(--accent); color: #1a1a1a; }
+.btn--ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn--block { width: 100%; margin-top: 22px; }
+.err { color: var(--danger); font-size: 13px; margin-top: 12px; min-height: 18px; }
+
+/* drop zone */
+.drop { margin-top: 28px; border: 1.5px dashed #cfc9bd; border-radius: 14px; background: var(--white); padding: 44px 24px; text-align: center; transition: border-color .15s, background .15s; }
+.drop.is-over { border-color: var(--accent); background: var(--accent-light); }
+.drop__big { font-family: var(--fp); font-size: 19px; font-weight: 600; }
+.drop__small { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.drop__actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+.drop__hint { margin-top: 18px; font-size: 13px; color: var(--muted); }
+.drop__hint code { background: var(--bg); padding: 2px 7px; border-radius: 5px; font-family: var(--fs); color: #4a4843; }
+
+/* summary */
+.summary { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; align-items: center; }
+.tab { border: 1px solid var(--border); background: var(--white); border-radius: 999px; padding: 7px 14px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+.tab b { font-weight: 600; }
+.tab[aria-pressed="true"] { background: var(--dark); color: #fff; border-color: var(--dark); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot--ok { background: var(--success); } .dot--check { background: var(--warn); } .dot--pick { background: #7c8db0; } .dot--none { background: var(--muted2); } .dot--bad { background: var(--danger); }
+.summary__spacer { flex: 1; }
+
+.opts { margin-top: 18px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: grid; gap: 10px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.opt input { margin-top: 4px; accent-color: var(--dark); }
+.opt small { display: block; color: var(--muted); font-size: 13px; }
+
+/* rows */
+.rows { margin-top: 18px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.row { display: grid; grid-template-columns: 22px 64px minmax(0, 1.1fr) minmax(0, 1.4fr) 128px; gap: 16px; align-items: center; padding: 12px 18px; border-top: 1px solid var(--border); }
+.row:first-child { border-top: 0; }
+.row.is-off { opacity: .45; }
+.row input[type=checkbox] { accent-color: var(--dark); width: 16px; height: 16px; }
+.thumb { width: 64px; height: 64px; border-radius: 8px; background: #efece6; object-fit: cover; display: block; }
+.thumb--ph { display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); }
+.fname { font-weight: 500; overflow-wrap: anywhere; }
+.fmeta { font-size: 12.5px; color: var(--muted); }
+.pick { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fbfaf8; }
+.pick.is-empty { color: var(--muted); }
+.pick-note { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.pick-note.is-bad { color: var(--danger); }
+.chip { justify-self: start; font-size: 12.5px; font-weight: 500; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.chip--ok { background: var(--success-light); color: #4f6d58; }
+.chip--check { background: var(--warn-light); color: #8a6420; }
+.chip--pick { background: #eef1f8; color: #4b5d84; }
+.chip--none { background: #f1efeb; color: #7a776f; }
+.chip--bad { background: var(--danger-light); color: var(--danger); }
+.chip--busy { background: var(--accent-light); color: #7a5f2c; }
+
+.missing { margin-top: 26px; }
+.missing summary { cursor: pointer; font-weight: 500; }
+.missing ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.missing li { background: var(--white); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 13.5px; }
+.missing li span { color: var(--muted); }
+
+/* sticky footer */
+.foot { position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; gap: 18px; z-index: 20; }
+.foot__text { font-size: 14px; color: #4a4843; }
+.foot__text b { font-weight: 600; color: var(--text); }
+.foot .btn { margin-left: auto; }
+.progress { flex: 1; max-width: 420px; height: 6px; background: #eeebe5; border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+
+.done { margin-top: 26px; background: var(--success-light); border: 1px solid #d3e3d8; border-radius: 12px; padding: 18px 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.done.is-warn { background: var(--warn-light); border-color: #eedcb8; }
+
+@media (max-width: 760px) {
+  .wrap { padding: 24px 16px 160px; }
+  .bar { padding: 12px 16px; } .bar__title { display: none; }
+  .row { grid-template-columns: 22px 56px minmax(0, 1fr); }
+  .row .thumb { width: 56px; height: 56px; }
+  .row > .pickcell, .row > .chip { grid-column: 2 / -1; }
+  .foot { flex-wrap: wrap; padding: 12px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar__logo">POD</div>
+  <div class="bar__title">Toplu fotoğraf yükleme</div>
+  <div class="bar__right">
+    <span id="userEmail"></span>
+    <a href="/admin">Admin paneline dön</a>
+    <button class="linkbtn hidden" id="logoutBtn" type="button">Çıkış</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<section class="login hidden" id="loginView">
+  <h1>Admin girişi</h1>
+  <p class="lead" style="font-size:14px">Admin paneldeki e-posta ve şifrenle giriş yap.</p>
+  <form id="loginForm">
+    <label class="field"><span>E-posta</span><input type="email" id="email" autocomplete="username" required></label>
+    <label class="field"><span>Şifre</span><input type="password" id="pass" autocomplete="current-password" required></label>
+    <button class="btn btn--block" id="loginBtn" type="submit">Giriş yap</button>
+    <div class="err" id="loginErr" role="alert"></div>
+  </form>
+</section>
+
+<!-- APP -->
+<main class="wrap hidden" id="appView">
+  <h1>Menü fotoğraflarını toplu yükle</h1>
+  <p class="lead">Fotoğrafları seç; dosya adlarından hangi ürüne ait olduklarını bulalım. Eşleşmeleri kontrol et, gerekirse düzelt ve tek seferde yükle.</p>
+
+  <div class="drop" id="drop">
+    <div class="drop__big">Fotoğrafları buraya sürükle</div>
+    <div class="drop__small" id="dropStatus">Menü yükleniyor…</div>
+    <div class="drop__actions">
+      <button class="btn" type="button" id="pickFiles" disabled>Fotoğrafları seç</button>
+      <button class="btn btn--ghost" type="button" id="pickFolder" disabled>Klasör seç</button>
+    </div>
+    <p class="drop__hint">Aynı isimli ürünlerde kategoriyi de yazabilirsin: <code>Üç Peynir Bagel.jpg</code> · <code>Hindi Füme Ekmeküstü.jpg</code></p>
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif" multiple hidden>
+    <input type="file" id="folderInput" webkitdirectory multiple hidden>
+  </div>
+
+  <section id="review" class="hidden">
+    <div class="summary" id="summary" role="group" aria-label="Filtre"></div>
+
+    <div class="opts">
+      <label class="opt"><input type="checkbox" id="optOverwrite" checked>
+        <span>Fotoğrafı olan ürünlerde eskisini değiştir<small id="optOverwriteNote"></small></span></label>
+      <label class="opt"><input type="checkbox" id="optClear">
+        <span>Yeni fotoğraf gelmeyen ürünlerdeki eski fotoğrafları kaldır<small id="optClearNote"></small></span></label>
+    </div>
+
+    <div class="rows" id="rows"></div>
+
+    <details class="missing" id="missing">
+      <summary id="missingTitle"></summary>
+      <ul id="missingList"></ul>
+    </details>
+
+    <div class="done hidden" id="done"></div>
+  </section>
+</main>
+
+<footer class="foot hidden" id="foot">
+  <div class="foot__text" id="footText"></div>
+  <div class="progress hidden" id="progress"><i id="progressBar"></i></div>
+  <button class="btn btn--ghost" type="button" id="resetBtn">Baştan başla</button>
+  <button class="btn btn--accent" type="button" id="uploadBtn" disabled>Yüklemeyi başlat</button>
+</footer>
+
+<script>
+/* ═══════════════ CONFIG ═══════════════ */
+const FB_CONFIG = { apiKey: "AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain: "podcoffee-b35f5.firebaseapp.com", projectId: "podcoffee-b35f5", storageBucket: "podcoffee-b35f5.firebasestorage.app", messagingSenderId: "1069984181263", appId: "1:1069984181263:web:ea37bd075b5764ecc0077a" };
+const MAX_SIDE = 1600;      // px, longest side before upload
+const JPEG_Q = 0.86;
+const CONCURRENCY = 3;
+
+firebase.initializeApp(FB_CONFIG);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const $ = (id) => document.getElementById(id);
+
+const state = { cats: [], catById: {}, items: [], itemById: {}, rows: [], filter: 'all', cld: null, busy: false, finished: false };
+
+/* ═══════════════ TEXT MATCHING ═══════════════ */
+const TRMAP = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u' };
+const STOP = new Set(['ve', 'and', 'ile', 'with', 'img', 'image', 'foto', 'fotograf', 'photo', 'kopya', 'copy', 'final', 'edit', 'edited', 'min', 'pod', 'menu', 'jpg', 'jpeg', 'png', 'webp', 'heic']);
+function tokens(s) {
+  let t = String(s || '').normalize('NFC').toLocaleLowerCase('tr-TR');
+  t = t.replace(/[çğıöşüâîû]/g, (c) => TRMAP[c]);
+  t = t.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return t.replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter((w) => w && !STOP.has(w) && !/^\d+$/.test(w));
+}
+const stripExt = (n) => n.replace(/\.[a-z0-9]{2,5}$/i, '');
+const join = (arr) => arr.join('');
+
+// extra spellings people use for category names in file names
+const CAT_ALIASES = {
+  ekmekustu: ['ekmek ustu', 'ekmekustu', 'ekmek uzeri'], yumurtaburger: ['yumurta burger', 'burger'], yogurtkase: ['yogurt kase', 'yogurt', 'kase'],
+  kruvasan: ['kruvasan', 'croissant', 'kruvazan'], salatalar: ['salata', 'salatalar'], tatlilar: ['tatli', 'tatlilar'], yaztostu: ['yaz tostu'],
+  tost: ['tost'], omlet: ['omlet'], bowl: ['bowl'], bagel: ['bagel'], pancake: ['pancake', 'pankek'], detoks: ['detoks', 'detox'],
+  smoothie: ['smoothie'], matchabar: ['matcha bar'], espresso: ['espresso bar'], sogukcay: ['soguk cay'], bitkicay: ['bitki cayi', 'bitki cay'],
+};
+function catAliases(cat) {
+  const list = [...(CAT_ALIASES[cat.id] || []), cat.name || '', cat.id];
+  const seen = new Set();
+  return list.map(tokens).filter((a) => a.length && !seen.has(join(a)) && seen.add(join(a)));
+}
+function containsSeq(hay, needle) {
+  for (let i = 0; i + needle.length <= hay.length; i++) if (needle.every((w, k) => hay[i + k] === w)) return i;
+  return -1;
+}
+function bigrams(s) { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const b = s.slice(i, i + 2); m.set(b, (m.get(b) || 0) + 1); } return m; }
+function dice(a, b) {
+  if (!a.length || !b.length) return 0;
+  if (a === b) return 1;
+  const A = bigrams(a), B = bigrams(b); let inter = 0, n = 0;
+  A.forEach((v, k) => { inter += Math.min(v, B.get(k) || 0); n += v; });
+  B.forEach((v) => { n += v; });
+  return n ? (2 * inter) / n : 0;
+}
+/** score 0..1.05 : 1.05 = name + its category, 1 = exact name, below = fuzzy */
+function scoreFile(ft, item) {
+  const it = item._tok, ij = join(it), fj = join(ft);
+  if (!ij) return 0;
+  let best = 0, ownCat = false, otherCat = false;
+  // remove category words the file mentions
+  for (const cat of state.cats) {
+    for (const a of cat._alias) {
+      const p = containsSeq(ft, a);
+      if (p < 0) continue;
+      const rest = [...ft.slice(0, p), ...ft.slice(p + a.length)];
+      if (cat.id === item.categoryId) {
+        ownCat = true;
+        if (join(rest) === ij) best = Math.max(best, 1.05);
+        else best = Math.max(best, dice(join(rest), ij) * 0.95 + 0.04);
+      } else if (join(it).indexOf(join(a)) < 0) otherCat = true;
+    }
+  }
+  if (fj === ij) best = Math.max(best, 1.0);
+  let d = dice(fj, ij) * 0.95;
+  if (ownCat) d += 0.04;
+  if (otherCat && !ownCat) d -= 0.06;
+  return Math.max(best, d);
+}
+
+function matchAll(rows) {
+  rows.forEach((r) => {
+    r.cands = state.items.map((it) => ({ id: it.id, s: scoreFile(r.tok, it) })).filter((c) => c.s > 0.35).sort((a, b) => b.s - a.s).slice(0, 8);
+  });
+  const order = [...rows].sort((a, b) => (b.cands[0]?.s || 0) - (a.cands[0]?.s || 0));
+  const taken = new Set();
+  for (const r of order) {
+    const free = r.cands.filter((c) => !taken.has(c.id));
+    const b1 = free[0], b2 = free[1];
+    r.itemId = ''; r.status = 'none'; r.note = '';
+    if (!b1 || b1.s < 0.62) { r.note = b1 ? 'Emin olamadık, ürünü seç.' : 'Bu isimde ürün bulunamadı.'; continue; }
+    const tie = b2 && b2.s >= b1.s - 0.015;
+    const hidden = r.cands.filter((c) => taken.has(c.id) && c.s >= b1.s - 0.015).length;
+    if (b1.s >= 0.999 && !tie && hidden) { r.itemId = b1.id; r.status = 'check'; r.note = 'Aynı isimli diğer ürün başka bir fotoğrafa eşlendi; bunu seçtik.'; }
+    else if (b1.s >= 0.999 && !tie) { r.itemId = b1.id; r.status = 'ok'; }
+    else if (b1.s >= 0.999 && tie) {
+      const tied = free.filter((c) => c.s >= b1.s - 0.015);
+      const food = tied.filter((c) => state.catById[state.itemById[c.id].categoryId]?.tab === 'yiyecek');
+      if (food.length === 1) { r.itemId = food[0].id; r.status = 'check'; r.note = 'Aynı isimde içecek de var; yiyeceği seçtik.'; }
+      else { r.status = 'pick'; r.note = 'Bu isimde ' + tied.length + ' ürün var: ' + tied.map((c) => catName(state.itemById[c.id].categoryId)).join(', ') + '.'; }
+    } else if (b1.s >= 0.72) { r.itemId = b1.id; r.status = 'check'; r.note = 'Benzer isim; doğru mu kontrol et.'; }
+    else { r.status = 'none'; r.note = 'Emin olamadık, ürünü seç.'; }
+    if (r.itemId) taken.add(r.itemId);
+  }
+}
+
+const catName = (id) => { const c = state.catById[id]; if (!c) return id; return c.name.toLocaleLowerCase('tr-TR').replace(/(^|\s)\S/g, (m) => m.toLocaleUpperCase('tr-TR')); };
+
+/* ═══════════════ DATA ═══════════════ */
+async function loadMenu() {
+  const [cs, is, cl] = await Promise.all([db.collection('menuCategories').get(), db.collection('menuItems').get(), db.collection('siteConfig').doc('cloudinary').get()]);
+  state.cats = cs.docs.map((d) => ({ id: d.id, ...d.data() }));
+  state.cats.sort((a, b) => (a.tab === b.tab ? (a.order || 0) - (b.order || 0) : a.tab === 'yiyecek' ? -1 : 1));
+  state.cats.forEach((c) => { c._alias = catAliases(c); state.catById[c.id] = c; });
+  state.items = is.docs.map((d) => ({ id: d.id, ...d.data() }));
+  state.items.forEach((it) => { it._tok = tokens(it.name); state.itemById[it.id] = it; });
+  state.cld = cl.exists ? cl.data() : null;
+  const food = state.items.filter((i) => state.catById[i.categoryId]?.tab === 'yiyecek').length;
+  $('dropStatus').textContent = `Menüde ${state.items.length} ürün var (${food} yiyecek). JPG, PNG, WEBP veya HEIC seçebilirsin.`;
+  if (!state.cld?.cloudName || !state.cld?.uploadPreset) {
+    $('dropStatus').innerHTML = 'Cloudinary ayarı bulunamadı. Önce admin paneldeki <b>Ayarlar → Cloudinary</b> bölümünü doldur.';
+    return;
+  }
+  $('pickFiles').disabled = false; $('pickFolder').disabled = false;
+}
+
+/* ═══════════════ FILES ═══════════════ */
+const isImage = (f) => /^image\//.test(f.type) || /\.(heic|heif|jpe?g|png|webp)$/i.test(f.name);
+function addFiles(list) {
+  if (state.busy) return;
+  const files = [...list].filter(isImage);
+  if (!files.length) return;
+  const have = new Set(state.rows.map((r) => r.file.name + r.file.size));
+  files.forEach((f) => {
+    if (have.has(f.name + f.size)) return;
+    state.rows.push({ key: Math.random().toString(36).slice(2), file: f, tok: tokens(stripExt(f.name)), include: true, thumb: null, up: null });
+  });
+  state.rows.sort((a, b) => a.file.name.localeCompare(b.file.name, 'tr'));
+  state.finished = false;
+  matchAll(state.rows);
+  $('review').classList.remove('hidden'); $('foot').classList.remove('hidden'); $('done').classList.add('hidden');
+  render();
+  makeThumbs();
+}
+
+async function makeThumbs() {
+  for (const r of state.rows) {
+    if (r.thumb) continue;
+    try {
+      const bmp = await createImageBitmap(r.file, { resizeWidth: 160, resizeQuality: 'medium' });
+      const c = document.createElement('canvas');
+      const s = 128 / Math.min(bmp.width, bmp.height);
+      c.width = 128; c.height = 128;
+      c.getContext('2d').drawImage(bmp, (128 - bmp.width * s) / 2, (128 - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+      r.thumb = c.toDataURL('image/jpeg', 0.8);
+    } catch (e) { r.thumb = 'none'; }
+    const el = document.querySelector(`[data-thumb="${r.key}"]`);
+    if (el) el.replaceWith(thumbEl(r));
+  }
+}
+function thumbEl(r) {
+  if (r.thumb && r.thumb !== 'none') { const i = new Image(); i.className = 'thumb'; i.alt = ''; i.src = r.thumb; i.dataset.thumb = r.key; return i; }
+  const d = document.createElement('div'); d.className = 'thumb thumb--ph'; d.dataset.thumb = r.key; d.textContent = r.thumb === 'none' ? (r.file.name.split('.').pop() || '').toUpperCase() : '…'; return d;
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+const STATUS = {
+  ok: ['ok', 'Eşleşti'], check: ['check', 'Kontrol et'], pick: ['pick', 'Ürünü seç'], none: ['none', 'Eşleşmedi'], dup: ['bad', 'Aynı ürün iki kez'],
+  busy: ['busy', 'Yükleniyor…'], done: ['ok', 'Yüklendi'], fail: ['bad', 'Hata'], skip: ['none', 'Atlandı'],
+};
+function liveStatus(r) {
+  if (r.up) return r.up;
+  if (!r.include) return 'none';
+  if (r.itemId && dupIds().has(r.itemId)) return 'dup';
+  if (!r.itemId) return r.status === 'pick' ? 'pick' : 'none';
+  return r.status === 'ok' ? 'ok' : 'check';
+}
+function dupIds() {
+  const seen = new Set(), dup = new Set();
+  state.rows.forEach((r) => { if (r.include && r.itemId) { if (seen.has(r.itemId)) dup.add(r.itemId); seen.add(r.itemId); } });
+  return dup;
+}
+function optionHtml(r) {
+  const sugg = r.cands.slice(0, 3).filter((c) => c.s >= 0.5);
+  const label = (it) => `${esc(it.name)} — ${esc(catName(it.categoryId))}${it.imageUrl ? ' (fotoğraflı)' : ''}`;
+  let h = `<option value="">Ürün seç…</option>`;
+  if (sugg.length) h += `<optgroup label="Öneriler">` + sugg.map((c) => `<option value="${c.id}" ${c.id === r.itemId ? 'selected' : ''}>${label(state.itemById[c.id])}</option>`).join('') + `</optgroup>`;
+  const suggIds = new Set(sugg.map((c) => c.id));
+  for (const cat of state.cats) {
+    const its = state.items.filter((i) => i.categoryId === cat.id).sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!its.length) continue;
+    h += `<optgroup label="${esc(catName(cat.id))}${cat.tab === 'icecek' ? ' · içecek' : ''}">` + its.map((it) => `<option value="${it.id}" ${it.id === r.itemId && !suggIds.has(it.id) ? 'selected' : ''}>${esc(it.name)}${it.imageUrl ? ' (fotoğraflı)' : ''}</option>`).join('') + `</optgroup>`;
+  }
+  return h;
+}
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const kb = (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB');
+
+function render() {
+  const counts = { all: state.rows.length, done: 0, fail: 0, ok: 0, check: 0, pick: 0, none: 0, dup: 0 };
+  state.rows.forEach((r) => { const s = liveStatus(r); if (counts[s] !== undefined) counts[s]++; });
+  const tabs = [['all', 'Tümü', ''], ['done', 'Yüklendi', 'ok'], ['fail', 'Hata', 'bad'], ['ok', 'Eşleşti', 'ok'], ['check', 'Kontrol et', 'check'], ['pick', 'Ürünü seç', 'pick'], ['none', 'Eşleşmedi', 'none'], ['dup', 'Aynı ürün iki kez', 'bad']];
+  $('summary').innerHTML = tabs.filter(([k]) => k === 'all' || counts[k]).map(([k, t, d]) => `<button type="button" class="tab" data-filter="${k}" aria-pressed="${state.filter === k}">${d ? `<span class="dot dot--${d}"></span>` : ''}${t} <b>${counts[k]}</b></button>`).join('');
+
+  const box = $('rows');
+  box.innerHTML = '';
+  const vis = state.rows.filter((r) => state.filter === 'all' || liveStatus(r) === state.filter);
+  if (!vis.length) box.innerHTML = `<div class="row" style="display:block;color:var(--muted)">Bu filtrede fotoğraf yok.</div>`;
+  for (const r of vis) {
+    const st = STATUS[liveStatus(r)];
+    const it = state.itemById[r.itemId];
+    const row = document.createElement('div');
+    row.className = 'row' + (r.include ? '' : ' is-off');
+    row.innerHTML = `
+      <input type="checkbox" ${r.include ? 'checked' : ''} ${state.busy ? 'disabled' : ''} aria-label="${esc(r.file.name)} yüklensin">
+      <span class="thumbslot"></span>
+      <div><div class="fname">${esc(stripExt(r.file.name))}</div><div class="fmeta">${esc(r.file.name.split('.').pop().toUpperCase())} · ${kb(r.file.size)}</div></div>
+      <div class="pickcell"><select class="pick ${r.itemId ? '' : 'is-empty'}" ${state.busy || r.up === 'done' ? 'disabled' : ''} aria-label="${esc(r.file.name)} hangi ürün">${optionHtml(r)}</select>
+        <div class="pick-note ${liveStatus(r) === 'dup' || r.up === 'fail' ? 'is-bad' : ''}">${esc(r.upNote || (liveStatus(r) === 'dup' ? 'Bu ürün başka bir fotoğrafa da seçili.' : it && it.imageUrl && r.include ? (r.note ? r.note + ' ' : '') + 'Üründe fotoğraf var, değiştirilecek.' : r.note || ''))}</div></div>
+      <span class="chip chip--${st[0]}">${st[1]}</span>`;
+    row.querySelector('.thumbslot').replaceWith(thumbEl(r));
+    row.querySelector('input').addEventListener('change', (e) => { r.include = e.target.checked; render(); });
+    row.querySelector('select').addEventListener('change', (e) => { r.itemId = e.target.value; r.status = r.itemId ? 'ok' : 'none'; r.note = r.itemId ? 'Elle seçildi.' : ''; render(); });
+    box.appendChild(row);
+  }
+  renderSide(counts);
+}
+
+function plan() {
+  const overwrite = $('optOverwrite').checked;
+  const dups = dupIds();
+  const jobs = state.rows.filter((r) => r.include && r.itemId && !dups.has(r.itemId) && r.up !== 'done' && (overwrite || !state.itemById[r.itemId].imageUrl));
+  const target = new Set(state.rows.filter((r) => r.include && r.itemId).map((r) => r.itemId));
+  const clear = $('optClear').checked ? state.items.filter((i) => i.imageUrl && !target.has(i.id)) : [];
+  return { jobs, clear, dups };
+}
+
+function renderSide(counts) {
+  const withImg = state.items.filter((i) => i.imageUrl);
+  const target = new Set(state.rows.filter((r) => r.include && r.itemId).map((r) => r.itemId));
+  const replaced = withImg.filter((i) => target.has(i.id)).length;
+  const stale = withImg.filter((i) => !target.has(i.id));
+  $('optOverwriteNote').textContent = replaced ? `Seçtiğin ürünlerden ${replaced} tanesinde şu an fotoğraf var.` : 'Seçtiğin ürünlerde şu an fotoğraf yok.';
+  $('optClearNote').textContent = stale.length ? `${stale.length} üründe kalır: ${stale.slice(0, 6).map((i) => i.name).join(', ')}${stale.length > 6 ? '…' : ''}` : 'Kaldırılacak eski fotoğraf yok.';
+
+  const foodLeft = state.items.filter((i) => state.catById[i.categoryId]?.tab === 'yiyecek' && !target.has(i.id) && !i.imageUrl);
+  $('missingTitle').textContent = foodLeft.length ? `Fotoğrafsız kalacak yiyecekler (${foodLeft.length})` : 'Tüm yiyeceklerin fotoğrafı olacak';
+  $('missingList').innerHTML = foodLeft.map((i) => `<li>${esc(i.name)} <span>${esc(catName(i.categoryId))}</span></li>`).join('');
+
+  const p = plan();
+  const pending = counts.pick + counts.none;
+  if (state.busy) return;
+  if (state.finished && !p.jobs.length) { $('footText').innerHTML = 'Yükleme tamamlandı.'; $('uploadBtn').disabled = true; return; }
+  let t = `<b>${p.jobs.length}</b> fotoğraf yüklenecek`;
+  if (p.clear.length) t += `, <b>${p.clear.length}</b> eski fotoğraf kaldırılacak`;
+  if (p.dups.size) t += ` · aynı ürüne seçilen fotoğrafları düzelt`;
+  else if (pending) t += ` · ${pending} fotoğraf eşleşmediği için atlanacak`;
+  $('footText').innerHTML = t;
+  $('uploadBtn').disabled = !!p.dups.size || !(p.jobs.length || p.clear.length);
+}
+
+/* ═══════════════ UPLOAD ═══════════════ */
+async function prepare(file) {
+  try {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const s = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    if (s === 1 && file.type === 'image/jpeg' && file.size < 1.6e6) return file;
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', JPEG_Q));
+    return blob ? new File([blob], stripExt(file.name) + '.jpg', { type: 'image/jpeg' }) : file;
+  } catch (e) { return file; } // HEIC etc.: Cloudinary converts it
+}
+async function uploadOne(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', state.cld.uploadPreset);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${state.cld.cloudName}/image/upload`, { method: 'POST', body: fd });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.secure_url;
+}
+async function runJob(r) {
+  r.up = 'busy'; r.upNote = ''; paintRow(r);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const url = await uploadOne(await prepare(r.file));
+      await db.collection('menuItems').doc(r.itemId).update({ imageUrl: url });
+      state.itemById[r.itemId].imageUrl = url;
+      r.up = 'done'; r.upNote = state.itemById[r.itemId].name + ' ürününe eklendi.';
+      return true;
+    } catch (e) {
+      r.up = 'fail'; r.upNote = 'Yüklenemedi: ' + (e.message || e) + (attempt === 0 ? ' Tekrar deneniyor…' : '');
+      paintRow(r);
+    }
+  }
+  return false;
+}
+function paintRow() { render(); $('uploadBtn').disabled = true; }
+
+async function start() {
+  const p = plan();
+  if (!p.jobs.length && !p.clear.length) return;
+  state.busy = true; render();
+  $('uploadBtn').disabled = true; $('resetBtn').disabled = true;
+  $('progress').classList.remove('hidden');
+  const total = p.jobs.length + p.clear.length; let n = 0, ok = 0, fail = 0;
+  const show = () => { $('progressBar').style.width = (100 * n / total) + '%'; $('footText').innerHTML = `<b>${n}</b> / ${total} tamamlandı`; };
+  const tick = () => { n++; show(); };
+  show();
+  const queue = [...p.jobs];
+  await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
+    while (queue.length) { const r = queue.shift(); (await runJob(r)) ? ok++ : fail++; tick(); render(); }
+  }));
+  let cleared = 0;
+  for (const it of p.clear) {
+    try { await db.collection('menuItems').doc(it.id).update({ imageUrl: firebase.firestore.FieldValue.delete() }); delete it.imageUrl; cleared++; } catch (e) { fail++; }
+    tick();
+  }
+  state.busy = false; state.finished = true;
+  $('resetBtn').disabled = false; $('progress').classList.add('hidden');
+  const done = $('done');
+  done.classList.remove('hidden'); done.classList.toggle('is-warn', fail > 0);
+  done.innerHTML = `<div><b>${ok} fotoğraf yüklendi</b>${cleared ? `, ${cleared} eski fotoğraf kaldırıldı` : ''}.${fail ? ` ${fail} işlem hata verdi; listede “Hata” yazanları tekrar yükleyebilirsin.` : ' Menü sayfası güncellendi.'}</div>
+    <a class="btn" href="/menu" target="_blank" rel="noopener" style="margin-left:auto;text-decoration:none">Menüyü aç</a>`;
+  state.rows.forEach((r) => { if (r.up === 'fail') { r.up = null; } });
+  render();
+  done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ═══════════════ EVENTS ═══════════════ */
+$('pickFiles').onclick = () => $('fileInput').click();
+$('pickFolder').onclick = () => $('folderInput').click();
+$('fileInput').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+$('folderInput').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+const drop = $('drop');
+['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); if (!$('pickFiles').disabled) drop.classList.add('is-over'); }));
+['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('is-over'); }));
+drop.addEventListener('drop', (e) => { if (!$('pickFiles').disabled) addFiles(e.dataTransfer.files); });
+$('summary').addEventListener('click', (e) => { const b = e.target.closest('[data-filter]'); if (b) { state.filter = b.dataset.filter; render(); } });
+$('optOverwrite').onchange = render;
+$('optClear').onchange = render;
+$('uploadBtn').onclick = start;
+$('resetBtn').onclick = () => { if (state.busy) return; state.rows = []; state.filter = 'all'; state.finished = false; $('review').classList.add('hidden'); $('foot').classList.add('hidden'); $('done').classList.add('hidden'); };
+window.addEventListener('beforeunload', (e) => { if (state.busy) { e.preventDefault(); e.returnValue = ''; } });
+
+$('loginForm').onsubmit = async (e) => {
+  e.preventDefault();
+  $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+  try { await auth.signInWithEmailAndPassword($('email').value.trim(), $('pass').value); }
+  catch (err) {
+    const m = { 'auth/wrong-password': 'Şifre hatalı.', 'auth/user-not-found': 'Bu e-postayla kullanıcı yok.', 'auth/invalid-email': 'E-posta geçersiz.', 'auth/invalid-credential': 'E-posta ya da şifre hatalı.', 'auth/too-many-requests': 'Çok fazla deneme yapıldı, biraz bekle.' };
+    $('loginErr').textContent = m[err.code] || err.message;
+  } finally { $('loginBtn').disabled = false; }
+};
+$('logoutBtn').onclick = () => auth.signOut();
+
+auth.onAuthStateChanged((user) => {
+  $('loginView').classList.toggle('hidden', !!user);
+  $('appView').classList.toggle('hidden', !user);
+  $('logoutBtn').classList.toggle('hidden', !user);
+  $('userEmail').textContent = user ? user.email : '';
+  if (user && !state.items.length) loadMenu().catch((err) => { $('dropStatus').textContent = 'Menü okunamadı: ' + err.message; });
+});
+</script>
+</body>
+</html>
