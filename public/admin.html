@@ -1489,16 +1489,21 @@
       <div class="form-group"><label>Fiyat (₺)</label><input id="itemPrice" type="number" placeholder="420" min="0"></div>
       <div class="form-group"><label>Açıklama</label><textarea id="itemDesc" placeholder="Malzemeler…"></textarea></div>
       <div class="form-group">
-        <label>Görsel (hover/tap'te gösterilir)</label>
-        <div style="display:flex;gap:.5em;align-items:center">
-          <input id="itemImageUrl" placeholder="URL yapıştır veya dosya yükle" style="flex:1">
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">
-            Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'itemImageUrl','menu/items')">
-          </label>
+        <label>Görsel (menüde ürüne dokununca gösterilir)</label>
+        <div id="itemImgPreview" style="display:none;align-items:center;gap:.9em;padding:.6em;border:1px solid var(--border);border-radius:.5em">
+          <img alt="" style="width:5.5em;height:5.5em;border-radius:.35em;object-fit:cover;background:var(--bg);flex-shrink:0" onerror="this.style.opacity=.25">
+          <div style="display:flex;flex-direction:column;gap:.45em;align-items:flex-start">
+            <label class="btn btn-ghost btn-sm" style="cursor:pointer">Fotoğrafı Değiştir
+              <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'itemImageUrl','menu/items')">
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" style="color:#c0392b" onclick="clearItemImage()">Fotoğrafı Kaldır</button>
+          </div>
         </div>
-        <div id="itemImgPreview" style="margin-top:.6em;display:none">
-          <img style="max-height:5em;border-radius:.35em;object-fit:cover">
-        </div>
+        <label id="itemImgEmpty" class="btn btn-ghost btn-sm" style="cursor:pointer;display:inline-flex">+ Fotoğraf Yükle
+          <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'itemImageUrl','menu/items')">
+        </label>
+        <input id="itemImageUrl" placeholder="veya görsel bağlantısı (URL) yapıştır" style="margin-top:.6em">
+        <div id="itemImgNote" style="display:none;margin-top:.45em;font-size:.8em;color:#b45309">Görsel değişti — kalıcı olması için <b>Kaydet</b>'e basın.</div>
       </div>
       <div class="form-group"><label>Sıra</label><input id="itemOrder" type="number" placeholder="1" min="1"></div>
     </div>
@@ -1969,16 +1974,26 @@ function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='
   document.getElementById('itemDesc').value     = desc;
   document.getElementById('itemOrder').value    = order;
   document.getElementById('itemImageUrl').value = imageUrl || '';
-  const prev = document.getElementById('itemImgPreview');
-  if (imageUrl) { prev.style.display='block'; prev.querySelector('img').src = imageUrl; }
-  else { prev.style.display='none'; prev.querySelector('img').src=''; }
+  document.getElementById('itemImageUrl').dataset.orig = imageUrl || '';
+  syncItemImg();
   openModal('itemModal');
 }
-document.getElementById('itemImageUrl').addEventListener('input', function() {
+function syncItemImg() {
+  const inp  = document.getElementById('itemImageUrl');
+  const v    = inp.value.trim();
   const prev = document.getElementById('itemImgPreview');
-  if (this.value) { prev.style.display='block'; prev.querySelector('img').src = this.value; }
-  else { prev.style.display='none'; }
-});
+  const img  = prev.querySelector('img');
+  prev.style.display = v ? 'flex' : 'none';
+  document.getElementById('itemImgEmpty').style.display = v ? 'none' : 'inline-flex';
+  img.style.opacity = 1;
+  if (v) img.src = v; else img.removeAttribute('src');
+  document.getElementById('itemImgNote').style.display = (v !== (inp.dataset.orig || '')) ? 'block' : 'none';
+}
+function clearItemImage() {
+  document.getElementById('itemImageUrl').value = '';
+  syncItemImg();
+}
+document.getElementById('itemImageUrl').addEventListener('input', syncItemImg);
 
 async function saveItem() {
   const id       = document.getElementById('itemId').value;
