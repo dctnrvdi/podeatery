@@ -1412,6 +1412,17 @@
 
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
+        <div class="card" style="margin-bottom:1em" id="priceUpdateCard">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Toplu Fiyat Güncellemesi — Ekim 2026</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p class="settings-note">podeatery.com menüsündeki güncel (zamlı) fiyatları buradaki menüye uygular. Önce "Önizle" ile değişecek fiyatları görün, sonra "Fiyatları Uygula"ya basın. Listede olmayan ürünlere dokunulmaz.</p>
+            <div style="display:flex;gap:.6em;flex-wrap:wrap;margin:.8em 0">
+              <button class="btn btn-ghost" onclick="previewPriceUpdate()">Önizle</button>
+              <button class="btn btn-primary" id="applyPriceBtn" onclick="applyPriceUpdate()" disabled>Fiyatları Uygula</button>
+            </div>
+            <div id="priceUpdateResult" style="font-size:.85em;line-height:1.6"></div>
+          </div>
+        </div>
         <div class="card" style="margin-bottom:1em;display:none">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Firebase Yapılandırması</span></div></div>
           <div class="card-body" style="padding:1.25em">
@@ -3417,6 +3428,78 @@ function showToast(msg, type='') {
 
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+<script>
+/* ===== Toplu fiyat güncellemesi (podeatery.com, Ekim 2026) ===== */
+const PRICE_UPDATE_2026_10 = {
+  'EKMEKÜSTÜ': {'Fıstık Ezmesi':260,'Vegan':340,'Ispanak':400,'Avokado Mantar':400,'Avokado Beetroot':400,'Ezine':420,'Üç Peynir':440,'Hindi Füme':440,'Tatlı & Tuzlu':460,'Avokado Yumurta':480,'Hindi Füme & Cheddar':480,'French Toast':480,'Sosis':480,'Sucuk':480,'Füme Somon':480,'Füme Avokado':520,'Füme & Burrata':560},
+  'BAGEL': {'Üç Peynir':360,'Avokado & Zeytin':360,'Hindi Füme':360,'Avokado & Füme':420},
+  'YUMURTA BURGER': {'Mantarlı':360,'Avokado & Füme':420},
+  'TOST': {'Mozzarella':360,'Yaz Tostu':360,'Üç Peynir':380,'Esnaf İşi':420,'Rozbif':440},
+  'YAZ TOSTU': {'Yaz Tostu':360},
+  'OMLET': {'Sade Omlet':360,'Mozzarella Menemen':360,'İspanyol Poşesi':360,'Çılbır':360,'Ispanak Mantar Omlet':400,'İspanyol Omlet':400,'Yeşil Omlet':400,'Fit Omlet':400,'Üç Peynirli Omlet':420,'Ezine Omlet':420,'Pod Kahvaltı Tabağı':520},
+  'KRUVASAN': {'Sade':150,'Sade Kruvasan':150,'Nutella':380,'Nutella Kruvasan':380,'Ezine':480,'Üç Peynir':480,'Sucuk':520,'Sosis':520,'Füme Avokado':560},
+  'PANCAKE': {'Klasik':420,'Tuzlu Karamel & Crumble':420,'Çikolata & Orman Meyveleri':420},
+  'YOĞURT KASE': {'Sade':360,'Böğürtlen':380,'Matcha':380,'Spirulina':380},
+  'BOWL': {'Fıstık Ezmeli':380,'Kırmızı':380},
+  'SALATALAR': {'Tahıl Salata':300,'Avokado':340},
+  'TATLILAR': {'Chia Puding':200,'Nutella Cookie':220,'Amsterdam Cookie':220,'Magnolia':220,'Böğürtlen Brownie':260,'Böğürtlen ve Frambuazlı Brownie':260,'Beyaz Çikolatalı Brownie':260,'Lotus Cup':260,'Cream Puff Lotuslu':260,'Tiramisu':240,'Tiramusu':240},
+  'SMOOTHIE & PROTEIN BAR': {'Yeşil Smoothie':280,'Orman Meyveli Smoothie':280,'Kakao Smoothie':280,'Tropikal Smoothie':280},
+  'MATCHA BAR': {'Matcha':260,'Çilek Matcha':300,'Yaban Mersini Matcha':300,'Ananas Matcha':300,'Mango Matcha':300,'Şeftali Matcha':300},
+  'BUZ GİBİLER': {'Muz & Maydanoz':300,'Muz & Maydonoz':300,'Orman Meyveleri':300,'Ananas':300},
+  'DETOKS': {'Yeşil':260,'Turuncu':260,'Kırmızı':260},
+  'ESPRESSO BAR': {'Ristretto':200,'Espresso Single / Double':200,'Doppio':200,'Espresso Macchiato':200,'Filtre Kahve':220,'Americano':220,'Cortado':220,'Latte':230,'Flat White':230,'Cappuccino':260,'Mocha':260,'White Mocha':260,'Zebra Mocha':260,'Türk Kahvesi':180},
+  'POD ÖZEL': {'Muzlu Süt':240,'Pod Latte':240,'Cookie Latte':260,'Toffee Nut Latte':260,'Kavrulmuş Badem Latte':260,'Coconut Latte':260,'Deniz Tuzlu Karamel Latte':260,'Chai Tea Latte':260,'Beyaz Çikolata Frambuaz Latte':270,'Espresso Affogato':270,'Matcha Affogato':270},
+  'BREW BAR': {'V60':280,'Chemex':280,'Aeropress':280},
+  'TAZELEYİCİ SOĞUK ÇAYLAR': {'Limonata':220,'Portakal Suyu':220,'Cool Lime':240,'Berry Hibiscus':240,'Elma & Yasemin':240,'Mango & Frambuaz':240},
+  'MELEZ TEA BİTKİ ÇAYLARI': {'Relax':200,'Mystic':200,'Soothe':200,'Boost':200,'Zencefil Çay':200},
+  'SOFT BAR': {'Pınar Premium Su':60,'Uludağ Premium Soda':140,'Churchill':180}
+};
+const ADDON_PRICES_2026_10 = {'Whey Protein Tozu':120,'Kolajen':100};
+const pnorm = s => String(s||'').toLocaleLowerCase('tr').normalize('NFC')
+  .replace(/[\u{1F000}-\u{1FFFF}☀-➿️]/gu,'').replace(/-?soğuk-?/g,'').replace(/[^a-zçğıöşü0-9&/]+/g,' ').replace(/\s+/g,' ').trim();
+let _pricePlan = null;
+async function buildPricePlan() {
+  const [catSnap, itemSnap, addSnap] = await Promise.all([db.collection('menuCategories').get(), db.collection('menuItems').get(), db.collection('addons').get()]);
+  const map = {}; for (const [c, items] of Object.entries(PRICE_UPDATE_2026_10)) { const m = map[pnorm(c)] = {}; for (const [n, v] of Object.entries(items)) m[pnorm(n)] = v; }
+  const cats = {}; catSnap.docs.forEach(d => cats[d.id] = d.data());
+  const changes = [], same = [], missing = [];
+  itemSnap.docs.forEach(d => {
+    const it = d.data(), cat = cats[it.categoryId] || {}, m = map[pnorm(cat.name)];
+    const np = m ? m[pnorm(it.name)] : undefined;
+    const row = { id: d.id, coll: 'menuItems', cat: cat.name || '?', name: it.name, old: it.price, price: np };
+    if (np === undefined) missing.push(row); else if (Number(it.price) === np) same.push(row); else changes.push(row);
+  });
+  const am = {}; for (const [n, v] of Object.entries(ADDON_PRICES_2026_10)) am[pnorm(n)] = v;
+  addSnap.docs.forEach(d => { const a = d.data(), np = am[pnorm(a.name)]; if (np !== undefined && Number(a.price) !== np) changes.push({ id: d.id, coll: 'addons', cat: 'Ekstralar', name: a.name, old: a.price, price: np }); });
+  return { changes, same, missing };
+}
+async function previewPriceUpdate() {
+  const out = document.getElementById('priceUpdateResult'); out.textContent = 'Kontrol ediliyor…';
+  try {
+    _pricePlan = await buildPricePlan();
+    const { changes, same, missing } = _pricePlan;
+    let h = `<b>${changes.length}</b> ürünün fiyatı değişecek · ${same.length} ürün zaten güncel · ${missing.length} ürün listede yok (dokunulmayacak)`;
+    if (changes.length) h += '<table style="width:100%;margin-top:.8em;border-collapse:collapse">' + changes.map(c => `<tr style="border-top:1px solid #eee"><td style="padding:.3em 0;color:#888">${escHtml(c.cat)}</td><td>${escHtml(c.name)}</td><td style="text-align:right;white-space:nowrap">${escHtml(String(c.old ?? '—'))} ₺ → <b>${c.price} ₺</b></td></tr>`).join('') + '</table>';
+    if (missing.length) h += '<p style="margin-top:.8em;color:#888">Listede olmayanlar: ' + missing.map(m => escHtml(m.cat + ' / ' + m.name)).join(', ') + '</p>';
+    out.innerHTML = h;
+    document.getElementById('applyPriceBtn').disabled = !changes.length;
+  } catch (e) { out.textContent = 'Hata: ' + e.message; }
+}
+async function applyPriceUpdate() {
+  if (!_pricePlan || !_pricePlan.changes.length) return;
+  if (!confirm(_pricePlan.changes.length + ' ürünün fiyatı güncellenecek. Onaylıyor musunuz?')) return;
+  const btn = document.getElementById('applyPriceBtn'); btn.disabled = true;
+  try {
+    const batch = db.batch();
+    _pricePlan.changes.forEach(c => batch.update(db.collection(c.coll).doc(c.id), { price: c.price }));
+    await batch.commit();
+    showToast(_pricePlan.changes.length + ' fiyat güncellendi', 'success');
+    _pricePlan = null; await previewPriceUpdate();
+    if (typeof loadFoodMenu === 'function') loadFoodMenu();
+    if (typeof loadDrinkMenu === "function") loadDrinkMenu();
+  } catch (e) { showToast('Hata: ' + e.message, 'error'); btn.disabled = false; }
 }
 </script>
 </body>
