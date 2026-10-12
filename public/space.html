@@ -993,16 +993,14 @@
         if (!firebase.apps.length) firebase.initializeApp(cfg);
         const db = firebase.firestore();
         const docRef = db.collection('subscribers').doc(email.toLowerCase());
-        const existing = await docRef.get();
-        if (existing.exists) {
-          alert('Bu e-posta zaten kayıtlı!');
-        } else {
+        {
           await docRef.set({ name, email, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'space' });
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
           alert('Abone oldunuz, teşekkürler!');
         }
       } catch(err) {
+        if (err && err.code === 'permission-denied') { alert('Bu e-posta zaten kayıtlı!'); return; }
         console.error(err);
         alert('Bir hata oluştu, lütfen tekrar deneyin.');
       } finally {
