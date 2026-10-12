@@ -63,6 +63,7 @@
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
   <link rel="preconnect" href="https://res.cloudinary.com">
+  <link rel="preload" as="image" href="https://res.cloudinary.com/yc7hqjdt/image/upload/h_288,f_auto,q_auto/v1783375135/shxntxczc8bzvwpu2rbf.png" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     /* ─── TOKENS ── */
@@ -583,36 +584,27 @@
     .pod-bday:not(.pod-bday--line) .pod-bday__s::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: .95em; border: 1px solid rgba(3,9,13,.18); border-top: none; border-radius: 0 0 .45em .45em; pointer-events: none; }
   
     /* ─── AÇILIŞ EKRANI (QR ile açılınca boş sayfa yerine) ── */
-    #podLoader { position: fixed; inset: 0; z-index: 2147483000; background: #F8F2E5; display: flex; align-items: center; justify-content: center; transition: opacity .45s ease, visibility .45s; }
+    #podLoader { position: fixed; inset: 0; z-index: 2147483000; background: #03090D; display: flex; align-items: center; justify-content: center; transition: opacity .5s ease, visibility .5s; }
     #podLoader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
-    .pl-box { display: flex; flex-direction: column; align-items: center; gap: 1.1em; transform: translateY(-4%); }
-    .pl-cup { width: 64px; height: 64px; overflow: visible; }
-    .pl-cup path, .pl-cup rect { fill: none; stroke: #03090D; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-    .pl-steam { stroke: #C2644F !important; opacity: 0; animation: plSteam 1.8s ease-in-out infinite; }
-    .pl-steam:nth-of-type(2) { animation-delay: .3s; }
-    .pl-steam:nth-of-type(3) { animation-delay: .6s; }
-    @keyframes plSteam { 0% { opacity: 0; transform: translateY(6px); } 35% { opacity: .9; } 100% { opacity: 0; transform: translateY(-10px); } }
-    .pl-word { font-family: 'Josefin Sans', 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .5em; padding-left: .5em; color: #03090D; line-height: 1; }
-    .pl-bar { width: 96px; height: 2px; background: rgba(3,9,13,.1); border-radius: 2px; overflow: hidden; position: relative; }
-    .pl-bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; background: #03090D; border-radius: 2px; animation: plBar 1.1s cubic-bezier(.65,0,.35,1) infinite; }
-    @keyframes plBar { to { left: 100%; } }
-    .pl-sub { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(3,9,13,.45); }
-    @media (prefers-reduced-motion: reduce) { .pl-steam, .pl-bar::after { animation: none; } .pl-steam { opacity: .6; } }
+    .pl-box { display: flex; flex-direction: column; align-items: center; gap: 1.6em; transform: translateY(-3%); }
+    .pl-logo { position: relative; height: 124px; aspect-ratio: 686 / 1128; animation: plIn .7s cubic-bezier(.16,1,.3,1) both; }
+    .pl-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+    .pl-logo__base { opacity: .16; }
+    /* kahve dolar gibi: logo alttan yukarı dolar, tepede kısa bekler, döngü */
+    .pl-logo__fill { clip-path: inset(100% 0 0 0); animation: plFill 2s cubic-bezier(.65,0,.35,1) .25s infinite; }
+    @keyframes plFill { 0% { clip-path: inset(100% 0 0 0); opacity: 1; } 60% { clip-path: inset(0 0 0 0); opacity: 1; } 85% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
+    @keyframes plIn { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+    .pl-sub { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; font-size: 10px; letter-spacing: .32em; padding-left: .32em; text-transform: uppercase; color: rgba(248,242,229,.45); animation: plIn .7s cubic-bezier(.16,1,.3,1) .15s both; }
+    @media (prefers-reduced-motion: reduce) { .pl-logo__fill { animation: none; clip-path: none; } }
   </style>
 </head>
 <body>
-  <div id="podLoader" role="status" aria-live="polite">
+  <div id="podLoader" role="status" aria-label="Menü yükleniyor">
     <div class="pl-box">
-      <svg class="pl-cup" viewBox="0 0 64 64" aria-hidden="true">
-        <path class="pl-steam" d="M24 18c-3-4 3-6 0-10"/>
-        <path class="pl-steam" d="M32 18c-3-4 3-6 0-10"/>
-        <path class="pl-steam" d="M40 18c-3-4 3-6 0-10"/>
-        <path d="M14 26h34v12a15 15 0 0 1-15 15h-4a15 15 0 0 1-15-15z"/>
-        <path d="M48 30h3a6 6 0 0 1 0 12h-4"/>
-        <path d="M12 58h40"/>
-      </svg>
-      <div class="pl-word">POD</div>
-      <div class="pl-bar"></div>
+      <div class="pl-logo" aria-hidden="true">
+        <img class="pl-logo__base" src="https://res.cloudinary.com/yc7hqjdt/image/upload/h_288,f_auto,q_auto/v1783375135/shxntxczc8bzvwpu2rbf.png" alt="" fetchpriority="high">
+        <img class="pl-logo__fill" src="https://res.cloudinary.com/yc7hqjdt/image/upload/h_288,f_auto,q_auto/v1783375135/shxntxczc8bzvwpu2rbf.png" alt="">
+      </div>
       <div class="pl-sub">Menü hazırlanıyor</div>
     </div>
   </div>
