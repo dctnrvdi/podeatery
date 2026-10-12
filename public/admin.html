@@ -572,7 +572,7 @@
         </button>
         <button class="nav-item" data-section="subscribers" onclick="showSection(this,'subscribers')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-          Aboneler
+          Aboneler <span id="bdayBadge" title="Bugün doğum günü olan abone" style="display:none;background:#C8A96E;color:#03090D;border-radius:9px;font-size:.65em;padding:.15em .5em;margin-left:.4em"></span>
         </button>
         <span class="sidebar__section-label">Menü</span>
         <button class="nav-item" data-section="food" onclick="showSection(this,'food')">
@@ -1357,6 +1357,55 @@
             </div>
           </div>
         </div>
+        <div class="card" id="bdayCard" style="margin-bottom:1.5em">
+          <div class="card-header">
+            <div class="card-header__left"><span class="card-header__title">Doğum Günü Mailleri</span></div>
+            <div style="display:flex;gap:.5em;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="previewBdayMail()">Önizle</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleBdayEditor()">Şablonu Düzenle</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:1.25em;display:flex;flex-direction:column;gap:1em">
+            <div id="bdayToday" style="font-size:.875em">Yükleniyor…</div>
+            <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" id="bdaySendBtn" onclick="sendBirthdayMails()" disabled>Bugünkülere Gönder</button>
+              <span id="bdayStatus" style="font-size:.8em;opacity:.65"></span>
+            </div>
+            <div id="bdayUpcoming" style="font-size:.8em;opacity:.75"></div>
+            <div style="display:flex;align-items:center;gap:.5em;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:1em">
+              <input id="bdayTestEmail" placeholder="Test için e-posta adresin" style="flex:1;min-width:12em">
+              <button class="btn btn-ghost btn-sm" onclick="sendBdayTest()">Test Maili Gönder</button>
+            </div>
+            <div id="bdayEditor" style="display:none;border-top:1px solid var(--border);padding-top:1em">
+              <p class="settings-note" style="margin-bottom:.9em">Metinlerde <b>{ad}</b> yazdığın yere abonenin adı gelir. Boş bıraktığın alan varsayılan metni kullanır.</p>
+              <div class="settings-grid">
+                <div class="form-group"><label>Konu satırı</label><input id="bd-subject"></div>
+                <div class="form-group"><label>Önizleme metni (gelen kutusunda konunun yanında)</label><input id="bd-preheader"></div>
+                <div class="form-group"><label>Üst başlık (küçük, renkli)</label><input id="bd-eyebrow"></div>
+                <div class="form-group"><label>Başlık</label><input id="bd-headline"></div>
+              </div>
+              <div class="form-group"><label>Mesaj</label><textarea id="bd-message" rows="5" style="width:100%;padding:.6em .8em;background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;resize:vertical;font-size:.875em;font-family:inherit"></textarea></div>
+              <div class="settings-grid">
+                <div class="form-group"><label>İkram başlığı (siyah kutu)</label><input id="bd-offerTitle"></div>
+                <div class="form-group"><label>İkram notu (geçerlilik vb.)</label><input id="bd-offerNote"></div>
+                <div class="form-group"><label>Buton yazısı</label><input id="bd-ctaText"></div>
+                <div class="form-group"><label>Buton linki</label><input id="bd-ctaUrl"></div>
+              </div>
+              <div class="form-group">
+                <label>Görsel</label>
+                <div style="display:flex;gap:.5em;align-items:center">
+                  <input id="bd-imageUrl" placeholder="Görsel URL" style="flex:1">
+                  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0">Yükle <input type="file" accept="image/*" style="display:none" onchange="uploadFile(this,'bd-imageUrl','mail')"></label>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5em;flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm" onclick="saveBdayTemplate()">Şablonu Kaydet</button>
+                <button class="btn btn-ghost btn-sm" onclick="previewBdayMail()">Önizle</button>
+                <button class="btn btn-ghost btn-sm" onclick="resetBdayTemplate()">Varsayılana Dön</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="subscribersList"></div>
       </div>
 
@@ -1510,6 +1559,20 @@
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('itemModal')">İptal</button>
       <button class="btn btn-primary btn-sm" onclick="saveItem()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Doğum günü maili önizleme ── -->
+<div class="modal-backdrop" id="bdayPreviewModal">
+  <div class="modal" style="max-width:680px;width:96vw">
+    <div class="modal-header">
+      <h3>Doğum Günü Maili — Önizleme</h3>
+      <button class="modal-close" onclick="closeModal('bdayPreviewModal')">×</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div id="bdayPreviewSubject" style="padding:.8em 1.25em;font-size:.8125em;border-bottom:1px solid var(--border)"></div>
+      <iframe id="bdayPreviewFrame" title="Mail önizleme" style="width:100%;height:70vh;border:0;display:block;background:#EDE5D3"></iframe>
     </div>
   </div>
 </div>
@@ -1748,6 +1811,7 @@ function closeMobileNav() {
 async function loadAll() {
   loadCldConfig();
   loadBrevoConfig();
+  refreshBdayBadge();
   await Promise.all([loadFoodMenu(), loadDrinkMenu(), loadAddons(), loadContact(), loadFooter(), loadBrand(), loadNavSection(), loadHomepage(), loadMenupage(), loadSpacepage(), loadLegal(), loadCldConfig(), loadDashboard()]);
 }
 
@@ -2889,6 +2953,7 @@ async function loadSubscribers() {
   try {
     const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
     if (snap.empty) {
+      renderBirthdays([]);
       list.innerHTML = '<p style="opacity:.5;padding:1em 0">Henüz abone yok.</p>';
       return;
     }
@@ -2897,6 +2962,7 @@ async function loadSubscribers() {
         <thead><tr style="border-bottom:1px solid var(--border)">
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Ad</th>
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">E-posta</th>
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Doğum Günü</th>
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Kaynak</th>
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
           <th style="padding:.75em 1em"></th>
@@ -2907,6 +2973,7 @@ async function loadSubscribers() {
       html += `<tr style="border-bottom:1px solid var(--border)">
         <td style="padding:.65em 1em">${escHtml(d.name||'—')}</td>
         <td style="padding:.65em 1em">${escHtml(d.email||'')}</td>
+        <td style="padding:.65em 1em">${escHtml(bdayLabel(d.birthDate) || '—')}</td>
         <td style="padding:.65em 1em;opacity:.6">${escHtml(d.source||'')}</td>
         <td style="padding:.65em 1em;opacity:.6">${date}</td>
         <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick='deleteSubscriber(${escHtml(JSON.stringify(doc.id))},this)'>Sil</button></td>
@@ -2916,6 +2983,7 @@ async function loadSubscribers() {
       <div style="padding:.75em 1em;border-top:1px solid var(--border);opacity:.5;font-size:.8em">${snap.size} abone</div>
     </div>`;
     list.innerHTML = html;
+    renderBirthdays(snap.docs);
   } catch(e) {
     list.innerHTML = `<p style="color:var(--danger)">Hata: ${escHtml(e.message)}</p>`;
   }
@@ -2937,11 +3005,11 @@ async function deleteSubscriber(id, btn) {
 async function exportSubscribersCSV() {
   try {
     const snap = await db.collection('subscribers').orderBy('subscribedAt', 'desc').get();
-    const rows = [['Ad','E-posta','Kaynak','Tarih']];
+    const rows = [['Ad','E-posta','Doğum Günü','Kaynak','Tarih']];
     snap.docs.forEach(doc => {
       const d = doc.data();
       const date = d.subscribedAt ? new Date(d.subscribedAt.seconds * 1000).toLocaleDateString('tr-TR') : '';
-      rows.push([d.name||'', d.email||'', d.source||'', date]);
+      rows.push([d.name||'', d.email||'', bdayLabel(d.birthDate), d.source||'', date]);
     });
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8' });
@@ -3025,6 +3093,302 @@ async function sendBulkEmail() {
   }
 }
 
+/* ════════════════════════════════════════
+   DOĞUM GÜNÜ E-POSTASI — şablon
+════════════════════════════════════════ */
+const BDAY_DEFAULTS = {
+  subject:    'İyi ki doğdun {ad}! POD\'dan sana bir ikram var',
+  preheader:  'Doğum günün kutlu olsun. Kahven ya da tatlın bizden.',
+  eyebrow:    'İyi ki doğdun',
+  headline:   'Mutlu yıllar, {ad}.',
+  message:    'Bugün senin günün. Bu yüzden POD\'da bir kahve ya da tatlıyı biz ısmarlamak istiyoruz. Bornova\'ya yolun düştüğünde uğra, bu e-postayı kasada göstermen yeterli. Sana yeni yaşında bol kahveli, güzel günler diliyoruz.',
+  offerTitle: 'Bir kahve ya da tatlı bizden.',
+  offerNote:  'Doğum gününden itibaren 7 gün geçerli · Kasada bu e-postayı göstermen yeterli',
+  ctaText:    'Yol Tarifi Al',
+  ctaUrl:     'https://maps.google.com/?cid=6903481706886488486',
+  menuUrl:    'https://pod-project-rose.vercel.app/menu',
+  imageUrl:   'https://res.cloudinary.com/yc7hqjdt/image/upload/c_fill,w_1200,h_760,g_auto,q_auto,f_jpg/v1791535138/oqlz93bjbprp9browtul.jpg',
+  address:    'Kazımdirik, 367/8 Sk. No:5/K, Bornova / İzmir',
+  phone:      '0545 763 07 63',
+  instagram:  'podeatery',
+};
+
+function bdayEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+/* {ad} → isim (yoksa "dostumuz"); metinler HTML-güvenli */
+function bdayFill(text, name) {
+  const n = (name || '').trim().split(/\s+/)[0] || '';
+  let t = String(text || '');
+  if (!n) t = t.replace(/,?\s*\{ad\}/g, '');
+  return bdayEsc(t.replace(/\{ad\}/g, n));
+}
+function buildBirthdayEmail(cfg, name, replyEmail) {
+  const c = Object.assign({}, BDAY_DEFAULTS, cfg || {});
+  const F1 = "'Josefin Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+  const F2 = "'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+  const phoneHref = 'tel:+90' + String(c.phone).replace(/\D/g, '').replace(/^0/, '');
+  const unsub = replyEmail ? `mailto:${bdayEsc(replyEmail)}?subject=${encodeURIComponent('Abonelikten çıkmak istiyorum')}` : '';
+  const msg = bdayFill(c.message, name).replace(/\n/g, '<br>');
+  return `<!DOCTYPE html>
+<html lang="tr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>${bdayFill(c.subject, name)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; padding:0; background:#EDE5D3; -webkit-text-size-adjust:100%; }
+  a { color:#03090D; }
+  @media (max-width: 620px) {
+    .px { padding-left:24px !important; padding-right:24px !important; }
+    .h1 { font-size:30px !important; line-height:36px !important; }
+    .offer { padding:26px 22px !important; }
+    .offer-title { font-size:22px !important; line-height:28px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#EDE5D3;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EDE5D3;font-size:1px;line-height:1px;">${bdayFill(c.preheader, name)}&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;&#8204;&nbsp;</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EDE5D3;">
+<tr><td align="center" style="padding:28px 12px 40px;">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#F8F2E5;border-radius:14px;overflow:hidden;">
+    <!-- logo -->
+    <tr><td align="center" style="padding:38px 40px 30px;">
+      <div style="font-family:${F1};font-size:24px;line-height:24px;font-weight:600;letter-spacing:9px;color:#03090D;padding-left:9px;">POD</div>
+      <div style="font-family:${F1};font-size:10px;line-height:14px;font-weight:400;letter-spacing:3px;color:#7D7D79;padding-top:10px;">COFFEE &amp; EATERY &nbsp;·&nbsp; BORNOVA</div>
+    </td></tr>
+    <!-- görsel -->
+    <tr><td style="padding:0 16px;">
+      <img src="${bdayEsc(c.imageUrl)}" width="568" alt="POD Coffee &amp; Eatery" style="display:block;width:100%;max-width:568px;height:auto;border:0;border-radius:10px;background:#E4DCCB;">
+    </td></tr>
+    <!-- metin -->
+    <tr><td class="px" style="padding:40px 56px 8px;">
+      <div style="font-family:${F1};font-size:11px;line-height:16px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#C2644F;">${bdayFill(c.eyebrow, name)}</div>
+      <h1 class="h1" style="margin:14px 0 0;font-family:${F1};font-size:36px;line-height:42px;font-weight:300;letter-spacing:.5px;color:#03090D;">${bdayFill(c.headline, name)}</h1>
+      <p style="margin:20px 0 0;font-family:${F2};font-size:16px;line-height:27px;color:#3B3A36;">${msg}</p>
+    </td></tr>
+    <!-- ikram kartı -->
+    <tr><td class="px" style="padding:30px 56px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#03090D;border-radius:10px;">
+        <tr><td class="offer" align="center" style="padding:32px 30px;">
+          <div style="font-family:${F1};font-size:10px;line-height:14px;font-weight:600;letter-spacing:4px;color:#C8A96E;">DOĞUM GÜNÜ İKRAMI</div>
+          <div class="offer-title" style="padding-top:12px;font-family:${F1};font-size:26px;line-height:32px;font-weight:300;color:#F8F2E5;">${bdayFill(c.offerTitle, name)}</div>
+          <div style="padding-top:14px;font-family:${F2};font-size:13px;line-height:20px;color:rgba(248,242,229,.62);color:#A5A29A;">${bdayFill(c.offerNote, name)}</div>
+        </td></tr>
+      </table>
+    </td></tr>
+    <!-- buton -->
+    <tr><td align="center" class="px" style="padding:32px 56px 6px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="#C2644F" style="border-radius:999px;">
+          <a href="${bdayEsc(c.ctaUrl)}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:${F1};font-size:13px;line-height:16px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#F8F2E5;text-decoration:none;border-radius:999px;">${bdayFill(c.ctaText, name)} &rarr;</a>
+        </td>
+      </tr></table>
+      <div style="padding-top:16px;font-family:${F2};font-size:13px;line-height:20px;"><a href="${bdayEsc(c.menuUrl)}" target="_blank" style="color:#03090D;text-decoration:underline;">Menüye göz at</a></div>
+    </td></tr>
+    <!-- alt bilgi -->
+    <tr><td class="px" style="padding:36px 56px 40px;">
+      <div style="border-top:1px solid #DDD5C4;font-size:0;line-height:0;">&nbsp;</div>
+      <div style="padding-top:24px;text-align:center;font-family:${F2};font-size:12px;line-height:20px;color:#7D7D79;">
+        <strong style="font-family:${F1};font-weight:600;letter-spacing:2px;color:#03090D;">POD COFFEE &amp; EATERY</strong><br>
+        ${bdayEsc(c.address)}<br>
+        <a href="${phoneHref}" style="color:#7D7D79;text-decoration:none;">${bdayEsc(c.phone)}</a> &nbsp;·&nbsp; <a href="https://www.instagram.com/${bdayEsc(c.instagram)}/" target="_blank" style="color:#7D7D79;text-decoration:none;">@${bdayEsc(c.instagram)}</a>
+      </div>
+      <div style="padding-top:18px;text-align:center;font-family:${F2};font-size:11px;line-height:17px;color:#A5A29A;">
+        Bu e-postayı POD bültenine abone olduğun için aldın.${unsub ? `<br>Artık almak istemiyorsan <a href="${unsub}" style="color:#A5A29A;text-decoration:underline;">buraya tıklayıp bize yazman</a> yeterli.` : ''}
+      </div>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+/* ════════════════════════════════════════
+   DOĞUM GÜNÜ — liste, gönderim, şablon
+════════════════════════════════════════ */
+const BDAY_FIELDS = ['subject','preheader','eyebrow','headline','message','offerTitle','offerNote','ctaText','ctaUrl','imageUrl'];
+const TR_MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+let bdayCfgCache = null;
+let bdayTodayList = [];
+
+/* "AA-GG" ya da "YYYY-AA-GG" → {m, d} */
+function bdayParse(v) {
+  const m = String(v || '').match(/^(?:\d{4}-)?(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const mo = +m[1], d = +m[2];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return { m: mo, d };
+}
+function bdayLabel(v) { const b = bdayParse(v); return b ? `${b.d} ${TR_MONTHS[b.m - 1]}` : ''; }
+/* İstanbul saatine göre bugün (yıl, ay, gün) */
+function istanbulToday(offsetDays = 0) {
+  const t = new Date(Date.now() + offsetDays * 86400000);
+  const [y, mo, d] = t.toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }).split('-').map(Number);
+  return { y, m: mo, d };
+}
+/* 29 Şubat doğumlular artık olmayan yıllarda 28 Şubat'ta kutlanır */
+function bdayMatches(b, day) {
+  if (!b) return false;
+  if (b.m === day.m && b.d === day.d) return true;
+  const leap = (day.y % 4 === 0 && day.y % 100 !== 0) || day.y % 400 === 0;
+  return b.m === 2 && b.d === 29 && !leap && day.m === 2 && day.d === 28;
+}
+async function getBdayCfg(force) {
+  if (bdayCfgCache && !force) return bdayCfgCache;
+  try {
+    const doc = await db.collection('siteConfig').doc('birthdayMail').get();
+    bdayCfgCache = doc.exists ? doc.data() : {};
+  } catch (e) { bdayCfgCache = {}; }
+  return bdayCfgCache;
+}
+/* Şablon + iletişim bilgileri (iletişim sayfasındaki ayarlardan) */
+async function bdayEffectiveCfg() {
+  const cfg = Object.assign({}, await getBdayCfg());
+  Object.keys(cfg).forEach(k => { if (cfg[k] === '' || cfg[k] == null) delete cfg[k]; });
+  try {
+    const c = await db.collection('siteConfig').doc('contact').get();
+    const cd = c.exists ? c.data() : {};
+    if (cd.phone && !/123 45 67/.test(cd.phone)) cfg.phone = cd.phone;
+    if (cd.instagram) cfg.instagram = String(cd.instagram).replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/.*$/, '');
+  } catch (e) {}
+  return cfg;
+}
+function brevoCfg() { try { return JSON.parse(localStorage.getItem('pod_brevo') || '{}'); } catch (e) { return {}; } }
+
+async function refreshBdayBadge() {
+  try {
+    const snap = await db.collection('subscribers').get();
+    const today = istanbulToday();
+    const n = snap.docs.filter(doc => { const d = doc.data(); return bdayMatches(bdayParse(d.birthDate), today) && d.bdaySentYear !== today.y; }).length;
+    const b = document.getElementById('bdayBadge');
+    if (b) { b.textContent = n; b.style.display = n ? 'inline' : 'none'; }
+  } catch (e) {}
+}
+
+function renderBirthdays(docs) {
+  const today = istanbulToday();
+  const todayList = [], upcoming = [];
+  docs.forEach(doc => {
+    const d = doc.data(), b = bdayParse(d.birthDate);
+    if (!b || !d.email) return;
+    if (bdayMatches(b, today)) { todayList.push({ id: doc.id, name: d.name || '', email: d.email, sent: d.bdaySentYear === today.y }); return; }
+    for (let i = 1; i <= 7; i++) {
+      if (bdayMatches(b, istanbulToday(i))) { upcoming.push({ name: d.name || d.email, when: i, label: bdayLabel(d.birthDate) }); break; }
+    }
+  });
+  bdayTodayList = todayList;
+  const pending = todayList.filter(x => !x.sent);
+  const box = document.getElementById('bdayToday');
+  if (!todayList.length) {
+    box.innerHTML = '<span style="opacity:.6">Bugün doğum günü olan abone yok.</span>';
+  } else {
+    box.innerHTML = `<b>Bugün ${todayList.length} abonenin doğum günü:</b><ul style="margin:.5em 0 0 1.1em;padding:0;display:flex;flex-direction:column;gap:.25em">` +
+      todayList.map(x => `<li>${escHtml(x.name || '—')} <span style="opacity:.55">&lt;${escHtml(x.email)}&gt;</span> ${x.sent ? '<span style="color:#779580;font-weight:600">✓ gönderildi</span>' : ''}</li>`).join('') + '</ul>';
+  }
+  const btn = document.getElementById('bdaySendBtn');
+  btn.disabled = !pending.length;
+  btn.textContent = pending.length ? `Bugünkülere Gönder (${pending.length})` : 'Bugünkülere Gönder';
+  upcoming.sort((a, b) => a.when - b.when);
+  document.getElementById('bdayUpcoming').innerHTML = upcoming.length
+    ? '<b>Önümüzdeki 7 gün:</b> ' + upcoming.map(u => `${escHtml(u.name)} (${escHtml(u.label)})`).join(', ')
+    : '';
+  const t = document.getElementById('bdayTestEmail');
+  if (t && !t.value) t.value = brevoCfg().email || '';
+  const b = document.getElementById('bdayBadge');
+  if (b) { b.textContent = pending.length; b.style.display = pending.length ? 'inline' : 'none'; }
+}
+
+async function brevoSendOne(to, subject, html) {
+  const brevo = brevoCfg();
+  if (!brevo.key) throw new Error('Önce Ayarlar → Brevo API Key girin.');
+  const sender = { name: brevo.name || 'POD Coffee & Eatery', email: brevo.email || 'no-reply@podcoffee.com' };
+  const payload = { sender, to: [to], subject, htmlContent: html };
+  if (brevo.email) payload.replyTo = { email: brevo.email, name: sender.name };
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': brevo.key, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || res.statusText); }
+}
+
+async function sendBirthdayMails() {
+  const pending = bdayTodayList.filter(x => !x.sent);
+  if (!pending.length) return;
+  if (!brevoCfg().key) { showToast('Önce Ayarlar → Brevo API Key girin.', 'error'); return; }
+  if (!confirm(`${pending.length} aboneye doğum günü maili gönderilecek. Devam?`)) return;
+  const status = document.getElementById('bdayStatus');
+  const btn = document.getElementById('bdaySendBtn');
+  btn.disabled = true;
+  const cfg = await bdayEffectiveCfg();
+  const reply = brevoCfg().email || '';
+  const year = istanbulToday().y;
+  let ok = 0; const fails = [];
+  for (const x of pending) {
+    status.textContent = `Gönderiliyor… (${ok + fails.length + 1}/${pending.length})`;
+    try {
+      await brevoSendOne({ email: x.email, name: x.name || x.email }, bdayFill(cfg.subject || BDAY_DEFAULTS.subject, x.name).replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>'), buildBirthdayEmail(cfg, x.name, reply));
+      await db.collection('subscribers').doc(x.id).update({ bdaySentYear: year });
+      x.sent = true; ok++;
+    } catch (e) { fails.push(`${x.email}: ${e.message}`); }
+  }
+  status.textContent = fails.length ? `${ok} gönderildi, ${fails.length} hata: ${fails.join(' | ')}` : `${ok} doğum günü maili gönderildi.`;
+  showToast(fails.length ? `Doğum günü: ${ok} gönderildi, ${fails.length} hata` : `${ok} doğum günü maili gönderildi`, fails.length ? 'error' : 'success');
+  loadSubscribers();
+}
+
+async function sendBdayTest() {
+  const to = document.getElementById('bdayTestEmail').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) { showToast('Geçerli bir test e-postası yaz.', 'error'); return; }
+  try {
+    const cfg = await bdayEffectiveCfg();
+    const subj = bdayFill(cfg.subject || BDAY_DEFAULTS.subject, 'Deniz').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+    await brevoSendOne({ email: to, name: 'Test' }, '[TEST] ' + subj, buildBirthdayEmail(cfg, 'Deniz', brevoCfg().email || ''));
+    showToast('Test maili gönderildi: ' + to, 'success');
+  } catch (e) { showToast('Test maili gönderilemedi: ' + e.message, 'error'); }
+}
+
+function bdayFormCfg() {
+  const o = {};
+  BDAY_FIELDS.forEach(k => { const el = document.getElementById('bd-' + k); if (el) o[k] = el.value.trim(); });
+  return o;
+}
+async function previewBdayMail() {
+  const editorOpen = document.getElementById('bdayEditor').style.display !== 'none';
+  const cfg = Object.assign(await bdayEffectiveCfg(), editorOpen ? Object.fromEntries(Object.entries(bdayFormCfg()).filter(([, v]) => v)) : {});
+  const name = (bdayTodayList[0] && bdayTodayList[0].name) || 'Deniz';
+  document.getElementById('bdayPreviewSubject').innerHTML = '<b>Konu:</b> ' + bdayFill(cfg.subject || BDAY_DEFAULTS.subject, name);
+  document.getElementById('bdayPreviewFrame').srcdoc = buildBirthdayEmail(cfg, name, brevoCfg().email || 'hello@podcoffee.com');
+  openModal('bdayPreviewModal');
+}
+async function toggleBdayEditor() {
+  const ed = document.getElementById('bdayEditor');
+  const open = ed.style.display === 'none';
+  ed.style.display = open ? 'block' : 'none';
+  if (open) {
+    const cfg = await getBdayCfg(true);
+    BDAY_FIELDS.forEach(k => { const el = document.getElementById('bd-' + k); if (el) el.value = cfg[k] || BDAY_DEFAULTS[k] || ''; });
+  }
+}
+async function saveBdayTemplate() {
+  const o = bdayFormCfg();
+  BDAY_FIELDS.forEach(k => { if (o[k] === BDAY_DEFAULTS[k]) o[k] = ''; });
+  o.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  await db.collection('siteConfig').doc('birthdayMail').set(o);
+  bdayCfgCache = null;
+  showToast('Doğum günü şablonu kaydedildi.', 'success');
+}
+function resetBdayTemplate() {
+  BDAY_FIELDS.forEach(k => { const el = document.getElementById('bd-' + k); if (el) el.value = BDAY_DEFAULTS[k] || ''; });
+  showToast('Varsayılan metinler yüklendi — kalıcı olması için Şablonu Kaydet’e bas.');
+}
+
 function showToast(msg, type='') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -3040,7 +3404,7 @@ function showToast(msg, type='') {
    UTILS
 ════════════════════════════════════════ */
 /* Hata yakalama: kaydet/sil işlemleri başarısız olursa sahibine kırmızı uyarı göster */
-['saveCldConfig','markRead','saveCat','saveAddon','deleteAddon','saveLegal','saveContact','saveFooter','saveNav','saveBrand','saveHomepage','saveMenupage','saveSpacepage','deleteCat','deleteItem','saveItem','exportData'].forEach(n => {
+['saveCldConfig','markRead','saveCat','saveAddon','deleteAddon','saveLegal','saveContact','saveFooter','saveNav','saveBrand','saveHomepage','saveMenupage','saveSpacepage','deleteCat','deleteItem','saveItem','exportData','saveBdayTemplate','previewBdayMail','toggleBdayEditor'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = async function(...args) {
