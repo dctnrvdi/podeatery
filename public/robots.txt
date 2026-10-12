@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /foto-yukle
+
+Sitemap: https://pod-eatery.com/sitemap.xml
