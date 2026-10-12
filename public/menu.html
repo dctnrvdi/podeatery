@@ -599,9 +599,43 @@
     @keyframes plIn { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
     .pl-sub { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; font-size: 10px; letter-spacing: .32em; padding-left: .32em; text-transform: uppercase; color: rgba(248,242,229,.45); animation: plIn .7s cubic-bezier(.16,1,.3,1) .15s both; }
     @media (prefers-reduced-motion: reduce) { .pl-logo__fill { animation: none; clip-path: none; } }
+  
+    /* ─── MASAÜSTÜ: menü sadece telefonda ── */
+    #menuGate { display: none; }
+    @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+      html:not(.gate-off) #menuGate { display: flex; position: fixed; inset: 0; z-index: 2147483600; background: #03090D; color: #F8F2E5; align-items: center; justify-content: center; padding: 2em; text-align: center; }
+      html:not(.gate-off) #podLoader { display: none; }
+      html:not(.gate-off) body { overflow: hidden; }
+    }
+    .mg-box { display: flex; flex-direction: column; align-items: center; max-width: 30em; }
+    .mg-logo { height: 92px; width: auto; display: block; margin-bottom: 2.2em; }
+    .mg-title { font-family: 'Josefin Sans', 'Helvetica Neue', Arial, sans-serif; font-weight: 300; font-size: 2.1em; letter-spacing: .02em; margin: 0 0 .6em; }
+    .mg-text { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; font-size: 1em; line-height: 1.65; color: rgba(248,242,229,.65); margin: 0 0 2em; }
+    .mg-qrwrap { background: #F8F2E5; border-radius: 14px; padding: 14px; width: 168px; height: 168px; box-sizing: border-box; margin-bottom: .9em; }
+    .mg-qr { width: 100%; height: 100%; display: block; }
+    .mg-url { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; font-size: .8em; letter-spacing: .14em; color: rgba(248,242,229,.5); margin-bottom: 2.4em; }
+    .mg-actions { display: flex; gap: 1.6em; align-items: center; font-family: 'Josefin Sans', 'Helvetica Neue', Arial, sans-serif; font-size: .78em; letter-spacing: .16em; text-transform: uppercase; }
+    .mg-actions a, .mg-actions button { color: #F8F2E5; text-decoration: none; background: none; border: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; padding: .9em 1.6em; border: 1px solid rgba(248,242,229,.35); border-radius: 999px; transition: background .2s, color .2s; }
+    .mg-actions a:hover { background: #F8F2E5; color: #03090D; }
+    .mg-actions button { border-color: transparent; color: rgba(248,242,229,.45); padding: .9em .4em; }
+    .mg-actions button:hover { color: #F8F2E5; }
   </style>
 </head>
 <body>
+  <div id="menuGate" role="dialog" aria-label="Menü telefonda açılır">
+    <div class="mg-box">
+      <img class="mg-logo" src="https://res.cloudinary.com/yc7hqjdt/image/upload/h_288,f_auto,q_auto/v1783375135/shxntxczc8bzvwpu2rbf.png" alt="POD">
+      <h1 class="mg-title">Menümüz telefonunuzda</h1>
+      <p class="mg-text">Menümüzü en iyi telefonda göstermek için hazırladık. Kamerayı aşağıdaki koda tutun ya da masadaki QR kodu okutun.</p>
+      <div class="mg-qrwrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="mg-qr"><path stroke="#03090d" d="M2 2.5h7m3 0h1m2 0h1m1 0h1m3 0h2m2 0h2m1 0h7m-33 1h1m5 0h1m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m4 0h1m2 0h1m2 0h2m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m3 0h1m1 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m6 0h1m2 0h2m3 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h2m1 0h2m1 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h4m2 0h1m2 0h1m3 0h1m1 0h1m-20 1h4m4 0h1m1 0h2m1 0h3m1 0h2m1 0h1m1 0h2m3 0h1m-32 1h1m2 0h3m1 0h2m2 0h3m2 0h1m2 0h3m1 0h1m3 0h1m3 0h1m-31 1h4m1 0h1m2 0h3m1 0h2m1 0h1m6 0h6m2 0h1m-30 1h1m11 0h1m2 0h2m1 0h1m1 0h1m1 0h2m2 0h2m-26 1h3m2 0h3m2 0h2m1 0h3m2 0h2m2 0h1m4 0h2m-33 1h3m2 0h1m2 0h6m1 0h1m4 0h2m1 0h1m1 0h1m1 0h5m-29 1h1m2 0h1m3 0h2m2 0h2m1 0h1m1 0h1m3 0h5m3 0h1m-31 1h3m3 0h1m3 0h2m1 0h1m4 0h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m-29 1h5m1 0h1m1 0h2m3 0h1m3 0h1m4 0h1m1 0h1m1 0h2m-30 1h2m1 0h1m1 0h1m1 0h1m1 0h2m4 0h3m3 0h3m1 0h1m-28 1h1m1 0h1m1 0h3m1 0h1m3 0h2m1 0h1m2 0h4m1 0h2m4 0h1m1 0h1m-30 1h3m3 0h2m1 0h1m3 0h1m5 0h1m3 0h1m1 0h2m3 0h1m-32 1h1m2 0h6m7 0h2m2 0h2m1 0h3m1 0h2m-30 1h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h5m1 0h1m1 0h1m2 0h1m3 0h1m2 0h1m-28 1h1m1 0h5m1 0h3m2 0h1m2 0h4m5 0h2m1 0h2m-29 1h2m3 0h2m1 0h1m3 0h1m1 0h1m3 0h1m2 0h1m3 0h1m3 0h1m-33 1h5m1 0h6m1 0h1m1 0h2m2 0h10m2 0h2m-25 1h2m3 0h2m1 0h1m1 0h1m5 0h1m3 0h2m-30 1h7m1 0h2m1 0h2m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h2m2 0h8m1 0h1m1 0h2m3 0h1m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h2m2 0h2m4 0h5m-29 1h1m1 0h3m1 0h1m2 0h3m1 0h1m5 0h1m1 0h4m1 0h3m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m1 0h1m1 0h4m3 0h3m1 0h2m-30 1h1m5 0h1m3 0h3m2 0h2m2 0h1m1 0h1m1 0h3m1 0h3m-30 1h7m5 0h2m1 0h2m4 0h4m1 0h2m2 0h1m1 0h1"/></svg></div>
+      <div class="mg-url">POD-EATERY.COM/MENU</div>
+      <div class="mg-actions">
+        <a href="/">Ana Sayfaya Dön</a>
+        <button type="button" onclick="document.documentElement.classList.add('gate-off');try{sessionStorage.setItem('podGateOff','1')}catch(e){}">Yine de burada göster</button>
+      </div>
+    </div>
+  </div>
+  <script>try{if(sessionStorage.getItem('podGateOff')||/[?&]onizleme/.test(location.search))document.documentElement.classList.add('gate-off')}catch(e){}</script>
   <div id="podLoader" role="status" aria-label="Menü yükleniyor">
     <div class="pl-box">
       <div class="pl-logo" aria-hidden="true">
