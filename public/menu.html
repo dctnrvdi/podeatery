@@ -1069,12 +1069,16 @@
       const items = itemSnap.docs.map(d => ({ id:d.id, ...d.data() }));
       const addons= addonSnap.docs.map(d => ({ id:d.id, ...d.data() }));
 
+      // Ürünler kategori içinde fiyata göre artan sıralanır; fiyatı aynı/olmayanlar admin sırasını korur
+      const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
+      const byPrice = (a,b) => (priceOf(a)-priceOf(b)) || ((a.order||0)-(b.order||0));
+
       const buildTab = tab => cats
         .filter(c => c.tab === tab)
         .sort((a,b) => (a.order||0)-(b.order||0))
         .map(cat => ({
           ...cat,
-          items: items.filter(i => i.categoryId === cat.id).sort((a,b)=>(a.order||0)-(b.order||0))
+          items: items.filter(i => i.categoryId === cat.id).sort(byPrice)
         }));
 
       const result = { yiyecek: buildTab('yiyecek'), icecek: buildTab('icecek'), addons };

@@ -1946,8 +1946,9 @@ function renderCategoryList(container, catSnap, itemSnap, tab) {
   container.innerHTML = '';
   catDocs.forEach(catDoc => {
     const cat   = catDoc.data();
+    const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
     const items = itemSnap.docs.filter(d => d.data().categoryId === catDoc.id)
-                              .sort((a,b) => (a.data().order||0)-(b.data().order||0));
+                              .sort((a,b) => (priceOf(a.data())-priceOf(b.data())) || ((a.data().order||0)-(b.data().order||0)));
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
