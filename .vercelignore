@@ -1,0 +1,15 @@
+# Vercel'e SADECE site dosyaları gider (yerel AI-ajan/skill klasörleri gitmez)
+/*
+!/public
+!/src
+!/package.json
+!/package-lock.json
+!/next.config.ts
+!/tsconfig.json
+!/postcss.config.mjs
+!/eslint.config.mjs
+!/components.json
+!/vercel.json
+!/.nvmrc
+/public/.claude
+.DS_Store
