@@ -6,7 +6,7 @@ service cloud.firestore {
     // Firebase'e kayıt olan HERHANGİ biri değil, yalnızca listedeki hesap.
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email in ['ADMIN_EMAIL_BURAYA'];
+        && request.auth.token.email in ['dc.tnrvrdi@gmail.com'];
     }
 
     function validStr(v, min, max) {
