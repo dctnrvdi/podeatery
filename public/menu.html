@@ -1240,12 +1240,23 @@
     }, 6000);
   }
 
+  function hidePeek() {
+    clearTimeout(peekHideTimer);
+    peekCard.classList.remove('is-visible');
+    clearPeekActive();
+    peekCurrentUrl = '';
+    peekPendingUrl = null;
+  }
+
+  /* Ekranın ortasındaki çizgide hangi ürün varsa onun fotoğrafı gösterilir.
+     Çizgide fotoğraflı ürün yoksa (sayfanın en üstü, kategori başlığı,
+     fotoğrafsız ürün ya da listenin sonu) kart hemen gizlenir. */
   function bindPeekCard(container) {
     const tabEl = container.closest('.menu-content');
-    const items = Array.from(container.querySelectorAll('.menu-item[data-img]')).filter(el => !!el.dataset.img);
-    if (!items.length) return;
+    const allItems = Array.from(container.querySelectorAll('.menu-item'));
+    if (!allItems.some(el => !!el.dataset.img)) return;
 
-    let activeIdx = -1;
+    let currentEl = null;
     let ticking   = false;
 
     const checkScroll = () => {
@@ -1253,37 +1264,33 @@
       if (tabEl && !tabEl.classList.contains('is-active')) return;
 
       const activationY = window.innerHeight * 0.48;
-      let hitIdx = -1;
-
-      for (let i = 0; i < items.length; i++) {
-        const r = items[i].getBoundingClientRect();
-        if (r.top <= activationY && r.bottom >= activationY) { hitIdx = i; break; }
-      }
-
-      if (hitIdx === -1 || hitIdx === activeIdx) return;
-
-      if (activeIdx === -1) {
-        /* First activation: find the topmost item that has reached activationY,
-           so if item 0 scrolled past before the first tick we still start from 0 */
-        activeIdx = hitIdx;
-        for (let i = 0; i < hitIdx; i++) {
-          const ri = items[i].getBoundingClientRect();
-          if (ri.top <= activationY) { activeIdx = i; break; }
+      let hit = null;
+      if (window.scrollY > 30) {
+        for (let i = allItems.length - 1; i >= 0; i--) {
+          const r = allItems[i].getBoundingClientRect();
+          if (r.top <= activationY) {
+            if (r.bottom + 12 >= activationY) hit = allItems[i];
+            break;
+          }
         }
-      } else {
-        /* Step at most ±1 so Lenis overshoot can never skip cards (e.g. 4→1) */
-        activeIdx = activeIdx + (hitIdx > activeIdx ? 1 : -1);
       }
 
-      const item  = items[activeIdx];
-      const name  = item.querySelector('.menu-item__name')?.textContent  || '';
-      const price = item.querySelector('.menu-item__price')?.textContent || '';
-      showPeek(item.dataset.img, name, price, item);
+      if (!hit || !hit.dataset.img) {
+        if (currentEl || peekCard.classList.contains('is-visible')) hidePeek();
+        currentEl = null;
+        return;
+      }
+      if (hit === currentEl && peekCard.classList.contains('is-visible')) return;
+      currentEl = hit;
+      const name  = hit.querySelector('.menu-item__name')?.textContent  || '';
+      const price = hit.querySelector('.menu-item__price')?.textContent || '';
+      showPeek(hit.dataset.img, name, price, hit);
     };
 
     window.addEventListener('scroll', () => {
       if (!ticking) { requestAnimationFrame(checkScroll); ticking = true; }
     }, { passive: true });
+    window.addEventListener('resize', () => { currentEl = null; checkScroll(); }, { passive: true });
   }
 
   /* ════════════════════════════════════════
@@ -1430,6 +1437,7 @@
       clearPeekActive();
       peekCurrentUrl = '';
       observeReveals();
+      requestAnimationFrame(() => window.dispatchEvent(new Event('scroll')));
     });
   });
 
