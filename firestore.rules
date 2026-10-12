@@ -45,24 +45,29 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
-    // ── Ziyaret sayacı: sadece +1 artırılabilir, silinemez ───────────
+    // ── Ziyaret sayacı: sadece +1 artırılabilir ────────────────────
     function pages() { return ['home', 'menu', 'space', 'contact']; }
 
+    function oneOrAbsent(k) {
+      return request.resource.data.get(k, 1) == 1;
+    }
+
+    function sameOrPlusOne(k) {
+      return request.resource.data.get(k, 0) == resource.data.get(k, 0)
+          || request.resource.data.get(k, 0) == resource.data.get(k, 0) + 1;
+    }
+
     match /analytics/{day} {
-      allow read: if isAdmin();
-      allow delete: if isAdmin();
+      allow read, delete: if isAdmin();
       allow create: if day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
                     && request.resource.data.keys().hasOnly(pages())
                     && request.resource.data.size() == 1
-                    && request.resource.data.values().hasOnly([1]);
+                    && oneOrAbsent('home') && oneOrAbsent('menu')
+                    && oneOrAbsent('space') && oneOrAbsent('contact');
       allow update: if request.resource.data.keys().hasOnly(pages())
                     && request.resource.data.diff(resource.data).affectedKeys().size() == 1
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(pages())
-                    && countUpByOne(request.resource.data.diff(resource.data).affectedKeys().toList()[0]);
-    }
-
-    function countUpByOne(k) {
-      return request.resource.data[k] == resource.data.get(k, 0) + 1;
+                    && sameOrPlusOne('home') && sameOrPlusOne('menu')
+                    && sameOrPlusOne('space') && sameOrPlusOne('contact');
     }
   }
 }
