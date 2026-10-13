@@ -1073,7 +1073,7 @@
 
       // Ürünler kategori içinde fiyata göre artan sıralanır; fiyatı aynı/olmayanlar admin sırasını korur
       const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
-      const byPrice = (a,b) => (priceOf(a)-priceOf(b)) || ((a.order||0)-(b.order||0));
+      const byPrice = (a,b) => ((a.pinLast?1:0)-(b.pinLast?1:0)) || (priceOf(a)-priceOf(b)) || ((a.order||0)-(b.order||0));
 
       const buildTab = tab => cats
         .filter(c => c.tab === tab)
@@ -1135,7 +1135,7 @@
             data-img="${esc(item.imageUrl || '')}">
           <div class="menu-item__row">
             <span class="menu-item__name">${esc(item.name)}</span>
-            ${item.price ? `<span class="menu-item__price">${item.price} ₺</span>` : ''}
+            ${(item.priceText || item.price) ? `<span class="menu-item__price">${esc(String(item.priceText || item.price))} ₺</span>` : ''}
           </div>
           ${item.desc ? `<p class="menu-item__desc">${esc(item.desc)}</p>` : ''}
           ${hasImg ? `<span class="menu-item__tap-hint">Görseli Gör</span>` : ''}

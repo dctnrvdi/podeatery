@@ -1412,6 +1412,17 @@
 
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
+        <div class="card" style="margin-bottom:1em" id="menuFixCard">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Menü Düzeltmeleri — 13 Ekim 2026</span></div></div>
+          <div class="card-body" style="padding:1.25em">
+            <p class="settings-note">Detaylı ürün açıklamaları (basılı menüdeki gibi), Füme Avokado görsellerinin yer değişimi, Demleme Çay 70 / 80 ₺ ve en sonda, Türk Kahvesi en sonda, süt seçenekleri +50 ₺, ekstra fiyatları. Önce "Önizle", sonra "Uygula".</p>
+            <div style="display:flex;gap:.6em;flex-wrap:wrap;margin:.8em 0">
+              <button class="btn btn-ghost" onclick="previewMenuFix()">Önizle</button>
+              <button class="btn btn-primary" id="applyFixBtn" onclick="applyMenuFix()" disabled>Düzeltmeleri Uygula</button>
+            </div>
+            <div id="menuFixResult" style="font-size:.85em;line-height:1.55"></div>
+          </div>
+        </div>
         <div class="card" style="margin-bottom:1em" id="priceUpdateCard">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Toplu Fiyat Güncellemesi — Ekim 2026</span></div></div>
           <div class="card-body" style="padding:1.25em">
@@ -1566,6 +1577,8 @@
         <input id="itemImageUrl" placeholder="veya görsel bağlantısı (URL) yapıştır" style="margin-top:.6em">
         <div id="itemImgNote" style="display:none;margin-top:.45em;font-size:.8em;color:#b45309">Görsel değişti — kalıcı olması için <b>Kaydet</b>'e basın.</div>
       </div>
+      <div class="form-group"><label>Fiyat yazısı (isteğe bağlı)</label><input id="itemPriceText" placeholder="ör. 70 / 80 — boşsa fiyat gösterilir"></div>
+      <div class="form-group"><label style="display:flex;align-items:center;gap:.5em;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox" id="itemPinLast" style="width:auto"> Kategoride en sona sabitle (fiyat sıralamasına girmez)</label></div>
       <div class="form-group"><label>Sıra</label><input id="itemOrder" type="number" placeholder="1" min="1"></div>
     </div>
     <div class="modal-footer">
@@ -1959,7 +1972,7 @@ function renderCategoryList(container, catSnap, itemSnap, tab) {
     const cat   = catDoc.data();
     const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
     const items = itemSnap.docs.filter(d => d.data().categoryId === catDoc.id)
-                              .sort((a,b) => (priceOf(a.data())-priceOf(b.data())) || ((a.data().order||0)-(b.data().order||0)));
+                              .sort((a,b) => ((a.data().pinLast?1:0)-(b.data().pinLast?1:0)) || (priceOf(a.data())-priceOf(b.data())) || ((a.data().order||0)-(b.data().order||0)));
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -1992,9 +2005,9 @@ function renderItemRow(doc) {
         <div class="item-row__name">${escHtml(d.name)}</div>
         ${d.desc ? `<div class="item-row__desc">${escHtml(d.desc)}</div>` : ''}
       </div>
-      <span class="item-row__price">${d.price ? d.price + ' ₺' : ''}</span>
+      <span class="item-row__price">${(d.priceText || d.price) ? escHtml(String(d.priceText || d.price)) + ' ₺' : ''}${d.pinLast ? ' <span title="En sona sabit" style="opacity:.5">⤓</span>' : ''}</span>
       <div class="item-row__actions">
-        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick='openItemModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.categoryId||""))},${escHtml(JSON.stringify(d.name||""))},${d.price||0},${escHtml(JSON.stringify(d.desc||""))},${d.order||1},${escHtml(JSON.stringify(d.imageUrl||""))})'>✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick='openItemModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.categoryId||""))},${escHtml(JSON.stringify(d.name||""))},${d.price||0},${escHtml(JSON.stringify(d.desc||""))},${d.order||1},${escHtml(JSON.stringify(d.imageUrl||""))},${escHtml(JSON.stringify(d.priceText||""))},${d.pinLast?'true':'false'})'>✎</button>
         <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick='confirmDelete("Ürün silinsin mi?",${escHtml(JSON.stringify((d.name||"") + " kalıcı olarak silinecek."))},()=>deleteItem(${escHtml(JSON.stringify(doc.id))}))'>×</button>
       </div>
     </div>
@@ -2042,7 +2055,7 @@ async function deleteCat(id) {
 }
 
 /* ── Item CRUD ── */
-function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='') {
+function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='', priceText='', pinLast=false) {
   document.getElementById('itemModalTitle').textContent = id ? 'Ürün Düzenle' : 'Ürün Ekle';
   document.getElementById('itemId').value       = id || '';
   document.getElementById('itemCatId').value    = catId;
@@ -2050,6 +2063,8 @@ function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='
   document.getElementById('itemPrice').value    = price || '';
   document.getElementById('itemDesc').value     = desc;
   document.getElementById('itemOrder').value    = order;
+  document.getElementById('itemPriceText').value = priceText || '';
+  document.getElementById('itemPinLast').checked  = !!pinLast;
   document.getElementById('itemImageUrl').value = imageUrl || '';
   document.getElementById('itemImageUrl').dataset.orig = imageUrl || '';
   syncItemImg();
@@ -2080,9 +2095,11 @@ async function saveItem() {
   const desc     = document.getElementById('itemDesc').value.trim();
   const order    = parseInt(document.getElementById('itemOrder').value) || 1;
   const imageUrl = document.getElementById('itemImageUrl').value.trim();
+  const priceText = document.getElementById('itemPriceText').value.trim();
+  const pinLast  = document.getElementById('itemPinLast').checked;
   if (!name) return showToast('Ürün adı gerekli', 'error');
   try {
-    const data = { categoryId: catId, name, price, desc, order, imageUrl };
+    const data = { categoryId: catId, name, price, desc, order, imageUrl, priceText, pinLast };
     if (id) {
       await db.collection('menuItems').doc(id).update(data);
     } else {
@@ -3499,6 +3516,156 @@ async function applyPriceUpdate() {
     _pricePlan = null; await previewPriceUpdate();
     if (typeof loadFoodMenu === 'function') loadFoodMenu();
     if (typeof loadDrinkMenu === "function") loadDrinkMenu();
+  } catch (e) { showToast('Hata: ' + e.message, 'error'); btn.disabled = false; }
+}
+</script>
+<script>
+/* ===== Menü düzeltmeleri (13 Ekim 2026 — müşteri talepleri) ===== */
+const YG = ' yanında taze yeşillik ve fırınlanmış patates ile';
+const DESC_FIX_2026_10_13 = {
+  'EKMEKÜSTÜ': {
+    'Fıstık Ezmesi': 'Fıstık ezmesi, muz, yaban mersini, ahududu reçeli, file badem',
+    'Vegan': 'Pancarlı ev yapımı humus, sarımsaklı zeytinyağlı istiridye mantarı, ızgara kabak, çiğ kabak çekirdeği,' + YG,
+    'Ispanak': 'Sote ıspanak, poşe yumurta, hollandez sos,' + YG,
+    'Avokado Mantar': 'Avokado sos, karamelize ıspanak, karamelize mantar, pancar dilimleri, toz parmesan, zeytinyağı,' + YG,
+    'Avokado Beetroot': 'Fırınlanmış pancarlı aromatik labne, dilim avokado, chia tohumu, zeytinyağı,' + YG,
+    'Ezine': 'Ezine beyaz peyniri, kuru domates, çiğ kabak çekirdeği, ceviz, taze kekik, zeytinyağı,' + YG,
+    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, lor peyniri, çırpılmış yumurta, kapya biber, haşhaş, çiğ kabak çekirdeği,' + YG,
+    'Hindi Füme': 'Tarhunlu peynir sos, hindi füme, lollo rosso, salatalık, kaşar peyniri,' + YG,
+    'Tatlı & Tuzlu': '2 ayrı ekmek üzerinde servis edilir: ev yapımı aromatik labne, böğürtlen reçeli, Antep fıstığı & avokado ezmesi, çırpılmış yumurta, şeftali, çörek otu',
+    'Avokado Yumurta': 'Çırpılmış yumurta, avokado ezmesi, çiğ kabak çekirdeği,' + YG,
+    'Hindi Füme & Cheddar': 'Çırpılmış yumurta, cheddar peyniri, hindi füme, çörek otu, kabak çekirdeği, taze kekik,' + YG,
+    'French Toast': 'Tereyağlı ve yumurtalı brioche ekmeği üzerine özel karamel sos, muz, çilek, kırmızı orman meyveleri, file badem ve akçaağaç şurubu (18:00\'e kadar) · İlave dondurma +50 ₺',
+    'Sosis': 'Çırpılmış yumurta, dana sosis, hollandez sos,' + YG,
+    'Sucuk': 'Çırpılmış yumurta, sucuk, hellim peyniri, kapya biber, çiğ kabak çekirdeği,' + YG,
+    'Füme Somon': 'Füme somon, aromatik labne, kapari, salatalık, dereotu,' + YG,
+    'Füme Avokado': 'Füme et, avokado ezmesi, poşe yumurta, fesleğenli zeytinyağı, chia tohumu, çiğ kabak çekirdeği,' + YG,
+    'Füme & Burrata': 'Brioche ekmeği üzerine Antep fıstıklı pesto, burrata peyniri, füme et, roka, rende tulum peyniri, balzamik glaze; yanında labne, salatalık ve zeytin ile'
+  },
+  'BAGEL': {
+    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, cheddar peyniri,' + YG,
+    'Avokado & Zeytin': 'Avokado sos, zeytin ezmesi, marul, kaşar peyniri, cheddar peyniri, domates,' + YG,
+    'Hindi Füme': 'Tarhunlu peynir sos, hindi füme, cheddar peyniri, salatalık,' + YG,
+    'Avokado & Füme': 'Avokado sos, çırpılmış yumurta, füme et,' + YG
+  },
+  'YUMURTA BURGER': {
+    'Mantarlı': 'Çırpılmış yumurta, karamelize mantar, taze kekik,' + YG,
+    'Avokado & Füme': 'Tercihe göre dilim avokado veya avokado sos, çırpılmış yumurta, füme et, cheddar peyniri,' + YG
+  },
+  'TOST': {
+    'Mozzarella': 'Fırınlanmış patlıcan, fırınlanmış kabak, mozzarella, kuru domates,' + YG,
+    'Yaz Tostu': 'Ekşi maya ekmeğinde kaşar, tulum ve mozzarella peyniri; altında yaz domatesiyle hazırlanmış Pod yapımı domates sos ile',
+    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, cheddar peyniri,' + YG,
+    'Esnaf İşi': 'Sucuk, kaşar, paprika salça; yanında cherry domates, salatalık ve fırınlanmış patates ile · İlave çırpılmış yumurta +60 ₺',
+    'Rozbif': 'Füme et, ev yapımı ballı hardal sos, roka, karamelize soğan, cheddar peyniri,' + YG
+  },
+  'OMLET': {
+    'Sade Omlet': 'Ekşi maya ekmeği ve fırınlanmış patates ile',
+    'İspanyol Poşesi': 'Küp patates, yeşil biber, kırmızı biber üzeri 2 adet poşe yumurta, yanında ekşi maya ekmeği ile',
+    'Çılbır': 'Taze baharatlı yoğurt, özel tereyağlı sos ile',
+    'Ispanak Mantar Omlet': 'Ispanak, sote mantar, kabak çekirdeği, çörek otu, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
+    'İspanyol Omlet': 'Küp patates, kapya biber, çarliston biber, kabak çekirdeği, yanında ekşi maya ekmeği ve taze yeşillik ile',
+    'Yeşil Omlet': 'Ispanak, yulaf, mozzarella peyniri, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
+    'Fit Omlet': '3 yumurta beyazı, hindi füme, lor peyniri, kurutulmuş domates, kabak çekirdeği, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
+    'Üç Peynirli Omlet': 'Mozzarella peyniri, tulum peyniri, lor peyniri, kapya biber, haşhaş, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
+    'Ezine Omlet': 'Ezine peyniri, kurutulmuş domates, kabak çekirdeği, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
+    'Pod Kahvaltı Tabağı': 'Çırpılmış yumurta, hellim peyniri, Ezine peyniri, dilim avokado, ceviz, çilek, taze yeşillik, ekşi maya ekmeği'
+  },
+  'KRUVASAN': {
+    'Nutella': 'Nutella, çilek, muz, crumble, file badem, pudra şekeri, Antep fıstığı',
+    'Nutella Kruvasan': 'Nutella, çilek, muz, crumble, file badem, pudra şekeri, Antep fıstığı',
+    'Ezine': 'Ezine beyaz peyniri, kuru domates, çiğ kabak çekirdeği, ceviz, taze kekik, zeytinyağı, yanında taze yeşillik ile',
+    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, lor peyniri, çırpılmış yumurta, kapya biber, haşhaş, çiğ kabak çekirdeği, yanında taze yeşillik ile',
+    'Sucuk': 'Çırpılmış yumurta, sucuk, hellim peyniri, kapya biber, haşhaş, çiğ kabak çekirdeği, yanında taze yeşillik ile',
+    'Sosis': 'Çırpılmış yumurta, dana sosis, hollandez sos, yanında taze yeşillik ile',
+    'Füme Avokado': 'Füme et, avokado ezmesi, çırpılmış yumurta, tulum peyniri, çiğ kabak çekirdeği, yanında taze yeşillik ile'
+  },
+  'PANCAKE': {
+    'Klasik': 'Agave şurubu, yaban mersini, tereyağı, pudra şekeri',
+    'Tuzlu Karamel & Crumble': 'Tuzlu karamel sos, muz, Pod yapımı crumble, krep kırıkları',
+    'Çikolata & Orman Meyveleri': 'Eritme çikolata, orman meyveli Pod yapımı marmelat'
+  },
+  'YOĞURT KASE': {
+    'Sade': 'Bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, mango, chia tohumu',
+    'Böğürtlen': 'Böğürtlen ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu',
+    'Matcha': 'Matcha ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu',
+    'Spirulina': 'Spirulina ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu'
+  },
+  'BOWL': {
+    'Fıstık Ezmeli': 'İsteğe göre badem veya yulaf sütü, yulaf, muz, yer fıstığı ezmesi, ev yapımı çıtır granola, file badem',
+    'Kırmızı': 'İsteğe göre badem veya yulaf sütü, ev yapımı çıtır granola, muz, frambuaz, böğürtlen, yaban mersini, chia tohumu ve file badem'
+  },
+  'SALATALAR': {
+    'Tahıl Salata': 'Kinoa, karabuğday, yeşil mercimek, yeşil elma, pancar, lor peyniri, portakal, nar ekşili sos, Akdeniz yeşilliği ve maskolin ile',
+    'Avokado': 'Dilimlenmiş avokado, haşlanmış kinoa, portakal, portakallı ballı hardal sos, Akdeniz yeşilliği ve maskolin ile'
+  },
+  'TATLILAR': {
+    'Cream Puff Lotuslu': 'Çıtır profiterol hamuru içinde Lotus krem diplomat dolgusu',
+    'Magnolia': 'Çilekli / Oreo ve muzlu / Lotuslu',
+    'Nutella Cookie': 'Nutella, ceviz',
+    'Amsterdam Cookie': 'Bitter çikolata, beyaz çikolata'
+  }
+};
+const ITEM_FIX_2026_10_13 = [
+  { cat: 'MELEZ TEA BİTKİ ÇAYLARI', name: 'Demleme Çay', set: { price: 70, priceText: '70 / 80', desc: 'İnce belli 70 ₺ / Fincan 80 ₺', pinLast: true } },
+  { cat: 'ESPRESSO BAR', name: 'Türk Kahvesi', set: { pinLast: true } }
+];
+const EXTRA_PRICES_2026_10_13 = { 'mantar': 40, 'peynir': 60, 'avokado': 60, 'hindi füme': 70, 'sucuk': 80, 'füme et': 120 };
+async function buildFixPlan() {
+  const [catSnap, itemSnap] = await Promise.all([db.collection('menuCategories').get(), db.collection('menuItems').get()]);
+  const cats = {}; catSnap.docs.forEach(d => cats[d.id] = d.data());
+  const byCatName = (c, n) => itemSnap.docs.find(d => pnorm((cats[d.data().categoryId]||{}).name) === pnorm(c) && pnorm(d.data().name) === pnorm(n));
+  const ops = [], notFound = [];
+  const add = (coll, id, label, data, before) => {
+    const changed = {}; for (const k in data) if (JSON.stringify(before[k] ?? null) !== JSON.stringify(data[k])) changed[k] = data[k];
+    if (Object.keys(changed).length) ops.push({ coll, id, label, data: changed, before });
+  };
+  // 1) açıklamalar
+  const dmap = {}; for (const [c, items] of Object.entries(DESC_FIX_2026_10_13)) { dmap[pnorm(c)] = {}; for (const [n, v] of Object.entries(items)) dmap[pnorm(c)][pnorm(n)] = v; }
+  itemSnap.docs.forEach(d => { const it = d.data(), m = dmap[pnorm((cats[it.categoryId]||{}).name)]; const v = m && m[pnorm(it.name)]; if (v) add('menuItems', d.id, `${cats[it.categoryId].name} / ${it.name} — açıklama`, { desc: v }, it); });
+  // 2) Demleme çay, Türk kahvesi
+  ITEM_FIX_2026_10_13.forEach(f => { const d = byCatName(f.cat, f.name); if (!d) return notFound.push(f.cat + ' / ' + f.name); add('menuItems', d.id, `${f.cat} / ${f.name} — ${f.set.pinLast ? 'en sona' : ''}${f.set.priceText ? ', fiyat ' + f.set.priceText : ''}`, f.set, d.data()); });
+  // 3) Avokado görselleri yer değiştir (Ekmeküstü ↔ Kruvasan Füme Avokado)
+  const e = byCatName('EKMEKÜSTÜ', 'Füme Avokado'), k = byCatName('KRUVASAN', 'Füme Avokado');
+  if (e && k && (e.data().imageUrl || '') !== (k.data().imageUrl || '')) {
+    ops.push({ coll: 'menuItems', id: e.id, label: 'EKMEKÜSTÜ / Füme Avokado — görsel (Kruvasan\'daki ile değişir)', data: { imageUrl: k.data().imageUrl || '' }, before: e.data() });
+    ops.push({ coll: 'menuItems', id: k.id, label: 'KRUVASAN / Füme Avokado — görsel (Ekmeküstü\'ndeki ile değişir)', data: { imageUrl: e.data().imageUrl || '' }, before: k.data() });
+  } else if (!e || !k) notFound.push('Füme Avokado görselleri');
+  // 4) süt notları +50 ve ekstralar
+  catSnap.docs.forEach(d => {
+    const c = d.data(), n = pnorm(c.name);
+    if ((n === pnorm('ESPRESSO BAR') || n === pnorm('POD ÖZEL')) && c.note && /\+\s?40/.test(c.note)) add('menuCategories', d.id, `${c.name} — süt notu +50`, { note: c.note.replace(/\+\s?40/g, '+50') }, c);
+    if (Array.isArray(c.extras) && c.extras.length) {
+      const ex = c.extras.map(x => { const p = EXTRA_PRICES_2026_10_13[pnorm(x.name)]; return p !== undefined ? { ...x, price: p } : x; });
+      add('menuCategories', d.id, `${c.name} — ekstra fiyatları`, { extras: ex }, c);
+    }
+  });
+  return { ops, notFound };
+}
+let _fixPlan = null;
+async function previewMenuFix() {
+  const out = document.getElementById('menuFixResult'); out.textContent = 'Kontrol ediliyor…';
+  try {
+    _fixPlan = await buildFixPlan();
+    const { ops, notFound } = _fixPlan;
+    let h = `<b>${ops.length}</b> düzeltme uygulanacak`;
+    if (ops.length) h += '<ul style="margin:.6em 0 0 1.1em">' + ops.map(o => `<li style="margin:.35em 0">${escHtml(o.label)}${o.data.desc ? `<br><span style="color:#888">${escHtml(o.data.desc)}</span>` : ''}${o.data.extras ? `<br><span style="color:#888">${escHtml(o.data.extras.map(x => x.name + ' +' + x.price).join(', '))}</span>` : ''}${o.data.note ? `<br><span style="color:#888">${escHtml(o.data.note)}</span>` : ''}</li>`).join('') + '</ul>';
+    if (notFound.length) h += '<p style="color:#b45309;margin-top:.6em">Bulunamadı: ' + escHtml(notFound.join(', ')) + '</p>';
+    out.innerHTML = h;
+    document.getElementById('applyFixBtn').disabled = !ops.length;
+  } catch (e) { out.textContent = 'Hata: ' + e.message; }
+}
+async function applyMenuFix() {
+  if (!_fixPlan || !_fixPlan.ops.length) return;
+  if (!confirm(_fixPlan.ops.length + ' düzeltme uygulanacak. Onaylıyor musunuz?')) return;
+  const btn = document.getElementById('applyFixBtn'); btn.disabled = true;
+  try {
+    const batch = db.batch();
+    _fixPlan.ops.forEach(o => batch.update(db.collection(o.coll).doc(o.id), o.data));
+    await batch.commit();
+    showToast(_fixPlan.ops.length + ' düzeltme uygulandı', 'success');
+    _fixPlan = null; await previewMenuFix();
+    loadFoodMenu(); loadDrinkMenu();
   } catch (e) { showToast('Hata: ' + e.message, 'error'); btn.disabled = false; }
 }
 </script>
