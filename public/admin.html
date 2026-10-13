@@ -483,6 +483,8 @@
     .src-split span { font-size: .72em; color: var(--muted); }
     .menu-mini { font-size: .78em; color: var(--muted); margin-top: .2em; }
     .admin-main { min-width: 0; }
+    .pill-select { -webkit-appearance: none; appearance: none; width: auto; min-width: 0; margin: 0; font-family: var(--fp); font-size: .72em; font-weight: 500; letter-spacing: .02em; color: var(--text, #1a1a1a); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right .85em center; border: 1px solid var(--border); border-radius: 999px; padding: .5em 2.3em .5em 1em; line-height: 1.2; cursor: pointer; transition: border-color .2s; }
+    .pill-select:hover, .pill-select:focus { border-color: #b9b9b9; outline: none; }
     .adv-settings > summary { cursor: pointer; list-style: none; padding: 1em 1.25em; background: var(--white); border: 1px solid var(--border); border-radius: .625em; font-family: var(--fp); font-size: .8em; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
     .adv-settings > summary::-webkit-details-marker { display: none; }
     .adv-settings > summary::after { content: '+'; float: right; color: var(--muted); }
@@ -714,7 +716,7 @@
         <div class="dash-two dash-two--wide">
           <div class="card">
             <div class="card-header"><div class="card-header__left"><span class="card-header__title">En Çok İlgi Gören Ürünler<span class="info-dot" title="Görüntülenme: ürün menüde ekranda okunacak kadar kaldı. Fotoğraf: misafir ürün fotoğrafını açtı. Her misafir bir ürünü en fazla bir kez sayılır.">i</span></span></div>
-              <select id="interestMonth" onchange="loadInterest()" style="max-width:10em;font-size:.75em;padding:.35em .5em"></select></div>
+              <select id="interestMonth" class="pill-select" onchange="loadInterest()"></select></div>
             <div class="card-body" style="padding:.6em 1.25em 1.1em"><div id="dash-interest"><div class="empty-state">Yükleniyor…</div></div></div>
           </div>
           <div class="card">
