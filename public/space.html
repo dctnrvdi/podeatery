@@ -535,6 +535,14 @@
     .pod-bday--line select:focus { border-bottom-color: #03090D; }
     .pod-bday--line .pod-bday__label { padding: 0; }
     .pod-bday__s { position: relative; display: block; min-width: 0; }
+    .pod-consent { display: flex; gap: .6em; align-items: flex-start; padding: .2em .75em 0; font-size: .6875em; line-height: 1.5; letter-spacing: .02em; color: rgba(3,9,13,.6); cursor: pointer; text-align: left; }
+    .pod-consent input { -webkit-appearance: none; appearance: none; flex: 0 0 auto; width: 1.25em; height: 1.25em; margin: .1em 0 0; border: 1px solid rgba(3,9,13,.35); border-radius: .25em; background: transparent; cursor: pointer; display: grid; place-content: center; }
+    .pod-consent input:checked { background: #03090D; border-color: #03090D; }
+    .pod-consent input:checked::after { content: ""; width: .35em; height: .65em; border: solid #F8F2E5; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px,-1px); }
+    .pod-consent input:focus-visible { outline: 2px solid #c8a96e; outline-offset: 2px; }
+    .pod-consent a { color: inherit; text-decoration: underline; }
+    .pod-consent.is-error { color: #b42318; }
+    .pod-consent.is-error input { border-color: #b42318; }
     .form-footer .field.pod-bday::after { display: none; }
     .pod-bday:not(.pod-bday--line) .pod-bday__s::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: .95em; border: 1px solid rgba(3,9,13,.18); border-top: none; border-radius: 0 0 .45em .45em; pointer-events: none; }
   </style>
@@ -721,6 +729,7 @@
                 <span class="pod-bday__s"><select class="pod-bday__d is-empty" aria-label="Doğum günü — gün" onchange="this.classList.toggle('is-empty',!this.value)"><option value="">Gün</option><option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select></span>
                 <span class="pod-bday__s"><select class="pod-bday__m is-empty" aria-label="Doğum günü — ay" onchange="this.classList.toggle('is-empty',!this.value)"><option value="">Ay</option><option value="01">Ocak</option><option value="02">Şubat</option><option value="03">Mart</option><option value="04">Nisan</option><option value="05">Mayıs</option><option value="06">Haziran</option><option value="07">Temmuz</option><option value="08">Ağustos</option><option value="09">Eylül</option><option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option></select></span>
               </div>
+              <label class="pod-consent" data-consent><input type="checkbox" aria-label="Ticari elektronik ileti onayı"><span>Kampanya, etkinlik ve doğum günü e-postaları almayı kabul ediyorum. <a href="/privacy" target="_blank">Aydınlatma Metni</a>'ni okudum. Dilediğim zaman ayrılabilirim.</span></label>
               <div class="form__button">
                 <a href="#" class="link">
                   <span>Subscribe</span>
@@ -1015,6 +1024,7 @@
       const _bd = podReadBday();
       if (_bd.error) { alert(_bd.error); return; }
       const birthDate = _bd.value;
+      if (!podConsentOk()) { alert('Abone olmak için e-posta onay kutusunu işaretlemeniz gerekiyor.'); return; }
       btn.style.opacity = '0.5';
       btn.style.pointerEvents = 'none';
       try {
@@ -1023,10 +1033,11 @@
         const db = firebase.firestore();
         const docRef = db.collection('subscribers').doc(email.toLowerCase());
         {
-          await docRef.set({ name, email, birthDate, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'space' });
+          await docRef.set({ name, email, birthDate, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'space', consent: true, consentAt: firebase.firestore.FieldValue.serverTimestamp(), consentVer: 'iys-v1-2026-10' });
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
           podResetBday();
+          podResetConsent();
           alert('Abone oldunuz, teşekkürler!');
         }
       } catch(err) {
@@ -1111,6 +1122,15 @@
     if (parseInt(d, 10) > max) return { error: 'Seçtiğiniz ayda ' + parseInt(d, 10) + '. gün yok, lütfen kontrol edin.' };
     return { value: m + '-' + d };
   }
+  function podConsentOk() {
+    var box = document.querySelector('[data-consent]'); if (!box) return true;
+    var ok = box.querySelector('input').checked; box.classList.toggle('is-error', !ok); return ok;
+  }
+  function podResetConsent() {
+    var box = document.querySelector('[data-consent]'); if (!box) return;
+    box.querySelector('input').checked = false; box.classList.remove('is-error');
+  }
+  document.addEventListener('change', function(e){ var b = e.target.closest && e.target.closest('[data-consent]'); if (b && e.target.checked) b.classList.remove('is-error'); });
   function podResetBday() {
     document.querySelectorAll('[data-bday] select').forEach(function(s){ s.value = ''; s.classList.add('is-empty'); });
   }

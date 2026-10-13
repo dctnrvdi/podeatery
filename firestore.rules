@@ -35,7 +35,10 @@ service cloud.firestore {
     // ── Bülten: herkes kendini ekler, kimse başkasını okuyamaz ───────
     match /subscribers/{email} {
       allow create: if request.resource.data.keys().hasAll(['email', 'subscribedAt'])
-                    && request.resource.data.keys().hasOnly(['name', 'email', 'birthDate', 'subscribedAt', 'source'])
+                    && request.resource.data.keys().hasOnly(['name', 'email', 'birthDate', 'subscribedAt', 'source', 'consent', 'consentAt', 'consentVer'])
+                    && request.resource.data.consent == true
+                    && request.resource.data.consentAt == request.time
+                    && validStr(request.resource.data.consentVer, 1, 40)
                     && validStr(request.resource.data.email, 4, 199)
                     && email == request.resource.data.email.lower()
                     && (!('name' in request.resource.data) || validStr(request.resource.data.name, 0, 100))

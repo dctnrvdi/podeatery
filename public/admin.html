@@ -1352,7 +1352,7 @@
               <div class="form-group"><label>Konu</label><input id="bulk-subject" placeholder="E-posta konusu"></div>
               <div class="form-group"><label>İçerik (HTML destekler)</label><textarea id="bulk-body" rows="8" style="width:100%;padding:.6em .8em;background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;resize:vertical;font-size:.875em;font-family:inherit"></textarea></div>
               <div style="display:flex;align-items:center;gap:.75em">
-                <button class="btn btn-primary btn-sm" onclick="sendBulkEmail()">Tüm Abonelere Gönder</button>
+                <button class="btn btn-primary btn-sm" onclick="sendBulkEmail()">Onaylı Abonelere Gönder</button>
                 <span id="bulkMailStatus" style="font-size:.8em;opacity:.6"></span>
               </div>
             </div>
@@ -2977,6 +2977,9 @@ function closeConfirm() {
 /* ════════════════════════════════════════
    SUBSCRIBERS
 ════════════════════════════════════════ */
+/* İYS / 6563: ticari ileti yalnızca onay veren abonelere */
+const hasConsent = d => d && (d.consent === true || d.consentManual === true);
+
 async function loadSubscribers() {
   const list = document.getElementById('subscribersList');
   list.innerHTML = '<div class="loading-overlay"><div class="spinner"></div></div>';
@@ -2995,6 +2998,7 @@ async function loadSubscribers() {
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Doğum Günü</th>
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Kaynak</th>
           <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
+          <th style="padding:.75em 1em;text-align:left;opacity:.5;font-weight:500" title="Ticari e-posta onayı (İYS)">Onay</th>
           <th style="padding:.75em 1em"></th>
         </tr></thead><tbody>`;
     snap.docs.forEach(doc => {
@@ -3006,6 +3010,7 @@ async function loadSubscribers() {
         <td style="padding:.65em 1em">${escHtml(bdayLabel(d.birthDate) || '—')}</td>
         <td style="padding:.65em 1em;opacity:.6">${escHtml(d.source||'')}</td>
         <td style="padding:.65em 1em;opacity:.6">${date}</td>
+        <td style="padding:.65em 1em">${hasConsent(d) ? '<span style="color:#2e7d32" title="Onay tarihi: ' + (d.consentAt ? new Date(d.consentAt.seconds*1000).toLocaleString('tr-TR') : '—') + '">✓ Var</span>' : '<span style="color:#b45309" title="Bu kişiye kampanya/doğum günü e-postası gönderilmez">Yok</span>'}</td>
         <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick='deleteSubscriber(${escHtml(JSON.stringify(doc.id))},this)'>Sil</button></td>
       </tr>`;
     });
@@ -3085,7 +3090,8 @@ async function sendBulkEmail() {
     const snap = await db.collection('subscribers').get();
     if (snap.empty) { showToast('Abone listesi boş.', 'error'); return; }
 
-    const to = snap.docs.map(d => ({ name: d.data().name || d.data().email, email: d.data().email })).filter(r => r.email);
+    const to = snap.docs.filter(d => hasConsent(d.data())).map(d => ({ name: d.data().name || d.data().email, email: d.data().email })).filter(r => r.email);
+    if (!to.length) { showToast('E-posta onayı veren abone yok.', 'error'); return; }
     status.textContent = `Gönderiliyor… (${to.length} alıcı)`;
 
     // Her aboneye ayrı e-posta: alıcılar birbirinin adresini görmez (KVKK)
@@ -3295,7 +3301,7 @@ async function refreshBdayBadge() {
   try {
     const snap = await db.collection('subscribers').get();
     const today = istanbulToday();
-    const n = snap.docs.filter(doc => { const d = doc.data(); return bdayMatches(bdayParse(d.birthDate), today) && d.bdaySentYear !== today.y; }).length;
+    const n = snap.docs.filter(doc => { const d = doc.data(); return hasConsent(d) && bdayMatches(bdayParse(d.birthDate), today) && d.bdaySentYear !== today.y; }).length;
     const b = document.getElementById('bdayBadge');
     if (b) { b.textContent = n; b.style.display = n ? 'inline' : 'none'; }
   } catch (e) {}
@@ -3306,7 +3312,7 @@ function renderBirthdays(docs) {
   const todayList = [], upcoming = [];
   docs.forEach(doc => {
     const d = doc.data(), b = bdayParse(d.birthDate);
-    if (!b || !d.email) return;
+    if (!b || !d.email || !hasConsent(d)) return;
     if (bdayMatches(b, today)) { todayList.push({ id: doc.id, name: d.name || '', email: d.email, sent: d.bdaySentYear === today.y }); return; }
     for (let i = 1; i <= 7; i++) {
       if (bdayMatches(b, istanbulToday(i))) { upcoming.push({ name: d.name || d.email, when: i, label: bdayLabel(d.birthDate) }); break; }
