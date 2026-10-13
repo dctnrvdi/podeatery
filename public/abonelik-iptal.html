@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Abonelikten Çık — POD Coffee &amp; Eatery</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#03090D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #F8F2E5; color: #03090D; font-family: 'Jost', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+  .card { width: 100%; max-width: 440px; text-align: center; }
+  .logo { font-family: 'Josefin Sans', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 9px; padding-left: 9px; }
+  .sub { font-family: 'Josefin Sans', sans-serif; font-size: 10px; letter-spacing: 3px; color: #7D7D79; margin-top: 10px; }
+  h1 { font-weight: 300; font-size: 30px; line-height: 1.2; margin: 44px 0 14px; }
+  p { font-size: 15px; line-height: 1.65; color: #4a4943; }
+  .email { display: inline-block; margin-top: 14px; padding: 6px 14px; border-radius: 999px; background: #EDE5D3; font-size: 14px; word-break: break-all; }
+  button { margin-top: 30px; width: 100%; padding: 16px 20px; border: 0; border-radius: 999px; background: #03090D; color: #F8F2E5; font-family: 'Josefin Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible { outline: 2px solid #C8A96E; outline-offset: 3px; }
+  .back { display: inline-block; margin-top: 26px; font-size: 13px; color: #03090D; }
+  .msg-ok { color: #2e7d32; }
+  .msg-err { color: #b42318; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo">POD</div>
+  <div class="sub">COFFEE &amp; EATERY · BORNOVA</div>
+
+  <section id="ask" hidden>
+    <h1>Abonelikten çık</h1>
+    <p>Aşağıdaki adrese POD kampanya ve doğum günü e-postaları gönderilmesini durduracağız.</p>
+    <span class="email" id="emailLabel"></span>
+    <button id="unsubBtn" type="button">Abonelikten Çık</button>
+    <p id="errText" class="msg-err" style="margin-top:16px" hidden></p>
+  </section>
+
+  <section id="done" hidden>
+    <h1>Aboneliğiniz sonlandırıldı</h1>
+    <p class="msg-ok">Artık POD'dan kampanya ve doğum günü e-postası almayacaksınız.</p>
+    <p style="margin-top:12px">Fikrinizi değiştirirseniz bize yazmanız yeterli. Sizi mekânda görmeye devam etmek isteriz.</p>
+  </section>
+
+  <section id="bad" hidden>
+    <h1>Bağlantı geçersiz</h1>
+    <p>Bu abonelikten çıkma bağlantısı eksik ya da hatalı görünüyor. Lütfen e-postadaki bağlantıyı tekrar deneyin veya bize ulaşın.</p>
+  </section>
+
+  <section id="test" hidden>
+    <h1>Test bağlantısı</h1>
+    <p>Bu bir test e-postasından açıldı. Gerçek abonelerin e-postalarında bu bağlantı kişiye özel olur ve tek tıkla abonelikten çıkarır.</p>
+  </section>
+
+  <a class="back" href="/">pod-eatery.com</a>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var email = (q.get('e') || '').trim().toLowerCase();
+  var token = (q.get('t') || '').trim();
+  var show = function (id) { ['ask', 'done', 'bad', 'test'].forEach(function (s) { document.getElementById(s).hidden = s !== id; }); };
+  if (q.get('test')) return show('test');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !/^[0-9a-f]{24,64}$/.test(token)) return show('bad');
+  document.getElementById('emailLabel').textContent = email;
+  show('ask');
+
+  var btn = document.getElementById('unsubBtn'), err = document.getElementById('errText');
+  btn.addEventListener('click', async function () {
+    btn.disabled = true; err.hidden = true;
+    try {
+      var cfg = { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      await firebase.firestore().collection('subscribers').doc(email).update({
+        consent: false,
+        unsubscribedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        unsubProof: token
+      });
+      show('done');
+    } catch (e) {
+      if (e && (e.code === 'permission-denied' || e.code === 'not-found')) { show('bad'); return; }
+      err.textContent = 'Bir sorun oluştu, lütfen biraz sonra tekrar deneyin.';
+      err.hidden = false; btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

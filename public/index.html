@@ -1739,7 +1739,7 @@
         const db = firebase.firestore();
         const docRef = db.collection('subscribers').doc(email.toLowerCase());
         {
-          await docRef.set({ name, email, birthDate, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home', consent: true, consentAt: firebase.firestore.FieldValue.serverTimestamp(), consentVer: 'iys-v1-2026-10' });
+          await docRef.set({ name, email, birthDate, subscribedAt: firebase.firestore.FieldValue.serverTimestamp(), source: 'home', consent: true, consentAt: firebase.firestore.FieldValue.serverTimestamp(), consentVer: 'iys-v1-2026-10', unsubToken: podUnsubToken() });
           localStorage.setItem(RL_KEY, Date.now().toString());
           if (nameEl)  nameEl.value  = '';
           if (emailEl) emailEl.value = '';
@@ -1831,6 +1831,7 @@
     if (parseInt(d, 10) > max) return { error: 'Seçtiğiniz ayda ' + parseInt(d, 10) + '. gün yok, lütfen kontrol edin.' };
     return { value: m + '-' + d };
   }
+  function podUnsubToken() { var a = new Uint8Array(18); (window.crypto || window.msCrypto).getRandomValues(a); return Array.from(a, function(b){ return ('0' + b.toString(16)).slice(-2); }).join(''); }
   function podConsentOk() {
     var box = document.querySelector('[data-consent]'); if (!box) return true;
     var ok = box.querySelector('input').checked; box.classList.toggle('is-error', !ok); return ok;

@@ -35,7 +35,8 @@ service cloud.firestore {
     // ── Bülten: herkes kendini ekler, kimse başkasını okuyamaz ───────
     match /subscribers/{email} {
       allow create: if request.resource.data.keys().hasAll(['email', 'subscribedAt'])
-                    && request.resource.data.keys().hasOnly(['name', 'email', 'birthDate', 'subscribedAt', 'source', 'consent', 'consentAt', 'consentVer'])
+                    && request.resource.data.keys().hasOnly(['name', 'email', 'birthDate', 'subscribedAt', 'source', 'consent', 'consentAt', 'consentVer', 'unsubToken'])
+                    && validStr(request.resource.data.unsubToken, 24, 64)
                     && request.resource.data.consent == true
                     && request.resource.data.consentAt == request.time
                     && validStr(request.resource.data.consentVer, 1, 40)
@@ -45,7 +46,14 @@ service cloud.firestore {
                     && (!('birthDate' in request.resource.data) || validStr(request.resource.data.birthDate, 0, 20))
                     && (!('source' in request.resource.data) || validStr(request.resource.data.source, 0, 20))
                     && request.resource.data.subscribedAt == request.time;
-      allow read, update, delete: if isAdmin();
+      allow read, delete: if isAdmin();
+      // Abonelikten çıkma: maildeki gizli anahtarı bilen, sadece onayı kapatabilir
+      allow update: if isAdmin()
+                    || (('unsubToken' in resource.data)
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['consent', 'unsubscribedAt', 'unsubProof'])
+                        && request.resource.data.consent == false
+                        && request.resource.data.unsubscribedAt == request.time
+                        && request.resource.data.unsubProof == resource.data.unsubToken);
     }
 
     // ── Ziyaret sayacı: sadece +1 artırılabilir ────────────────────

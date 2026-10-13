@@ -2978,7 +2978,12 @@ function closeConfirm() {
    SUBSCRIBERS
 ════════════════════════════════════════ */
 /* İYS / 6563: ticari ileti yalnızca onay veren abonelere */
-const hasConsent = d => d && (d.consent === true || d.consentManual === true);
+const hasConsent = d => !!(d && d.consent === true && d.unsubToken);
+const UNSUB_BASE = 'https://pod-eatery.com/abonelik-iptal';
+const unsubUrl = d => d && d.unsubToken ? `${UNSUB_BASE}?e=${encodeURIComponent(d.email)}&t=${d.unsubToken}` : '';
+function unsubFooterHtml(link) {
+  return `<div style="max-width:600px;margin:28px auto 0;padding:18px 12px 8px;border-top:1px solid #e5e0d6;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:17px;color:#9a978f;">Bu e-postayı POD Coffee &amp; Eatery bültenine onay vererek abone olduğunuz için aldınız.<br><a href="${link}" style="color:#9a978f;text-decoration:underline;">Abonelikten çıkmak için tıklayın</a> · POD Coffee &amp; Eatery, Bornova / İzmir</div>`;
+}
 
 async function loadSubscribers() {
   const list = document.getElementById('subscribersList');
@@ -3010,7 +3015,7 @@ async function loadSubscribers() {
         <td style="padding:.65em 1em">${escHtml(bdayLabel(d.birthDate) || '—')}</td>
         <td style="padding:.65em 1em;opacity:.6">${escHtml(d.source||'')}</td>
         <td style="padding:.65em 1em;opacity:.6">${date}</td>
-        <td style="padding:.65em 1em">${hasConsent(d) ? '<span style="color:#2e7d32" title="Onay tarihi: ' + (d.consentAt ? new Date(d.consentAt.seconds*1000).toLocaleString('tr-TR') : '—') + '">✓ Var</span>' : '<span style="color:#b45309" title="Bu kişiye kampanya/doğum günü e-postası gönderilmez">Yok</span>'}</td>
+        <td style="padding:.65em 1em">${d.unsubscribedAt ? '<span style="color:#888" title="Abonelikten çıktı: ' + new Date(d.unsubscribedAt.seconds*1000).toLocaleString('tr-TR') + '">Ayrıldı</span>' : hasConsent(d) ? '<span style="color:#2e7d32" title="Onay tarihi: ' + (d.consentAt ? new Date(d.consentAt.seconds*1000).toLocaleString('tr-TR') : '—') + '">✓ Var</span>' : '<span style="color:#b45309" title="Bu kişiye kampanya/doğum günü e-postası gönderilmez">Yok</span>'}</td>
         <td style="padding:.65em 1em;text-align:right"><button class="btn btn-danger btn-sm" onclick='deleteSubscriber(${escHtml(JSON.stringify(doc.id))},this)'>Sil</button></td>
       </tr>`;
     });
@@ -3084,13 +3089,13 @@ async function sendBulkEmail() {
   if (!subject || !body) { showToast('Konu ve içerik zorunludur.', 'error'); return; }
   const brevo = JSON.parse(localStorage.getItem('pod_brevo') || '{}');
   if (!brevo.key) { showToast('Önce Ayarlar → Brevo API Key girin.', 'error'); return; }
-  if (!confirm('Tüm abonelere e-posta gönderilecek. Devam?')) return;
+  if (!confirm('Onay veren tüm abonelere e-posta gönderilecek (her mailin altına abonelikten çıkma bağlantısı eklenir). Devam?')) return;
 
   try {
     const snap = await db.collection('subscribers').get();
     if (snap.empty) { showToast('Abone listesi boş.', 'error'); return; }
 
-    const to = snap.docs.filter(d => hasConsent(d.data())).map(d => ({ name: d.data().name || d.data().email, email: d.data().email })).filter(r => r.email);
+    const to = snap.docs.filter(d => hasConsent(d.data())).map(d => ({ name: d.data().name || d.data().email, email: d.data().email, unsub: unsubUrl(d.data()) })).filter(r => r.email);
     if (!to.length) { showToast('E-posta onayı veren abone yok.', 'error'); return; }
     status.textContent = `Gönderiliyor… (${to.length} alıcı)`;
 
@@ -3101,8 +3106,8 @@ async function sendBulkEmail() {
       const payload = {
         sender: { name: brevo.name || 'POD Coffee & Eatery', email: brevo.email || 'no-reply@podcoffee.com' },
         subject,
-        htmlContent: body,
-        messageVersions: to.slice(i, i + CHUNK).map(r => ({ to: [r] })),
+        htmlContent: body + unsubFooterHtml('{{ params.UNSUB }}'),
+        messageVersions: to.slice(i, i + CHUNK).map(r => ({ to: [{ name: r.name, email: r.email }], params: { UNSUB: r.unsub } })),
       };
       const res = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
@@ -3159,12 +3164,12 @@ function bdayFill(text, name) {
   if (!n) t = t.replace(/,?\s*\{ad\}/g, '');
   return bdayEsc(t.replace(/\{ad\}/g, n));
 }
-function buildBirthdayEmail(cfg, name, replyEmail) {
+function buildBirthdayEmail(cfg, name, replyEmail, unsubLink) {
   const c = Object.assign({}, BDAY_DEFAULTS, cfg || {});
   const F1 = "'Josefin Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif";
   const F2 = "'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif";
   const phoneHref = 'tel:+90' + String(c.phone).replace(/\D/g, '').replace(/^0/, '');
-  const unsub = replyEmail ? `mailto:${bdayEsc(replyEmail)}?subject=${encodeURIComponent('Abonelikten çıkmak istiyorum')}` : '';
+  const unsub = unsubLink ? bdayEsc(unsubLink) : replyEmail ? `mailto:${bdayEsc(replyEmail)}?subject=${encodeURIComponent('Abonelikten çıkmak istiyorum')}` : '';
   const msg = bdayFill(c.message, name).replace(/\n/g, '<br>');
   return `<!DOCTYPE html>
 <html lang="tr" xmlns="http://www.w3.org/1999/xhtml">
@@ -3235,7 +3240,7 @@ function buildBirthdayEmail(cfg, name, replyEmail) {
         <a href="${phoneHref}" style="color:#7D7D79;text-decoration:none;">${bdayEsc(c.phone)}</a> &nbsp;·&nbsp; <a href="https://www.instagram.com/${bdayEsc(c.instagram)}/" target="_blank" style="color:#7D7D79;text-decoration:none;">@${bdayEsc(c.instagram)}</a>
       </div>
       <div style="padding-top:18px;text-align:center;font-family:${F2};font-size:11px;line-height:17px;color:#A5A29A;">
-        Bu e-postayı POD bültenine abone olduğun için aldın.${unsub ? `<br>Artık almak istemiyorsan <a href="${unsub}" style="color:#A5A29A;text-decoration:underline;">buraya tıklayıp bize yazman</a> yeterli.` : ''}
+        Bu e-postayı POD bültenine abone olduğun için aldın.${unsubLink ? `<br>Artık almak istemiyorsan <a href="${unsub}" style="color:#A5A29A;text-decoration:underline;">abonelikten çıkmak için buraya tıkla</a>.` : unsub ? `<br>Artık almak istemiyorsan <a href="${unsub}" style="color:#A5A29A;text-decoration:underline;">buraya tıklayıp bize yazman</a> yeterli.` : ''}
       </div>
     </td></tr>
   </table>
@@ -3313,7 +3318,7 @@ function renderBirthdays(docs) {
   docs.forEach(doc => {
     const d = doc.data(), b = bdayParse(d.birthDate);
     if (!b || !d.email || !hasConsent(d)) return;
-    if (bdayMatches(b, today)) { todayList.push({ id: doc.id, name: d.name || '', email: d.email, sent: d.bdaySentYear === today.y }); return; }
+    if (bdayMatches(b, today)) { todayList.push({ id: doc.id, name: d.name || '', email: d.email, unsub: unsubUrl(d), sent: d.bdaySentYear === today.y }); return; }
     for (let i = 1; i <= 7; i++) {
       if (bdayMatches(b, istanbulToday(i))) { upcoming.push({ name: d.name || d.email, when: i, label: bdayLabel(d.birthDate) }); break; }
     }
@@ -3369,7 +3374,7 @@ async function sendBirthdayMails() {
   for (const x of pending) {
     status.textContent = `Gönderiliyor… (${ok + fails.length + 1}/${pending.length})`;
     try {
-      await brevoSendOne({ email: x.email, name: x.name || x.email }, bdayFill(cfg.subject || BDAY_DEFAULTS.subject, x.name).replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>'), buildBirthdayEmail(cfg, x.name, reply));
+      await brevoSendOne({ email: x.email, name: x.name || x.email }, bdayFill(cfg.subject || BDAY_DEFAULTS.subject, x.name).replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>'), buildBirthdayEmail(cfg, x.name, reply, x.unsub));
       await db.collection('subscribers').doc(x.id).update({ bdaySentYear: year });
       x.sent = true; ok++;
     } catch (e) { fails.push(`${x.email}: ${e.message}`); }
@@ -3385,7 +3390,7 @@ async function sendBdayTest() {
   try {
     const cfg = await bdayEffectiveCfg();
     const subj = bdayFill(cfg.subject || BDAY_DEFAULTS.subject, 'Deniz').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
-    await brevoSendOne({ email: to, name: 'Test' }, '[TEST] ' + subj, buildBirthdayEmail(cfg, 'Deniz', brevoCfg().email || ''));
+    await brevoSendOne({ email: to, name: 'Test' }, '[TEST] ' + subj, buildBirthdayEmail(cfg, 'Deniz', brevoCfg().email || '', UNSUB_BASE + '?test=1'));
     showToast('Test maili gönderildi: ' + to, 'success');
   } catch (e) { showToast('Test maili gönderilemedi: ' + e.message, 'error'); }
 }
