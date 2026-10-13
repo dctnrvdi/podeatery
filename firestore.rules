@@ -80,5 +80,19 @@ service cloud.firestore {
                     && sameOrPlusOne('home') && sameOrPlusOne('menu')
                     && sameOrPlusOne('space') && sameOrPlusOne('contact');
     }
+
+    // ── Saatlik ziyaret sayacı (ör. 2026-10-13-14): aynı kurallar ──
+    match /analyticsHourly/{hour} {
+      allow read, delete: if isAdmin();
+      allow create: if hour.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}$')
+                    && request.resource.data.keys().hasOnly(pages())
+                    && request.resource.data.size() == 1
+                    && oneOrAbsent('home') && oneOrAbsent('menu')
+                    && oneOrAbsent('space') && oneOrAbsent('contact');
+      allow update: if request.resource.data.keys().hasOnly(pages())
+                    && request.resource.data.diff(resource.data).affectedKeys().size() == 1
+                    && sameOrPlusOne('home') && sameOrPlusOne('menu')
+                    && sameOrPlusOne('space') && sameOrPlusOne('contact');
+    }
   }
 }

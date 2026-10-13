@@ -678,6 +678,24 @@
             </table>
           </div>
         </div>
+        <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bugün Saat Saat</span></div></div>
+          <div class="card-body" style="padding:1em 1.25em">
+            <div id="dash-hourly" style="font-size:.8em;opacity:.8">Yükleniyor…</div>
+            <p class="settings-note" style="margin-top:.75em">Saatlik sayım 13 Ekim 2026 akşamından itibaren tutuluyor. Admin paneline giriş yapılan cihazlar (sizin cihazlarınız) ziyaret olarak sayılmaz.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">İstatistikleri Sıfırla</span></div></div>
+          <div class="card-body" style="padding:1em 1.25em">
+            <p class="settings-note">Seçilen tarihten önceki tüm ziyaret verileri kalıcı olarak silinir. Seçilen gün ve sonrası korunur.</p>
+            <div style="display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.75em">
+              <input type="date" id="statsResetDate" style="max-width:12em">
+              <button class="btn btn-ghost btn-sm" style="color:#c0392b" onclick="resetStatsBefore()">Öncesini Sil</button>
+              <span id="statsResetStatus" style="font-size:.8em;opacity:.7"></span>
+            </div>
+          </div>
+        </div>
         <div id="seedNotice" class="seed-notice" style="display:none">
           <p>Firestore henüz boş görünüyor. Mevcut menü verisini otomatik ekleyelim mi?</p>
           <button class="btn btn-accent btn-sm" onclick="seedData()">Veriyi Yükle</button>
@@ -1673,6 +1691,7 @@ function bootstrapFirebase(cfg) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminApp').style.display = 'block';
         document.getElementById('sidebarUser').textContent = user.email;
+        try { localStorage.setItem('pod_noTrack', '1'); } catch (e) {} // bu cihazdaki ziyaretler sayılmasın
         loadAll();
       } else {
         document.getElementById('loginScreen').style.display = 'flex';
@@ -1931,9 +1950,42 @@ async function loadDashboard() {
       </tr>`;
     });
     document.getElementById('dash-week-total').textContent = weekTotal;
+    loadHourlyStats();
   } catch(e) {
     document.getElementById('dash-analytics-body').innerHTML = '<tr><td colspan="6" style="padding:1em;opacity:.4;text-align:center">Veri yüklenemedi</td></tr>';
   }
+}
+
+async function loadHourlyStats() {
+  const box = document.getElementById('dash-hourly'); if (!box) return;
+  const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
+  try {
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
+    const ids = Array.from({ length: 24 }, (_, h) => today + '-' + String(h).padStart(2, '0'));
+    const snaps = await Promise.all(ids.map(id => db.collection('analyticsHourly').doc(id).get()));
+    const rows = snaps.map((sn, h) => { const d = sn.exists ? sn.data() : {}; const t = (d.home||0)+(d.menu||0)+(d.space||0)+(d.contact||0); return { h, menu: d.menu || 0, t }; }).filter(r => r.t);
+    if (!rows.length) { box.textContent = 'Bugün için henüz saatlik veri yok.'; return; }
+    const max = Math.max(...rows.map(r => r.menu || r.t));
+    box.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;opacity:.5;font-weight:500;padding:.3em 0">Saat</th><th style="text-align:right;opacity:.5;font-weight:500">Menü</th><th style="text-align:right;opacity:.5;font-weight:500">Tüm sayfalar</th><th style="width:45%"></th></tr></thead><tbody>' +
+      rows.map(r => `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0">${String(r.h).padStart(2,'0')}:00–${String(r.h+1).padStart(2,'0')}:00</td><td style="text-align:right">${r.menu}</td><td style="text-align:right">${r.t}</td><td style="padding-left:1em"><div style="height:.5em;border-radius:.25em;background:#c8a96e;width:${Math.round((r.menu/max)*100)}%"></div></td></tr>`).join('') +
+      `<tr style="border-top:1px solid var(--border);font-weight:500"><td style="padding:.35em 0">Toplam</td><td style="text-align:right">${rows.reduce((a,r)=>a+r.menu,0)}</td><td style="text-align:right">${rows.reduce((a,r)=>a+r.t,0)}</td><td></td></tr></tbody></table>`;
+  } catch (e) { box.textContent = 'Saatlik veri yüklenemedi.'; }
+}
+
+async function resetStatsBefore() {
+  const date = document.getElementById('statsResetDate').value;
+  const st = document.getElementById('statsResetStatus');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { showToast('Bir tarih seçin.', 'error'); return; }
+  if (!confirm(date + ' tarihinden ÖNCEKİ tüm ziyaret verileri kalıcı olarak silinecek. Emin misiniz?')) return;
+  try {
+    st.textContent = 'Siliniyor…';
+    const [daily, hourly] = await Promise.all([db.collection('analytics').get(), db.collection('analyticsHourly').get()]);
+    const del = [...daily.docs.filter(d => d.id < date), ...hourly.docs.filter(d => d.id.slice(0, 10) < date)];
+    for (let i = 0; i < del.length; i += 400) { const b = db.batch(); del.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
+    st.textContent = `${del.length} kayıt silindi.`;
+    showToast('İstatistikler sıfırlandı', 'success');
+    loadDashboard();
+  } catch (e) { st.textContent = ''; showToast('Silinemedi: ' + e.message, 'error'); }
 }
 
 /* ════════════════════════════════════════

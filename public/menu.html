@@ -1066,7 +1066,7 @@
     try {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
-      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({menu:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)&&localStorage.getItem('pod_noTrack')!=='1'){sessionStorage.setItem(_k,'1');const _t=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Istanbul'});const _inc={menu:firebase.firestore.FieldValue.increment(1)};db.collection('analytics').doc(_t.slice(0,10)).set(_inc,{merge:true});db.collection('analyticsHourly').doc(_t.slice(0,13).replace(' ','-')).set(_inc,{merge:true});} } catch(e){}
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
       const [catSnap, itemSnap, addonSnap] = await Promise.race([
         Promise.all([

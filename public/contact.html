@@ -720,7 +720,7 @@
       setTimeout(() => { document.body.style.opacity = '1'; }, 1200); // yavaş bağlantıda sayfa boş kalmasın
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       const db = firebase.firestore();
-      try { const _k='pod_v_contact_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)){sessionStorage.setItem(_k,'1');db.collection('analytics').doc(new Date().toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'})).set({contact:firebase.firestore.FieldValue.increment(1)},{merge:true});} } catch(e){}
+      try { const _k='pod_v_contact_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)&&localStorage.getItem('pod_noTrack')!=='1'){sessionStorage.setItem(_k,'1');const _t=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Istanbul'});const _inc={contact:firebase.firestore.FieldValue.increment(1)};db.collection('analytics').doc(_t.slice(0,10)).set(_inc,{merge:true});db.collection('analyticsHourly').doc(_t.slice(0,13).replace(' ','-')).set(_inc,{merge:true});} } catch(e){}
       const [contactSnap, footerSnap, navSnap] = await Promise.all([
         db.collection('siteConfig').doc('contact').get(),
         db.collection('siteConfig').doc('footer').get(),
