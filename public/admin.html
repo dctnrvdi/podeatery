@@ -450,6 +450,46 @@
     .dash-card__label { font-family: var(--fp); font-size: .6em; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .5em; }
     .dash-card__value { font-family: var(--fp); font-size: 2.5em; font-weight: 300; letter-spacing: .02em; }
     .dash-card__sub { font-size: .75em; color: var(--muted); margin-top: .25em; }
+    .dash-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; margin-bottom: 1.5em; flex-wrap: wrap; }
+    .dash-head__date { font-size: .8em; color: var(--muted); letter-spacing: .04em; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; margin-bottom: 1.25em; }
+    .kpi-grid .dash-card { padding: 1.25em 1.35em; }
+    .kpi-grid .dash-card__value { font-size: 2.2em; }
+    .kpi-delta { font-size: .72em; margin-top: .35em; color: var(--muted); }
+    .kpi-delta.up { color: #2e7d32; } .kpi-delta.down { color: #b45309; }
+    .dash-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25em; margin-bottom: 1.25em; }
+    .dash-two--wide { grid-template-columns: 1.6fr 1fr; }
+    .dash-two .card { margin: 0; }
+    .card-header__meta { font-size: .72em; color: var(--muted); letter-spacing: .04em; }
+    .info-dot { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; margin-left: .45em; border-radius: 50%; border: 1px solid var(--border); font-size: .7em; color: var(--muted); cursor: help; vertical-align: middle; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .hbars { display: flex; align-items: flex-end; gap: .3em; height: 9em; padding-top: .5em; }
+    .hbar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+    .hbar i { display: block; width: 100%; max-width: 1.6em; border-radius: .25em .25em 0 0; background: var(--accent); min-height: 2px; }
+    .hbar i.zero { background: var(--border); }
+    .hbar b { font-size: .62em; font-weight: 500; margin-bottom: .25em; color: var(--text); }
+    .hbar span { font-size: .6em; color: var(--muted); margin-top: .35em; }
+    .rank { width: 100%; border-collapse: collapse; font-size: .82em; }
+    .rank td { padding: .55em 0; border-top: 1px solid var(--border); vertical-align: middle; }
+    .rank tr:first-child td { border-top: 0; }
+    .rank .n { width: 1.8em; color: var(--muted); font-size: .9em; }
+    .rank .v { text-align: right; white-space: nowrap; padding-left: .8em; font-variant-numeric: tabular-nums; }
+    .rank .sub { display: block; font-size: .82em; color: var(--muted); margin-top: .1em; }
+    .rank .bar { width: 38%; padding-left: 1em; }
+    .rank .bar i { display: block; height: .45em; border-radius: .25em; background: var(--accent); }
+    .empty-state { padding: 1.5em 0; text-align: center; font-size: .82em; color: var(--muted); }
+    .link-btn { background: none; border: 0; padding: .6em 0 0; color: var(--text); font-size: .78em; text-decoration: underline; cursor: pointer; }
+    .src-split { display: flex; gap: 2em; margin-top: 1.1em; padding-top: 1em; border-top: 1px solid var(--border); }
+    .src-split b { display: block; font-family: var(--fp); font-size: 1.5em; font-weight: 300; }
+    .src-split span { font-size: .72em; color: var(--muted); }
+    .menu-mini { font-size: .78em; color: var(--muted); margin-top: .2em; }
+    .admin-main { min-width: 0; }
+    .adv-settings > summary { cursor: pointer; list-style: none; padding: 1em 1.25em; background: var(--white); border: 1px solid var(--border); border-radius: .625em; font-family: var(--fp); font-size: .8em; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .adv-settings > summary::-webkit-details-marker { display: none; }
+    .adv-settings > summary::after { content: '+'; float: right; color: var(--muted); }
+    .adv-settings[open] > summary::after { content: '–'; }
+    #dash-analytics-table { min-width: 30em; }
+    .dash-table-wrap { overflow-x: auto; }
+    @media (max-width: 980px) { .kpi-grid { grid-template-columns: 1fr 1fr; } .dash-two, .dash-two--wide { grid-template-columns: 1fr; } }
 
     /* Seed notice */
     .seed-notice { background: var(--accent-light); border: 1px solid var(--accent); border-radius: .5em; padding: 1em 1.25em; margin-bottom: 1.5em; display: flex; align-items: center; justify-content: space-between; gap: 1em; }
@@ -651,64 +691,52 @@
 
       <!-- DASHBOARD -->
       <div class="section active" id="section-dashboard">
-        <div class="section-header"><h2>Dashboard</h2></div>
-        <div class="dash-grid">
-          <div class="dash-card"><div class="dash-card__label">Yiyecek Ürünü</div><div class="dash-card__value" id="dash-food-count">—</div><div class="dash-card__sub">aktif ürün</div></div>
-          <div class="dash-card"><div class="dash-card__label">İçecek Ürünü</div><div class="dash-card__value" id="dash-drink-count">—</div><div class="dash-card__sub">aktif ürün</div></div>
-          <div class="dash-card"><div class="dash-card__label">Kategori</div><div class="dash-card__value" id="dash-cat-count">—</div><div class="dash-card__sub">toplam kategori</div></div>
+        <div class="dash-head"><div class="section-header" style="margin:0"><h2>Genel Bakış</h2></div><span class="dash-head__date" id="dash-date"></span></div>
+
+        <div class="kpi-grid">
+          <div class="dash-card"><div class="dash-card__label">Bugün Ziyaret</div><div class="dash-card__value" id="dash-today-total">—</div><div class="kpi-delta" id="dash-today-delta">&nbsp;</div></div>
+          <div class="dash-card"><div class="dash-card__label">Bugün Menü</div><div class="dash-card__value" id="dash-today-menu">—</div><div class="kpi-delta" id="dash-menu-delta">&nbsp;</div></div>
+          <div class="dash-card"><div class="dash-card__label">Son 7 Gün</div><div class="dash-card__value" id="dash-week-total">—</div><div class="kpi-delta">toplam ziyaret</div></div>
+          <div class="dash-card"><div class="dash-card__label">Tekrar Gelen</div><div class="dash-card__value" id="dash-return-rate">—</div><div class="kpi-delta">son 7 gün</div></div>
         </div>
-        <div class="dash-grid" style="margin-bottom:1.5em">
-          <div class="dash-card"><div class="dash-card__label">Bugün Toplam Ziyaret</div><div class="dash-card__value" id="dash-today-total">—</div><div class="dash-card__sub">tüm sayfalar</div></div>
-          <div class="dash-card"><div class="dash-card__label">Bugün Menü</div><div class="dash-card__value" id="dash-today-menu">—</div><div class="dash-card__sub">menü sayfası</div></div>
-          <div class="dash-card"><div class="dash-card__label">Bu Hafta Toplam</div><div class="dash-card__value" id="dash-week-total">—</div><div class="dash-card__sub">son 7 gün</div></div>
+
+        <div class="dash-two">
+          <div class="card">
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bugün Saat Saat</span></div><span class="card-header__meta">menü görüntüleme</span></div>
+            <div class="card-body" style="padding:1em 1.25em 1.1em"><div id="dash-hourly"><div class="empty-state">Yükleniyor…</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ziyaretçi Kaynakları<span class="info-dot" title="Masa QR: menüyü masadaki QR ile açanlar. Doğrudan: adresi yazarak gelenler.">i</span></span></div><span class="card-header__meta">son 7 gün</span></div>
+            <div class="card-body" style="padding:1em 1.25em 1.1em"><div id="dash-sources"><div class="empty-state">Yükleniyor…</div></div></div>
+          </div>
         </div>
-        <div class="card" style="margin-bottom:1.5em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Son 7 Gün — Sayfa Ziyaretleri</span></div></div>
-          <div class="card-body" style="padding:0">
+
+        <div class="dash-two dash-two--wide">
+          <div class="card">
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">En Çok İlgi Gören Ürünler<span class="info-dot" title="Görüntülenme: ürün menüde ekranda okunacak kadar kaldı. Fotoğraf: misafir ürün fotoğrafını açtı. Her misafir bir ürünü en fazla bir kez sayılır.">i</span></span></div>
+              <select id="interestMonth" onchange="loadInterest()" style="max-width:10em;font-size:.75em;padding:.35em .5em"></select></div>
+            <div class="card-body" style="padding:.6em 1.25em 1.1em"><div id="dash-interest"><div class="empty-state">Yükleniyor…</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Kategoriler</span></div><span class="card-header__meta">ulaşan misafir</span></div>
+            <div class="card-body" style="padding:.6em 1.25em 1.1em"><div id="dash-cats"><div class="empty-state">Yükleniyor…</div></div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Son 7 Gün</span></div><span class="card-header__meta">sayfa bazında ziyaret</span></div>
+          <div class="card-body dash-table-wrap" style="padding:0">
             <table style="width:100%;border-collapse:collapse;font-size:.8em" id="dash-analytics-table">
               <thead><tr style="border-bottom:1px solid var(--border)">
-                <th style="padding:.6em 1em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
+                <th style="padding:.6em 1.25em;text-align:left;opacity:.5;font-weight:500">Tarih</th>
                 <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Ana Sayfa</th>
                 <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Menü</th>
                 <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Mekan</th>
                 <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">İletişim</th>
-                <th style="padding:.6em 1em;text-align:right;opacity:.5;font-weight:500">Toplam</th>
+                <th style="padding:.6em 1.25em;text-align:right;opacity:.5;font-weight:500">Toplam</th>
               </tr></thead>
               <tbody id="dash-analytics-body"><tr><td colspan="6" style="padding:1.5em;text-align:center;opacity:.4">Yükleniyor…</td></tr></tbody>
             </table>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1.5em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bugün Saat Saat</span></div></div>
-          <div class="card-body" style="padding:1em 1.25em">
-            <div id="dash-hourly" style="font-size:.8em;opacity:.8">Yükleniyor…</div>
-            <p class="settings-note" style="margin-top:.75em">Saatlik sayım 13 Ekim 2026 akşamından itibaren tutuluyor. Admin paneline giriş yapılan cihazlar (sizin cihazlarınız) ziyaret olarak sayılmaz.</p>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1.5em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ziyaretçiler Nereden Geliyor? — Son 7 Gün</span></div></div>
-          <div class="card-body" style="padding:1em 1.25em">
-            <div id="dash-sources" style="font-size:.8em">Yükleniyor…</div>
-            <p class="settings-note" style="margin-top:.75em">"Masa QR": başka bir siteden gelmeden doğrudan menü sayfasını açanlar (masadaki QR kodlar). "Doğrudan": adresi yazarak ya da kayıtlı bağlantıdan ana sayfaya gelenler. Instagram bio linkine ?k=ig, Google profiline ?k=google eklenirse o kaynaklar ayrı sayılır.</p>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1.5em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ürün İlgisi</span></div>
-            <select id="interestMonth" onchange="loadInterest()" style="max-width:11em;font-size:.8em"></select></div>
-          <div class="card-body" style="padding:1em 1.25em">
-            <div id="dash-interest" style="font-size:.8em">Yükleniyor…</div>
-            <p class="settings-note" style="margin-top:.75em"><b>Görüntülenme:</b> ürün menüde ekranın ortasında en az ~1 saniye kaldı. <b>Fotoğraf açma:</b> misafir ürünün fotoğrafına dokundu. Her ürün bir ziyarette en fazla 1 kez sayılır. Kişisel veri tutulmaz.</p>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1.5em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">İstatistikleri Sıfırla</span></div></div>
-          <div class="card-body" style="padding:1em 1.25em">
-            <p class="settings-note">Seçilen tarihten önceki tüm ziyaret verileri kalıcı olarak silinir. Seçilen gün ve sonrası korunur.</p>
-            <div style="display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.75em">
-              <input type="date" id="statsResetDate" style="max-width:12em">
-              <button class="btn btn-ghost btn-sm" style="color:#c0392b" onclick="resetStatsBefore()">Öncesini Sil</button>
-              <span id="statsResetStatus" style="font-size:.8em;opacity:.7"></span>
-            </div>
           </div>
         </div>
         <div id="seedNotice" class="seed-notice" style="display:none">
@@ -716,7 +744,7 @@
           <button class="btn btn-accent btn-sm" onclick="seedData()">Veriyi Yükle</button>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hızlı Erişim</span></div></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Hızlı Erişim</span></div><span class="card-header__meta"><span id="dash-food-count">—</span> yiyecek · <span id="dash-drink-count">—</span> içecek · <span id="dash-cat-count">—</span> kategori</span></div>
           <div class="card-body">
             <div class="item-row" style="cursor:pointer" onclick="showSection(document.querySelector('[data-section=food]'),'food')">
               <div class="item-row__info"><div class="item-row__name">Yiyecek Menüsü</div><div class="item-row__desc">Kategori ve ürün yönetimi</div></div>
@@ -1445,26 +1473,15 @@
 
       <div class="section" id="section-settings">
         <div class="section-header"><h2>Ayarlar</h2></div>
-        <div class="card" style="margin-bottom:1em" id="menuFixCard">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Menü Düzeltmeleri — 13 Ekim 2026</span></div></div>
+        <div class="card" style="margin-bottom:1em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">İstatistikler</span></div></div>
           <div class="card-body" style="padding:1.25em">
-            <p class="settings-note">Detaylı ürün açıklamaları (basılı menüdeki gibi), Füme Avokado görsellerinin yer değişimi, Demleme Çay 70 / 80 ₺ ve en sonda, Türk Kahvesi en sonda, süt seçenekleri +50 ₺, ekstra fiyatları. Önce "Önizle", sonra "Uygula".</p>
-            <div style="display:flex;gap:.6em;flex-wrap:wrap;margin:.8em 0">
-              <button class="btn btn-ghost" onclick="previewMenuFix()">Önizle</button>
-              <button class="btn btn-primary" id="applyFixBtn" onclick="applyMenuFix()" disabled>Düzeltmeleri Uygula</button>
+            <p class="settings-note">Seçilen tarihten önceki ziyaret ve ilgi verilerini temizler.</p>
+            <div style="display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.75em">
+              <input type="date" id="statsResetDate" style="max-width:12em">
+              <button class="btn btn-ghost btn-sm" style="color:#c0392b" onclick="resetStatsBefore()">Öncesini Temizle</button>
+              <span id="statsResetStatus" style="font-size:.8em;opacity:.7"></span>
             </div>
-            <div id="menuFixResult" style="font-size:.85em;line-height:1.55"></div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:1em" id="priceUpdateCard">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Toplu Fiyat Güncellemesi — Ekim 2026</span></div></div>
-          <div class="card-body" style="padding:1.25em">
-            <p class="settings-note">podeatery.com menüsündeki güncel (zamlı) fiyatları buradaki menüye uygular. Önce "Önizle" ile değişecek fiyatları görün, sonra "Fiyatları Uygula"ya basın. Listede olmayan ürünlere dokunulmaz.</p>
-            <div style="display:flex;gap:.6em;flex-wrap:wrap;margin:.8em 0">
-              <button class="btn btn-ghost" onclick="previewPriceUpdate()">Önizle</button>
-              <button class="btn btn-primary" id="applyPriceBtn" onclick="applyPriceUpdate()" disabled>Fiyatları Uygula</button>
-            </div>
-            <div id="priceUpdateResult" style="font-size:.85em;line-height:1.6"></div>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em;display:none">
@@ -1482,37 +1499,31 @@
             <button class="btn btn-primary btn-sm" onclick="updateConfig()">Config Güncelle &amp; Yeniden Başlat</button>
           </div>
         </div>
+        <details class="adv-settings" style="margin-bottom:1em">
+          <summary>Servis Bağlantıları</summary>
+          <div style="margin-top:1em">
         <div class="card" style="margin-bottom:1em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Cloudinary — Görsel &amp; Video Yükleme</span></div></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Görsel Yükleme Servisi</span></div></div>
           <div class="card-body" style="padding:1.25em">
-            <p class="settings-note">
-              Ücretsiz hesap için <a href="https://cloudinary.com/users/register_free" target="_blank">cloudinary.com</a>'a kayıt olun.<br>
-              Ardından: Dashboard → Settings → Upload → <strong>Add upload preset</strong><br>
-              Preset'i <strong>Unsigned</strong> olarak ayarlayın → Save
-            </p>
             <div class="settings-grid">
               <div class="form-group">
-                <label>Cloud Name</label>
+                <label>Hesap Adı</label>
                 <input id="cld-cloudName" placeholder="örn: dxyz1234">
               </div>
               <div class="form-group">
-                <label>Upload Preset (Unsigned)</label>
+                <label>Yükleme Profili</label>
                 <input id="cld-uploadPreset" placeholder="örn: pod_unsigned">
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="saveCldConfig()">Cloudinary Ayarlarını Kaydet</button>
+            <button class="btn btn-primary btn-sm" onclick="saveCldConfig()">Kaydet</button>
           </div>
         </div>
         <div class="card" style="margin-bottom:1em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Brevo — Toplu E-posta</span></div></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">E-posta Gönderimi</span></div></div>
           <div class="card-body" style="padding:1.25em">
-            <p class="settings-note">
-              Ücretsiz hesap için <a href="https://app.brevo.com/account/register" target="_blank">app.brevo.com</a>'a kayıt olun.<br>
-              Günde 300 e-posta ücretsiz · API Key: SMTP &amp; API → API Keys → Create an API Key
-            </p>
             <div class="settings-grid">
               <div class="form-group">
-                <label>Brevo API Key</label>
+                <label>Servis Anahtarı</label>
                 <input id="cfg-brevoKey" type="password" placeholder="xkeysib-...">
               </div>
               <div class="form-group">
@@ -1521,16 +1532,18 @@
               </div>
               <div class="form-group">
                 <label>Gönderen E-posta</label>
-                <input id="cfg-brevoEmail" placeholder="hello@podcoffee.com">
+                <input id="cfg-brevoEmail" placeholder="info@pod-eatery.com">
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="saveBrevoConfig()">Brevo Ayarlarını Kaydet</button>
+            <button class="btn btn-primary btn-sm" onclick="saveBrevoConfig()">Kaydet</button>
           </div>
         </div>
+          </div>
+        </details>
         <div class="card">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Veri İşlemleri</span></div></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Yedekleme</span></div></div>
           <div class="card-body" style="padding:1.25em;display:flex;gap:.75em;flex-wrap:wrap">
-            <button class="btn btn-ghost btn-sm" onclick="exportData()">Veriyi Dışa Aktar (JSON)</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportData()">Tüm Veriyi Yedek Olarak İndir</button>
           </div>
         </div>
       </div>
@@ -1933,6 +1946,7 @@ async function loadDashboard() {
   document.getElementById('dash-cat-count').textContent   = cats.size;
   document.getElementById('seedNotice').style.display = cats.size === 0 ? 'flex' : 'none';
   _dashMenu = { cats, items };
+  const dd = document.getElementById('dash-date'); if (dd) dd.textContent = new Date().toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul', weekday: 'long', day: 'numeric', month: 'long' });
   loadSources(); initInterestMonths(); loadInterest();
 
   // Analytics — last 7 days
@@ -1954,16 +1968,18 @@ async function loadDashboard() {
       if (i === 0) {
         document.getElementById('dash-today-total').textContent = total;
         document.getElementById('dash-today-menu').textContent  = menu;
+        window._dashToday = { total, menu };
       }
+      if (i === 1 && window._dashToday) { setDelta('dash-today-delta', window._dashToday.total, total); setDelta('dash-menu-delta', window._dashToday.menu, menu); }
       const isToday = i === 0;
       const label = isToday ? 'Bugün' : days[i].slice(5).replace('-','/');
       tbody.innerHTML += `<tr style="border-bottom:1px solid var(--border)${isToday?';font-weight:500':''}">
-        <td style="padding:.55em 1em">${label}</td>
+        <td style="padding:.55em 1.25em">${label}</td>
         <td style="padding:.55em 1em;text-align:right">${home||'—'}</td>
         <td style="padding:.55em 1em;text-align:right">${menu||'—'}</td>
         <td style="padding:.55em 1em;text-align:right">${space||'—'}</td>
         <td style="padding:.55em 1em;text-align:right">${contact||'—'}</td>
-        <td style="padding:.55em 1em;text-align:right;font-weight:500">${total||'—'}</td>
+        <td style="padding:.55em 1.25em;text-align:right;font-weight:500">${total||'—'}</td>
       </tr>`;
     });
     document.getElementById('dash-week-total').textContent = weekTotal;
@@ -1973,72 +1989,75 @@ async function loadDashboard() {
   }
 }
 
-let _dashMenu = null;
+let _dashMenu = null, _interestAll = false;
 const SRC_LABELS = { qr: 'Masa QR', direkt: 'Doğrudan', ig: 'Instagram', google: 'Google', wa: 'WhatsApp', fb: 'Facebook', diger: 'Diğer siteler' };
-function barRow(label, n, max, extra = '') {
-  return `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0;white-space:nowrap">${escHtml(label)}</td><td style="text-align:right;padding:0 .8em">${n}</td><td style="width:55%"><div style="height:.5em;border-radius:.25em;background:#c8a96e;width:${max ? Math.max(2, Math.round(n / max * 100)) : 0}%"></div></td>${extra}</tr>`;
+const istDate = (offset = 0) => { const d = new Date(); d.setDate(d.getDate() - offset); return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }); };
+function rankRows(rows, max) {
+  return '<table class="rank">' + rows.map((r, i) => `<tr><td class="n">${i + 1}</td><td>${escHtml(r.label)}${r.sub ? `<span class="sub">${escHtml(r.sub)}</span>` : ''}</td><td class="bar"><i style="width:${max ? Math.max(3, Math.round(r.n / max * 100)) : 0}%"></i></td><td class="v">${r.v ?? r.n}</td></tr>`).join('') + '</table>';
+}
+function setDelta(id, today, yday) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!yday) { el.textContent = 'dün veri yok'; el.className = 'kpi-delta'; return; }
+  const diff = Math.round((today - yday) / yday * 100);
+  el.textContent = (diff >= 0 ? '▲ %' : '▼ %') + Math.abs(diff) + ' düne göre';
+  el.className = 'kpi-delta ' + (diff >= 0 ? 'up' : 'down');
 }
 async function loadSources() {
   const box = document.getElementById('dash-sources'); if (!box) return;
   try {
-    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }); });
-    const snaps = await Promise.all(days.map(d => db.collection('analyticsSrc').doc(d).get()));
+    const snaps = await Promise.all([0,1,2,3,4,5,6].map(i => db.collection('analyticsSrc').doc(istDate(i)).get()));
     const t = {}; snaps.forEach(sn => { if (sn.exists) Object.entries(sn.data()).forEach(([k, v]) => t[k] = (t[k] || 0) + (Number(v) || 0)); });
-    const src = Object.keys(SRC_LABELS).map(k => [k, t[k] || 0]).filter(r => r[1]).sort((a, b) => b[1] - a[1]);
-    const yeni = t.yeni || 0, tekrar = t.tekrar || 0;
-    if (!src.length && !yeni && !tekrar) { box.textContent = 'Henüz veri yok. Yayından sonra ziyaretler burada görünecek.'; return; }
-    const max = Math.max(...src.map(r => r[1]), 1);
-    box.innerHTML = '<table style="width:100%;border-collapse:collapse">' + src.map(([k, n]) => barRow(SRC_LABELS[k], n, max)).join('') + '</table>' +
-      `<div style="display:flex;gap:1.5em;margin-top:1em;flex-wrap:wrap"><div><b style="font-size:1.4em">${yeni}</b><br><span style="opacity:.6">yeni ziyaretçi</span></div><div><b style="font-size:1.4em">${tekrar}</b><br><span style="opacity:.6">tekrar gelen</span></div>${yeni + tekrar ? `<div><b style="font-size:1.4em">%${Math.round(tekrar / (yeni + tekrar) * 100)}</b><br><span style="opacity:.6">tekrar oranı</span></div>` : ''}</div>`;
-  } catch (e) { box.textContent = 'Kaynak verisi yüklenemedi.'; }
+    const rows = Object.keys(SRC_LABELS).map(k => ({ label: SRC_LABELS[k], n: t[k] || 0 })).filter(r => r.n).sort((a, b) => b.n - a.n);
+    const yeni = t.yeni || 0, tekrar = t.tekrar || 0, all = yeni + tekrar;
+    const rr = document.getElementById('dash-return-rate'); if (rr) rr.textContent = all ? '%' + Math.round(tekrar / all * 100) : '—';
+    if (!rows.length && !all) { box.innerHTML = '<div class="empty-state">Henüz veri yok</div>'; return; }
+    const sum = rows.reduce((a, r) => a + r.n, 0);
+    box.innerHTML = rankRows(rows.map(r => ({ ...r, v: `${r.n} <span style="color:var(--muted)">· %${Math.round(r.n / sum * 100)}</span>` })), Math.max(...rows.map(r => r.n), 1)).replace(/<td class="n">\d+<\/td>/g, '') +
+      `<div class="src-split"><div><b>${yeni}</b><span>yeni misafir</span></div><div><b>${tekrar}</b><span>tekrar gelen</span></div></div>`;
+  } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
 }
 function initInterestMonths() {
   const sel = document.getElementById('interestMonth'); if (!sel || sel.options.length) return;
   const names = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
-  for (let i = 0; i < 6; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const v = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); sel.add(new Option(names[d.getMonth()] + ' ' + d.getFullYear(), v)); }
+  const [y, m] = istDate().split('-').map(Number);
+  for (let i = 0; i < 6; i++) { const d = new Date(y, m - 1 - i, 1); sel.add(new Option(names[d.getMonth()] + ' ' + d.getFullYear(), d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'))); }
 }
 async function loadInterest() {
-  const box = document.getElementById('dash-interest'), sel = document.getElementById('interestMonth'); if (!box || !sel) return;
-  box.textContent = 'Yükleniyor…';
+  const box = document.getElementById('dash-interest'), cbox = document.getElementById('dash-cats'), sel = document.getElementById('interestMonth');
+  if (!box || !sel || !_dashMenu) return;
   try {
-    if (!_dashMenu) return;
     const snap = await db.collection('interest').doc(sel.value).collection('c').get();
-    const catName = {}, catTab = {}; _dashMenu.cats.docs.forEach(d => { catName[d.id] = d.data().name; catTab[d.id] = d.data().tab; });
+    const catName = {}; _dashMenu.cats.docs.forEach(d => catName[d.id] = d.data().name);
     const item = {}; _dashMenu.items.docs.forEach(d => item[d.id] = d.data());
     const it = [], ct = [];
     snap.docs.forEach(d => { const v = d.data(), id = d.id.slice(2);
-      if (d.id[0] === 'i' && item[id]) it.push({ name: item[id].name, cat: catName[item[id].categoryId] || '', g: v.g || 0, a: v.a || 0 });
-      if (d.id[0] === 'k' && catName[id]) ct.push({ name: catName[id], tab: catTab[id], g: v.g || 0 });
+      if (d.id[0] === 'i' && item[id]) it.push({ label: item[id].name, cat: catName[item[id].categoryId] || '', g: v.g || 0, a: v.a || 0 });
+      if (d.id[0] === 'k' && catName[id]) ct.push({ label: catName[id], n: v.g || 0 });
     });
-    if (!it.length && !ct.length) { box.textContent = 'Bu ay için henüz ilgi verisi yok.'; return; }
-    it.sort((x, y) => (y.g + y.a * 2) - (x.g + x.a * 2)); ct.sort((x, y) => y.g - x.g);
-    const top = it.slice(0, 20), maxG = Math.max(...top.map(r => r.g), 1), maxC = Math.max(...ct.map(r => r.g), 1);
-    const low = it.filter(r => r.g >= 10).sort((x, y) => x.g - y.g).slice(0, 5);
-    box.innerHTML =
-      '<div style="font-weight:500;margin-bottom:.4em">En çok ilgi gören ürünler</div>' +
-      '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;opacity:.5;font-weight:500">Ürün</th><th style="text-align:right;opacity:.5;font-weight:500;padding:0 .8em">Görüntülenme</th><th></th><th style="text-align:right;opacity:.5;font-weight:500;padding-left:.8em">Fotoğraf açma</th></tr></thead>' +
-      top.map(r => barRow(r.name + (r.cat ? ' · ' + r.cat.toLocaleLowerCase('tr') : ''), r.g, maxG, `<td style="text-align:right;padding-left:.8em">${r.a || '—'}</td>`)).join('') + '</table>' +
-      (ct.length ? '<div style="font-weight:500;margin:1.2em 0 .4em">Kategorilere ulaşma</div><table style="width:100%;border-collapse:collapse">' + ct.map(r => barRow(r.name, r.g, maxC)).join('') + '</table>' : '') +
-      (low.length ? '<div style="font-weight:500;margin:1.2em 0 .4em">Görülüp az fotoğrafı açılanlar</div><p style="opacity:.7;margin-bottom:.4em">Çok görülen ama fotoğrafına az dokunulan ürünler — açıklama ya da fotoğraf gözden geçirilebilir.</p><table style="width:100%;border-collapse:collapse">' +
-        it.filter(r => r.g >= 10).map(r => ({ ...r, rate: r.a / r.g })).sort((x, y) => x.rate - y.rate).slice(0, 5).map(r => `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0">${escHtml(r.name)}</td><td style="text-align:right">${r.g} görüntülenme · ${r.a} açma</td></tr>`).join('') + '</table>' : '');
-  } catch (e) { box.textContent = 'İlgi verisi yüklenemedi.'; }
+    it.sort((x, y) => (y.g + y.a * 2) - (x.g + x.a * 2)); ct.sort((x, y) => y.n - x.n);
+    if (!it.length) box.innerHTML = '<div class="empty-state">Bu ay için henüz veri yok</div>';
+    else {
+      const shown = _interestAll ? it : it.slice(0, 8), max = Math.max(...it.map(r => r.g), 1);
+      box.innerHTML = rankRows(shown.map(r => ({ label: r.label, sub: (r.cat ? r.cat.charAt(0) + r.cat.slice(1).toLocaleLowerCase('tr') + ' · ' : '') + r.a + ' fotoğraf açma', n: r.g, v: r.g })), max) +
+        (it.length > 8 ? `<button class="link-btn" onclick="_interestAll=!_interestAll;loadInterest()">${_interestAll ? 'Daha az göster' : 'Tümünü göster (' + it.length + ')'}</button>` : '');
+    }
+    if (cbox) cbox.innerHTML = ct.length ? rankRows(ct, Math.max(...ct.map(r => r.n), 1)).replace(/<td class="n">\d+<\/td>/g, '') : '<div class="empty-state">Henüz veri yok</div>';
+  } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
 }
-
 async function loadHourlyStats() {
   const box = document.getElementById('dash-hourly'); if (!box) return;
-  const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
+  const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = istDate();
   try {
-    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
-    const ids = Array.from({ length: 24 }, (_, h) => today + '-' + String(h).padStart(2, '0'));
-    const snaps = await Promise.all(ids.map(id => db.collection('analyticsHourly').doc(id).get()));
-    const rows = snaps.map((sn, h) => { const d = sn.exists ? sn.data() : {}; const t = (d.home||0)+(d.menu||0)+(d.space||0)+(d.contact||0); return { h, menu: d.menu || 0, t }; }).filter(r => r.t);
-    if (!rows.length) { box.textContent = 'Bugün için henüz saatlik veri yok.'; return; }
-    const max = Math.max(...rows.map(r => r.menu || r.t));
-    box.innerHTML = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;opacity:.5;font-weight:500;padding:.3em 0">Saat</th><th style="text-align:right;opacity:.5;font-weight:500">Menü</th><th style="text-align:right;opacity:.5;font-weight:500">Tüm sayfalar</th><th style="width:45%"></th></tr></thead><tbody>' +
-      rows.map(r => `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0">${String(r.h).padStart(2,'0')}:00–${String(r.h+1).padStart(2,'0')}:00</td><td style="text-align:right">${r.menu}</td><td style="text-align:right">${r.t}</td><td style="padding-left:1em"><div style="height:.5em;border-radius:.25em;background:#c8a96e;width:${Math.round((r.menu/max)*100)}%"></div></td></tr>`).join('') +
-      `<tr style="border-top:1px solid var(--border);font-weight:500"><td style="padding:.35em 0">Toplam</td><td style="text-align:right">${rows.reduce((a,r)=>a+r.menu,0)}</td><td style="text-align:right">${rows.reduce((a,r)=>a+r.t,0)}</td><td></td></tr></tbody></table>`;
-  } catch (e) { box.textContent = 'Saatlik veri yüklenemedi.'; }
+    const today = istDate();
+    const snaps = await Promise.all(Array.from({ length: 24 }, (_, h) => db.collection('analyticsHourly').doc(today + '-' + String(h).padStart(2, '0')).get()));
+    const vals = snaps.map(sn => sn.exists ? (sn.data().menu || 0) : 0);
+    const nowH = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }));
+    const firstH = Math.min(8, ...vals.map((v, h) => v ? h : 99)), hours = [];
+    for (let h = firstH; h <= Math.max(nowH, firstH); h++) hours.push(h);
+    const max = Math.max(...vals, 1);
+    if (!vals.some(Boolean)) { box.innerHTML = '<div class="empty-state">Bugün henüz menü görüntülenmedi</div>'; return; }
+    box.innerHTML = '<div class="hbars">' + hours.map(h => `<div class="hbar" title="${String(h).padStart(2,'0')}:00 — ${vals[h]} görüntüleme">${vals[h] ? `<b>${vals[h]}</b>` : ''}<i class="${vals[h] ? '' : 'zero'}" style="height:${vals[h] ? Math.max(4, Math.round(vals[h] / max * 100)) : 2}%"></i><span>${String(h).padStart(2,'0')}</span></div>`).join('') + '</div>';
+  } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
 }
 
 async function resetStatsBefore() {
@@ -3581,228 +3600,6 @@ function showToast(msg, type='') {
 
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-</script>
-<script>
-/* ===== Toplu fiyat güncellemesi (podeatery.com, Ekim 2026) ===== */
-const PRICE_UPDATE_2026_10 = {
-  'EKMEKÜSTÜ': {'Fıstık Ezmesi':260,'Vegan':340,'Ispanak':400,'Avokado Mantar':400,'Avokado Beetroot':400,'Ezine':420,'Üç Peynir':440,'Hindi Füme':440,'Tatlı & Tuzlu':460,'Avokado Yumurta':480,'Hindi Füme & Cheddar':480,'French Toast':480,'Sosis':480,'Sucuk':480,'Füme Somon':480,'Füme Avokado':520,'Füme & Burrata':560},
-  'BAGEL': {'Üç Peynir':360,'Avokado & Zeytin':360,'Hindi Füme':360,'Avokado & Füme':420},
-  'YUMURTA BURGER': {'Mantarlı':360,'Avokado & Füme':420},
-  'TOST': {'Mozzarella':360,'Yaz Tostu':360,'Üç Peynir':380,'Esnaf İşi':420,'Rozbif':440},
-  'YAZ TOSTU': {'Yaz Tostu':360},
-  'OMLET': {'Sade Omlet':360,'Mozzarella Menemen':360,'İspanyol Poşesi':360,'Çılbır':360,'Ispanak Mantar Omlet':400,'İspanyol Omlet':400,'Yeşil Omlet':400,'Fit Omlet':400,'Üç Peynirli Omlet':420,'Ezine Omlet':420,'Pod Kahvaltı Tabağı':520},
-  'KRUVASAN': {'Sade':150,'Sade Kruvasan':150,'Nutella':380,'Nutella Kruvasan':380,'Ezine':480,'Üç Peynir':480,'Sucuk':520,'Sosis':520,'Füme Avokado':560},
-  'PANCAKE': {'Klasik':420,'Tuzlu Karamel & Crumble':420,'Çikolata & Orman Meyveleri':420},
-  'YOĞURT KASE': {'Sade':360,'Böğürtlen':380,'Matcha':380,'Spirulina':380},
-  'BOWL': {'Fıstık Ezmeli':380,'Kırmızı':380},
-  'SALATALAR': {'Tahıl Salata':300,'Avokado':340},
-  'TATLILAR': {'Chia Puding':200,'Nutella Cookie':220,'Amsterdam Cookie':220,'Magnolia':220,'Böğürtlen Brownie':260,'Böğürtlen ve Frambuazlı Brownie':260,'Beyaz Çikolatalı Brownie':260,'Lotus Cup':260,'Cream Puff Lotuslu':260,'Tiramisu':240,'Tiramusu':240},
-  'SMOOTHIE & PROTEIN BAR': {'Yeşil Smoothie':280,'Orman Meyveli Smoothie':280,'Kakao Smoothie':280,'Tropikal Smoothie':280},
-  'MATCHA BAR': {'Matcha':260,'Çilek Matcha':300,'Yaban Mersini Matcha':300,'Ananas Matcha':300,'Mango Matcha':300,'Şeftali Matcha':300},
-  'BUZ GİBİLER': {'Muz & Maydanoz':300,'Muz & Maydonoz':300,'Orman Meyveleri':300,'Ananas':300},
-  'DETOKS': {'Yeşil':260,'Turuncu':260,'Kırmızı':260},
-  'ESPRESSO BAR': {'Ristretto':200,'Espresso Single / Double':200,'Doppio':200,'Espresso Macchiato':200,'Filtre Kahve':220,'Americano':220,'Cortado':220,'Latte':230,'Flat White':230,'Cappuccino':260,'Mocha':260,'White Mocha':260,'Zebra Mocha':260,'Türk Kahvesi':180},
-  'POD ÖZEL': {'Muzlu Süt':240,'Pod Latte':240,'Cookie Latte':260,'Toffee Nut Latte':260,'Kavrulmuş Badem Latte':260,'Coconut Latte':260,'Deniz Tuzlu Karamel Latte':260,'Chai Tea Latte':260,'Beyaz Çikolata Frambuaz Latte':270,'Espresso Affogato':270,'Matcha Affogato':270},
-  'BREW BAR': {'V60':280,'Chemex':280,'Aeropress':280},
-  'TAZELEYİCİ SOĞUK ÇAYLAR': {'Limonata':220,'Portakal Suyu':220,'Cool Lime':240,'Berry Hibiscus':240,'Elma & Yasemin':240,'Mango & Frambuaz':240},
-  'MELEZ TEA BİTKİ ÇAYLARI': {'Relax':200,'Mystic':200,'Soothe':200,'Boost':200,'Zencefil Çay':200},
-  'SOFT BAR': {'Pınar Premium Su':60,'Uludağ Premium Soda':140,'Churchill':180}
-};
-const ADDON_PRICES_2026_10 = {'Whey Protein Tozu':120,'Kolajen':100};
-const pnorm = s => String(s||'').toLocaleLowerCase('tr').normalize('NFC')
-  .replace(/[\u{1F000}-\u{1FFFF}☀-➿️]/gu,'').replace(/-?soğuk-?/g,'').replace(/[^a-zçğıöşü0-9&/]+/g,' ').replace(/\s+/g,' ').trim();
-let _pricePlan = null;
-async function buildPricePlan() {
-  const [catSnap, itemSnap, addSnap] = await Promise.all([db.collection('menuCategories').get(), db.collection('menuItems').get(), db.collection('addons').get()]);
-  const map = {}; for (const [c, items] of Object.entries(PRICE_UPDATE_2026_10)) { const m = map[pnorm(c)] = {}; for (const [n, v] of Object.entries(items)) m[pnorm(n)] = v; }
-  const cats = {}; catSnap.docs.forEach(d => cats[d.id] = d.data());
-  const changes = [], same = [], missing = [];
-  itemSnap.docs.forEach(d => {
-    const it = d.data(), cat = cats[it.categoryId] || {}, m = map[pnorm(cat.name)];
-    const np = m ? m[pnorm(it.name)] : undefined;
-    const row = { id: d.id, coll: 'menuItems', cat: cat.name || '?', name: it.name, old: it.price, price: np };
-    if (np === undefined) missing.push(row); else if (Number(it.price) === np) same.push(row); else changes.push(row);
-  });
-  const am = {}; for (const [n, v] of Object.entries(ADDON_PRICES_2026_10)) am[pnorm(n)] = v;
-  addSnap.docs.forEach(d => { const a = d.data(), np = am[pnorm(a.name)]; if (np !== undefined && Number(a.price) !== np) changes.push({ id: d.id, coll: 'addons', cat: 'Ekstralar', name: a.name, old: a.price, price: np }); });
-  return { changes, same, missing };
-}
-async function previewPriceUpdate() {
-  const out = document.getElementById('priceUpdateResult'); out.textContent = 'Kontrol ediliyor…';
-  try {
-    _pricePlan = await buildPricePlan();
-    const { changes, same, missing } = _pricePlan;
-    let h = `<b>${changes.length}</b> ürünün fiyatı değişecek · ${same.length} ürün zaten güncel · ${missing.length} ürün listede yok (dokunulmayacak)`;
-    if (changes.length) h += '<table style="width:100%;margin-top:.8em;border-collapse:collapse">' + changes.map(c => `<tr style="border-top:1px solid #eee"><td style="padding:.3em 0;color:#888">${escHtml(c.cat)}</td><td>${escHtml(c.name)}</td><td style="text-align:right;white-space:nowrap">${escHtml(String(c.old ?? '—'))} ₺ → <b>${c.price} ₺</b></td></tr>`).join('') + '</table>';
-    if (missing.length) h += '<p style="margin-top:.8em;color:#888">Listede olmayanlar: ' + missing.map(m => escHtml(m.cat + ' / ' + m.name)).join(', ') + '</p>';
-    out.innerHTML = h;
-    document.getElementById('applyPriceBtn').disabled = !changes.length;
-  } catch (e) { out.textContent = 'Hata: ' + e.message; }
-}
-async function applyPriceUpdate() {
-  if (!_pricePlan || !_pricePlan.changes.length) return;
-  if (!confirm(_pricePlan.changes.length + ' ürünün fiyatı güncellenecek. Onaylıyor musunuz?')) return;
-  const btn = document.getElementById('applyPriceBtn'); btn.disabled = true;
-  try {
-    const batch = db.batch();
-    _pricePlan.changes.forEach(c => batch.update(db.collection(c.coll).doc(c.id), { price: c.price }));
-    await batch.commit();
-    showToast(_pricePlan.changes.length + ' fiyat güncellendi', 'success');
-    _pricePlan = null; await previewPriceUpdate();
-    if (typeof loadFoodMenu === 'function') loadFoodMenu();
-    if (typeof loadDrinkMenu === "function") loadDrinkMenu();
-  } catch (e) { showToast('Hata: ' + e.message, 'error'); btn.disabled = false; }
-}
-</script>
-<script>
-/* ===== Menü düzeltmeleri (13 Ekim 2026 — müşteri talepleri) ===== */
-const YG = ' yanında taze yeşillik ve fırınlanmış patates ile';
-const DESC_FIX_2026_10_13 = {
-  'EKMEKÜSTÜ': {
-    'Fıstık Ezmesi': 'Fıstık ezmesi, muz, yaban mersini, ahududu reçeli, file badem',
-    'Vegan': 'Pancarlı ev yapımı humus, sarımsaklı zeytinyağlı istiridye mantarı, ızgara kabak, çiğ kabak çekirdeği,' + YG,
-    'Ispanak': 'Sote ıspanak, poşe yumurta, hollandez sos,' + YG,
-    'Avokado Mantar': 'Avokado sos, karamelize ıspanak, karamelize mantar, pancar dilimleri, toz parmesan, zeytinyağı,' + YG,
-    'Avokado Beetroot': 'Fırınlanmış pancarlı aromatik labne, dilim avokado, chia tohumu, zeytinyağı,' + YG,
-    'Ezine': 'Ezine beyaz peyniri, kuru domates, çiğ kabak çekirdeği, ceviz, taze kekik, zeytinyağı,' + YG,
-    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, lor peyniri, çırpılmış yumurta, kapya biber, haşhaş, çiğ kabak çekirdeği,' + YG,
-    'Hindi Füme': 'Tarhunlu peynir sos, hindi füme, lollo rosso, salatalık, kaşar peyniri,' + YG,
-    'Tatlı & Tuzlu': '2 ayrı ekmek üzerinde servis edilir: ev yapımı aromatik labne, böğürtlen reçeli, Antep fıstığı & avokado ezmesi, çırpılmış yumurta, şeftali, çörek otu',
-    'Avokado Yumurta': 'Çırpılmış yumurta, avokado ezmesi, çiğ kabak çekirdeği,' + YG,
-    'Hindi Füme & Cheddar': 'Çırpılmış yumurta, cheddar peyniri, hindi füme, çörek otu, kabak çekirdeği, taze kekik,' + YG,
-    'French Toast': 'Tereyağlı ve yumurtalı brioche ekmeği üzerine özel karamel sos, muz, çilek, kırmızı orman meyveleri, file badem ve akçaağaç şurubu (18:00\'e kadar) · İlave dondurma +50 ₺',
-    'Sosis': 'Çırpılmış yumurta, dana sosis, hollandez sos,' + YG,
-    'Sucuk': 'Çırpılmış yumurta, sucuk, hellim peyniri, kapya biber, çiğ kabak çekirdeği,' + YG,
-    'Füme Somon': 'Füme somon, aromatik labne, kapari, salatalık, dereotu,' + YG,
-    'Füme Avokado': 'Füme et, avokado ezmesi, poşe yumurta, fesleğenli zeytinyağı, chia tohumu, çiğ kabak çekirdeği,' + YG,
-    'Füme & Burrata': 'Brioche ekmeği üzerine Antep fıstıklı pesto, burrata peyniri, füme et, roka, rende tulum peyniri, balzamik glaze; yanında labne, salatalık ve zeytin ile'
-  },
-  'BAGEL': {
-    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, cheddar peyniri,' + YG,
-    'Avokado & Zeytin': 'Avokado sos, zeytin ezmesi, marul, kaşar peyniri, cheddar peyniri, domates,' + YG,
-    'Hindi Füme': 'Tarhunlu peynir sos, hindi füme, cheddar peyniri, salatalık,' + YG,
-    'Avokado & Füme': 'Avokado sos, çırpılmış yumurta, füme et,' + YG
-  },
-  'YUMURTA BURGER': {
-    'Mantarlı': 'Çırpılmış yumurta, karamelize mantar, taze kekik,' + YG,
-    'Avokado & Füme': 'Tercihe göre dilim avokado veya avokado sos, çırpılmış yumurta, füme et, cheddar peyniri,' + YG
-  },
-  'TOST': {
-    'Mozzarella': 'Fırınlanmış patlıcan, fırınlanmış kabak, mozzarella, kuru domates,' + YG,
-    'Yaz Tostu': 'Ekşi maya ekmeğinde kaşar, tulum ve mozzarella peyniri; altında yaz domatesiyle hazırlanmış Pod yapımı domates sos ile',
-    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, cheddar peyniri,' + YG,
-    'Esnaf İşi': 'Sucuk, kaşar, paprika salça; yanında cherry domates, salatalık ve fırınlanmış patates ile · İlave çırpılmış yumurta +60 ₺',
-    'Rozbif': 'Füme et, ev yapımı ballı hardal sos, roka, karamelize soğan, cheddar peyniri,' + YG
-  },
-  'OMLET': {
-    'Sade Omlet': 'Ekşi maya ekmeği ve fırınlanmış patates ile',
-    'İspanyol Poşesi': 'Küp patates, yeşil biber, kırmızı biber üzeri 2 adet poşe yumurta, yanında ekşi maya ekmeği ile',
-    'Çılbır': 'Taze baharatlı yoğurt, özel tereyağlı sos ile',
-    'Ispanak Mantar Omlet': 'Ispanak, sote mantar, kabak çekirdeği, çörek otu, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
-    'İspanyol Omlet': 'Küp patates, kapya biber, çarliston biber, kabak çekirdeği, yanında ekşi maya ekmeği ve taze yeşillik ile',
-    'Yeşil Omlet': 'Ispanak, yulaf, mozzarella peyniri, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
-    'Fit Omlet': '3 yumurta beyazı, hindi füme, lor peyniri, kurutulmuş domates, kabak çekirdeği, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
-    'Üç Peynirli Omlet': 'Mozzarella peyniri, tulum peyniri, lor peyniri, kapya biber, haşhaş, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
-    'Ezine Omlet': 'Ezine peyniri, kurutulmuş domates, kabak çekirdeği, yanında ekşi maya ekmeği ve fırınlanmış patates ile',
-    'Pod Kahvaltı Tabağı': 'Çırpılmış yumurta, hellim peyniri, Ezine peyniri, dilim avokado, ceviz, çilek, taze yeşillik, ekşi maya ekmeği'
-  },
-  'KRUVASAN': {
-    'Nutella': 'Nutella, çilek, muz, crumble, file badem, pudra şekeri, Antep fıstığı',
-    'Nutella Kruvasan': 'Nutella, çilek, muz, crumble, file badem, pudra şekeri, Antep fıstığı',
-    'Ezine': 'Ezine beyaz peyniri, kuru domates, çiğ kabak çekirdeği, ceviz, taze kekik, zeytinyağı, yanında taze yeşillik ile',
-    'Üç Peynir': 'Mozzarella peyniri, tulum peyniri, lor peyniri, çırpılmış yumurta, kapya biber, haşhaş, çiğ kabak çekirdeği, yanında taze yeşillik ile',
-    'Sucuk': 'Çırpılmış yumurta, sucuk, hellim peyniri, kapya biber, haşhaş, çiğ kabak çekirdeği, yanında taze yeşillik ile',
-    'Sosis': 'Çırpılmış yumurta, dana sosis, hollandez sos, yanında taze yeşillik ile',
-    'Füme Avokado': 'Füme et, avokado ezmesi, çırpılmış yumurta, tulum peyniri, çiğ kabak çekirdeği, yanında taze yeşillik ile'
-  },
-  'PANCAKE': {
-    'Klasik': 'Agave şurubu, yaban mersini, tereyağı, pudra şekeri',
-    'Tuzlu Karamel & Crumble': 'Tuzlu karamel sos, muz, Pod yapımı crumble, krep kırıkları',
-    'Çikolata & Orman Meyveleri': 'Eritme çikolata, orman meyveli Pod yapımı marmelat'
-  },
-  'YOĞURT KASE': {
-    'Sade': 'Bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, mango, chia tohumu',
-    'Böğürtlen': 'Böğürtlen ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu',
-    'Matcha': 'Matcha ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu',
-    'Spirulina': 'Spirulina ve bal ile aromalandırılmış süzme yoğurt, ev yapımı granola, fıstık ezmesi, yaban mersini, çilek, kivi, muz, chia tohumu'
-  },
-  'BOWL': {
-    'Fıstık Ezmeli': 'İsteğe göre badem veya yulaf sütü, yulaf, muz, yer fıstığı ezmesi, ev yapımı çıtır granola, file badem',
-    'Kırmızı': 'İsteğe göre badem veya yulaf sütü, ev yapımı çıtır granola, muz, frambuaz, böğürtlen, yaban mersini, chia tohumu ve file badem'
-  },
-  'SALATALAR': {
-    'Tahıl Salata': 'Kinoa, karabuğday, yeşil mercimek, yeşil elma, pancar, lor peyniri, portakal, nar ekşili sos, Akdeniz yeşilliği ve maskolin ile',
-    'Avokado': 'Dilimlenmiş avokado, haşlanmış kinoa, portakal, portakallı ballı hardal sos, Akdeniz yeşilliği ve maskolin ile'
-  },
-  'TATLILAR': {
-    'Cream Puff Lotuslu': 'Çıtır profiterol hamuru içinde Lotus krem diplomat dolgusu',
-    'Magnolia': 'Çilekli / Oreo ve muzlu / Lotuslu',
-    'Nutella Cookie': 'Nutella, ceviz',
-    'Amsterdam Cookie': 'Bitter çikolata, beyaz çikolata'
-  }
-};
-const ITEM_FIX_2026_10_13 = [
-  { cat: 'MELEZ TEA BİTKİ ÇAYLARI', name: 'Demleme Çay', set: { price: 70, priceText: '70 / 80', desc: 'İnce belli 70 ₺ / Fincan 80 ₺', pinLast: true } },
-  { cat: 'ESPRESSO BAR', name: 'Türk Kahvesi', set: { pinLast: true } }
-];
-const EXTRA_PRICES_2026_10_13 = { 'mantar': 40, 'peynir': 60, 'avokado': 60, 'hindi füme': 70, 'sucuk': 80, 'füme et': 120 };
-async function buildFixPlan() {
-  const [catSnap, itemSnap] = await Promise.all([db.collection('menuCategories').get(), db.collection('menuItems').get()]);
-  const cats = {}; catSnap.docs.forEach(d => cats[d.id] = d.data());
-  const byCatName = (c, n) => itemSnap.docs.find(d => pnorm((cats[d.data().categoryId]||{}).name) === pnorm(c) && pnorm(d.data().name) === pnorm(n));
-  const ops = [], notFound = [];
-  const add = (coll, id, label, data, before) => {
-    const changed = {}; for (const k in data) if (JSON.stringify(before[k] ?? null) !== JSON.stringify(data[k])) changed[k] = data[k];
-    if (Object.keys(changed).length) ops.push({ coll, id, label, data: changed, before });
-  };
-  // 1) açıklamalar
-  const dmap = {}; for (const [c, items] of Object.entries(DESC_FIX_2026_10_13)) { dmap[pnorm(c)] = {}; for (const [n, v] of Object.entries(items)) dmap[pnorm(c)][pnorm(n)] = v; }
-  itemSnap.docs.forEach(d => { const it = d.data(), m = dmap[pnorm((cats[it.categoryId]||{}).name)]; const v = m && m[pnorm(it.name)]; if (v) add('menuItems', d.id, `${cats[it.categoryId].name} / ${it.name} — açıklama`, { desc: v }, it); });
-  // 2) Demleme çay, Türk kahvesi
-  ITEM_FIX_2026_10_13.forEach(f => { const d = byCatName(f.cat, f.name); if (!d) return notFound.push(f.cat + ' / ' + f.name); add('menuItems', d.id, `${f.cat} / ${f.name} — ${f.set.pinLast ? 'en sona' : ''}${f.set.priceText ? ', fiyat ' + f.set.priceText : ''}`, f.set, d.data()); });
-  // 3) Avokado görselleri yer değiştir (Ekmeküstü ↔ Kruvasan Füme Avokado)
-  const e = byCatName('EKMEKÜSTÜ', 'Füme Avokado'), k = byCatName('KRUVASAN', 'Füme Avokado');
-  if (e && k && (e.data().imageUrl || '') !== (k.data().imageUrl || '')) {
-    ops.push({ coll: 'menuItems', id: e.id, label: 'EKMEKÜSTÜ / Füme Avokado — görsel (Kruvasan\'daki ile değişir)', data: { imageUrl: k.data().imageUrl || '' }, before: e.data() });
-    ops.push({ coll: 'menuItems', id: k.id, label: 'KRUVASAN / Füme Avokado — görsel (Ekmeküstü\'ndeki ile değişir)', data: { imageUrl: e.data().imageUrl || '' }, before: k.data() });
-  } else if (!e || !k) notFound.push('Füme Avokado görselleri');
-  // 4) süt notları +50 ve ekstralar
-  catSnap.docs.forEach(d => {
-    const c = d.data(), n = pnorm(c.name);
-    if ((n === pnorm('ESPRESSO BAR') || n === pnorm('POD ÖZEL')) && c.note && /\+\s?40/.test(c.note)) add('menuCategories', d.id, `${c.name} — süt notu +50`, { note: c.note.replace(/\+\s?40/g, '+50') }, c);
-    if (Array.isArray(c.extras) && c.extras.length) {
-      const ex = c.extras.map(x => { const p = EXTRA_PRICES_2026_10_13[pnorm(x.name)]; return p !== undefined ? { ...x, price: p } : x; });
-      add('menuCategories', d.id, `${c.name} — ekstra fiyatları`, { extras: ex }, c);
-    }
-  });
-  return { ops, notFound };
-}
-let _fixPlan = null;
-async function previewMenuFix() {
-  const out = document.getElementById('menuFixResult'); out.textContent = 'Kontrol ediliyor…';
-  try {
-    _fixPlan = await buildFixPlan();
-    const { ops, notFound } = _fixPlan;
-    let h = `<b>${ops.length}</b> düzeltme uygulanacak`;
-    if (ops.length) h += '<ul style="margin:.6em 0 0 1.1em">' + ops.map(o => `<li style="margin:.35em 0">${escHtml(o.label)}${o.data.desc ? `<br><span style="color:#888">${escHtml(o.data.desc)}</span>` : ''}${o.data.extras ? `<br><span style="color:#888">${escHtml(o.data.extras.map(x => x.name + ' +' + x.price).join(', '))}</span>` : ''}${o.data.note ? `<br><span style="color:#888">${escHtml(o.data.note)}</span>` : ''}</li>`).join('') + '</ul>';
-    if (notFound.length) h += '<p style="color:#b45309;margin-top:.6em">Bulunamadı: ' + escHtml(notFound.join(', ')) + '</p>';
-    out.innerHTML = h;
-    document.getElementById('applyFixBtn').disabled = !ops.length;
-  } catch (e) { out.textContent = 'Hata: ' + e.message; }
-}
-async function applyMenuFix() {
-  if (!_fixPlan || !_fixPlan.ops.length) return;
-  if (!confirm(_fixPlan.ops.length + ' düzeltme uygulanacak. Onaylıyor musunuz?')) return;
-  const btn = document.getElementById('applyFixBtn'); btn.disabled = true;
-  try {
-    const batch = db.batch();
-    _fixPlan.ops.forEach(o => batch.update(db.collection(o.coll).doc(o.id), o.data));
-    await batch.commit();
-    showToast(_fixPlan.ops.length + ' düzeltme uygulandı', 'success');
-    _fixPlan = null; await previewMenuFix();
-    loadFoodMenu(); loadDrinkMenu();
-  } catch (e) { showToast('Hata: ' + e.message, 'error'); btn.disabled = false; }
 }
 </script>
 </body>
