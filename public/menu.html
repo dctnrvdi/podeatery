@@ -1066,7 +1066,7 @@
     try {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
-      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)&&localStorage.getItem('pod_noTrack')!=='1'){sessionStorage.setItem(_k,'1');const _t=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Istanbul'});const _inc={menu:firebase.firestore.FieldValue.increment(1)};db.collection('analytics').doc(_t.slice(0,10)).set(_inc,{merge:true});db.collection('analyticsHourly').doc(_t.slice(0,13).replace(' ','-')).set(_inc,{merge:true});} } catch(e){}
+      try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)&&localStorage.getItem('pod_noTrack')!=='1'){sessionStorage.setItem(_k,'1');const _t=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Istanbul'});const _inc={menu:firebase.firestore.FieldValue.increment(1)};db.collection('analytics').doc(_t.slice(0,10)).set(_inc,{merge:true});db.collection('analyticsHourly').doc(_t.slice(0,13).replace(' ','-')).set(_inc,{merge:true});} (function(){var f=function(){if(window.podTrackSource)podTrackSource(db);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',f):f();})(); } catch(e){}
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
       const [catSnap, itemSnap, addonSnap] = await Promise.race([
         Promise.all([
@@ -1141,6 +1141,7 @@
       return `
         <li class="menu-item${hasImg ? ' has-image':''}"
             data-cat-id="${cat.id}"
+            data-item-id="${esc(item.id || '')}"
             data-img="${esc(item.imageUrl || '')}">
           <div class="menu-item__row">
             <span class="menu-item__name">${esc(item.name)}</span>
@@ -1152,7 +1153,7 @@
     }).join('');
 
     return `
-      <div class="cat-section ${reversed}" data-reveal>
+      <div class="cat-section ${reversed}" data-reveal data-track-cat="${esc(cat.id || '')}">
         <div class="cat-section__text">
           <div>
             <div class="cat-label">
@@ -1177,6 +1178,33 @@
       </div>`;
   }
 
+  /* ── İlgi analizi: hangi ürün/kategori görüldü, hangi fotoğraf açıldı.
+     Kişisel veri yok, sadece aylık sayaç; her ürün oturum başına 1 kez sayılır. ── */
+  const PODT = (function () {
+    const off = () => { try { return localStorage.getItem('pod_noTrack') === '1'; } catch (e) { return true; } };
+    const month = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }).slice(0, 7);
+    const safe = v => String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
+    function hit(kind, id, field) {
+      if (off() || !db || !safe(id)) return;
+      const key = kind + '_' + safe(id), sk = 'pod_i_' + month() + '_' + key + '_' + field;
+      try { if (sessionStorage.getItem(sk)) return; sessionStorage.setItem(sk, '1'); } catch (e) { return; }
+      try { db.collection('interest').doc(month()).collection('c').doc(key).set({ [field]: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(() => {}); } catch (e) {}
+    }
+    let itemObs = null, catObs = null; const timers = new WeakMap();
+    function observe(root) {
+      if (!('IntersectionObserver' in window)) return;
+      if (!itemObs) itemObs = new IntersectionObserver(es => es.forEach(e => {
+        const el = e.target;
+        if (e.isIntersecting) timers.set(el, setTimeout(() => hit('i', el.dataset.itemId, 'g'), 1200));
+        else { clearTimeout(timers.get(el)); timers.delete(el); }
+      }), { rootMargin: '-40% 0px -40% 0px' });
+      if (!catObs) catObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) hit('k', e.target.dataset.trackCat, 'g'); }), { threshold: 0.25 });
+      root.querySelectorAll('.menu-item[data-item-id]').forEach(el => itemObs.observe(el));
+      root.querySelectorAll('[data-track-cat]').forEach(el => catObs.observe(el));
+    }
+    return { item: (id, f) => hit('i', id, f), observe };
+  })();
+
   function renderTab(tabId, categories, addons) {
     const el = document.getElementById(tabId + 'Content');
     if (!categories || categories.length === 0) {
@@ -1186,6 +1214,7 @@
     try {
       el.innerHTML = categories.map((cat, i) => renderCategory(cat, i, i % 2 !== 0, addons)).join('');
       bindHoverEvents(el);
+      PODT.observe(el);
       preloadTabImages(el);
       observeReveals();
     } catch(err) {
@@ -1249,6 +1278,7 @@
       } else {
         /* Mobile tap → full-screen modal */
         item.addEventListener('click', () => {
+          PODT.item(item.dataset.itemId, 'a');
           const name  = item.querySelector('.menu-item__name')?.textContent  || '';
           const price = item.querySelector('.menu-item__price')?.textContent || '';
           openImgModal(imgUrl, name, price);
@@ -1280,6 +1310,7 @@
 
   /* Peek card tap → open full modal */
   peekCard.addEventListener('click', () => {
+    if (peekActiveItem) PODT.item(peekActiveItem.dataset.itemId, 'a');
     if (peekCurrentUrl) {
       openImgModal(peekCurrentUrl, peekName.textContent, peekPrice.textContent);
     }
@@ -1690,6 +1721,25 @@
     return { value: m + '-' + d };
   }
   function podUnsubToken() { var a = new Uint8Array(18); (window.crypto || window.msCrypto).getRandomValues(a); return Array.from(a, function(b){ return ('0' + b.toString(16)).slice(-2); }).join(''); }
+  function podTrackSource(db) {
+    try {
+      if (localStorage.getItem('pod_noTrack') === '1' || sessionStorage.getItem('pod_src')) return;
+      sessionStorage.setItem('pod_src', '1');
+      var q = new URLSearchParams(location.search), s = (q.get('k') || '').toLowerCase();
+      if (['qr', 'ig', 'google', 'wa', 'fb'].indexOf(s) < 0) {
+        var h = ''; try { h = new URL(document.referrer).hostname; } catch (e) {}
+        s = !h ? 'direkt' : h === location.hostname ? '' : /instagram/.test(h) ? 'ig' : /(^|\.)google\./.test(h) ? 'google'
+          : /facebook|(^|\.)fb\./.test(h) ? 'fb' : /whatsapp|wa\.me/.test(h) ? 'wa' : 'diger';
+      }
+      var ref = db.collection('analyticsSrc').doc(new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }));
+      var inc = firebase.firestore.FieldValue.increment(1), o;
+      var seen = localStorage.getItem('pod_seen'); localStorage.setItem('pod_seen', '1');
+      var o2 = {}; o2[seen ? 'tekrar' : 'yeni'] = inc;
+      var first = Promise.resolve();
+      if (s) { o = {}; o[s] = inc; first = ref.set(o, { merge: true }).catch(function(){}); }
+      first.then(function(){ return ref.set(o2, { merge: true }); }).catch(function(){});
+    } catch (e) {}
+  }
   function podConsentOk() {
     var box = document.querySelector('[data-consent]'); if (!box) return true;
     var ok = box.querySelector('input').checked; box.classList.toggle('is-error', !ok); return ok;

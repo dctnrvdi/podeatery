@@ -686,6 +686,21 @@
           </div>
         </div>
         <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ziyaretçiler Nereden Geliyor? — Son 7 Gün</span></div></div>
+          <div class="card-body" style="padding:1em 1.25em">
+            <div id="dash-sources" style="font-size:.8em">Yükleniyor…</div>
+            <p class="settings-note" style="margin-top:.75em">"Masa QR" yalnızca ?k=qr bağlantılı yeni QR kodlardan gelenleri sayar; eski QR'lar ve adresi yazarak gelenler "Doğrudan"da görünür. Instagram bio linkine ?k=ig, Google profiline ?k=google eklenirse o kaynaklar ayrı sayılır.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1.5em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ürün İlgisi</span></div>
+            <select id="interestMonth" onchange="loadInterest()" style="max-width:11em;font-size:.8em"></select></div>
+          <div class="card-body" style="padding:1em 1.25em">
+            <div id="dash-interest" style="font-size:.8em">Yükleniyor…</div>
+            <p class="settings-note" style="margin-top:.75em"><b>Görüntülenme:</b> ürün menüde ekranın ortasında en az ~1 saniye kaldı. <b>Fotoğraf açma:</b> misafir ürünün fotoğrafına dokundu. Her ürün bir ziyarette en fazla 1 kez sayılır. Kişisel veri tutulmaz.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1.5em">
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">İstatistikleri Sıfırla</span></div></div>
           <div class="card-body" style="padding:1em 1.25em">
             <p class="settings-note">Seçilen tarihten önceki tüm ziyaret verileri kalıcı olarak silinir. Seçilen gün ve sonrası korunur.</p>
@@ -1917,6 +1932,8 @@ async function loadDashboard() {
   document.getElementById('dash-drink-count').textContent = drinkItems.length;
   document.getElementById('dash-cat-count').textContent   = cats.size;
   document.getElementById('seedNotice').style.display = cats.size === 0 ? 'flex' : 'none';
+  _dashMenu = { cats, items };
+  loadSources(); initInterestMonths(); loadInterest();
 
   // Analytics — last 7 days
   try {
@@ -1956,6 +1973,58 @@ async function loadDashboard() {
   }
 }
 
+let _dashMenu = null;
+const SRC_LABELS = { qr: 'Masa QR', direkt: 'Doğrudan', ig: 'Instagram', google: 'Google', wa: 'WhatsApp', fb: 'Facebook', diger: 'Diğer siteler' };
+function barRow(label, n, max, extra = '') {
+  return `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0;white-space:nowrap">${escHtml(label)}</td><td style="text-align:right;padding:0 .8em">${n}</td><td style="width:55%"><div style="height:.5em;border-radius:.25em;background:#c8a96e;width:${max ? Math.max(2, Math.round(n / max * 100)) : 0}%"></div></td>${extra}</tr>`;
+}
+async function loadSources() {
+  const box = document.getElementById('dash-sources'); if (!box) return;
+  try {
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }); });
+    const snaps = await Promise.all(days.map(d => db.collection('analyticsSrc').doc(d).get()));
+    const t = {}; snaps.forEach(sn => { if (sn.exists) Object.entries(sn.data()).forEach(([k, v]) => t[k] = (t[k] || 0) + (Number(v) || 0)); });
+    const src = Object.keys(SRC_LABELS).map(k => [k, t[k] || 0]).filter(r => r[1]).sort((a, b) => b[1] - a[1]);
+    const yeni = t.yeni || 0, tekrar = t.tekrar || 0;
+    if (!src.length && !yeni && !tekrar) { box.textContent = 'Henüz veri yok. Yayından sonra ziyaretler burada görünecek.'; return; }
+    const max = Math.max(...src.map(r => r[1]), 1);
+    box.innerHTML = '<table style="width:100%;border-collapse:collapse">' + src.map(([k, n]) => barRow(SRC_LABELS[k], n, max)).join('') + '</table>' +
+      `<div style="display:flex;gap:1.5em;margin-top:1em;flex-wrap:wrap"><div><b style="font-size:1.4em">${yeni}</b><br><span style="opacity:.6">yeni ziyaretçi</span></div><div><b style="font-size:1.4em">${tekrar}</b><br><span style="opacity:.6">tekrar gelen</span></div>${yeni + tekrar ? `<div><b style="font-size:1.4em">%${Math.round(tekrar / (yeni + tekrar) * 100)}</b><br><span style="opacity:.6">tekrar oranı</span></div>` : ''}</div>`;
+  } catch (e) { box.textContent = 'Kaynak verisi yüklenemedi.'; }
+}
+function initInterestMonths() {
+  const sel = document.getElementById('interestMonth'); if (!sel || sel.options.length) return;
+  const names = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+  for (let i = 0; i < 6; i++) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const v = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); sel.add(new Option(names[d.getMonth()] + ' ' + d.getFullYear(), v)); }
+}
+async function loadInterest() {
+  const box = document.getElementById('dash-interest'), sel = document.getElementById('interestMonth'); if (!box || !sel) return;
+  box.textContent = 'Yükleniyor…';
+  try {
+    if (!_dashMenu) return;
+    const snap = await db.collection('interest').doc(sel.value).collection('c').get();
+    const catName = {}, catTab = {}; _dashMenu.cats.docs.forEach(d => { catName[d.id] = d.data().name; catTab[d.id] = d.data().tab; });
+    const item = {}; _dashMenu.items.docs.forEach(d => item[d.id] = d.data());
+    const it = [], ct = [];
+    snap.docs.forEach(d => { const v = d.data(), id = d.id.slice(2);
+      if (d.id[0] === 'i' && item[id]) it.push({ name: item[id].name, cat: catName[item[id].categoryId] || '', g: v.g || 0, a: v.a || 0 });
+      if (d.id[0] === 'k' && catName[id]) ct.push({ name: catName[id], tab: catTab[id], g: v.g || 0 });
+    });
+    if (!it.length && !ct.length) { box.textContent = 'Bu ay için henüz ilgi verisi yok.'; return; }
+    it.sort((x, y) => (y.g + y.a * 2) - (x.g + x.a * 2)); ct.sort((x, y) => y.g - x.g);
+    const top = it.slice(0, 20), maxG = Math.max(...top.map(r => r.g), 1), maxC = Math.max(...ct.map(r => r.g), 1);
+    const low = it.filter(r => r.g >= 10).sort((x, y) => x.g - y.g).slice(0, 5);
+    box.innerHTML =
+      '<div style="font-weight:500;margin-bottom:.4em">En çok ilgi gören ürünler</div>' +
+      '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;opacity:.5;font-weight:500">Ürün</th><th style="text-align:right;opacity:.5;font-weight:500;padding:0 .8em">Görüntülenme</th><th></th><th style="text-align:right;opacity:.5;font-weight:500;padding-left:.8em">Fotoğraf açma</th></tr></thead>' +
+      top.map(r => barRow(r.name + (r.cat ? ' · ' + r.cat.toLocaleLowerCase('tr') : ''), r.g, maxG, `<td style="text-align:right;padding-left:.8em">${r.a || '—'}</td>`)).join('') + '</table>' +
+      (ct.length ? '<div style="font-weight:500;margin:1.2em 0 .4em">Kategorilere ulaşma</div><table style="width:100%;border-collapse:collapse">' + ct.map(r => barRow(r.name, r.g, maxC)).join('') + '</table>' : '') +
+      (low.length ? '<div style="font-weight:500;margin:1.2em 0 .4em">Görülüp az fotoğrafı açılanlar</div><p style="opacity:.7;margin-bottom:.4em">Çok görülen ama fotoğrafına az dokunulan ürünler — açıklama ya da fotoğraf gözden geçirilebilir.</p><table style="width:100%;border-collapse:collapse">' +
+        it.filter(r => r.g >= 10).map(r => ({ ...r, rate: r.a / r.g })).sort((x, y) => x.rate - y.rate).slice(0, 5).map(r => `<tr style="border-top:1px solid var(--border)"><td style="padding:.35em 0">${escHtml(r.name)}</td><td style="text-align:right">${r.g} görüntülenme · ${r.a} açma</td></tr>`).join('') + '</table>' : '');
+  } catch (e) { box.textContent = 'İlgi verisi yüklenemedi.'; }
+}
+
 async function loadHourlyStats() {
   const box = document.getElementById('dash-hourly'); if (!box) return;
   const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
@@ -1979,8 +2048,12 @@ async function resetStatsBefore() {
   if (!confirm(date + ' tarihinden ÖNCEKİ tüm ziyaret verileri kalıcı olarak silinecek. Emin misiniz?')) return;
   try {
     st.textContent = 'Siliniyor…';
-    const [daily, hourly] = await Promise.all([db.collection('analytics').get(), db.collection('analyticsHourly').get()]);
-    const del = [...daily.docs.filter(d => d.id < date), ...hourly.docs.filter(d => d.id.slice(0, 10) < date)];
+    const [daily, hourly, src] = await Promise.all([db.collection('analytics').get(), db.collection('analyticsHourly').get(), db.collection('analyticsSrc').get()]);
+    const del = [...daily.docs.filter(d => d.id < date), ...hourly.docs.filter(d => d.id.slice(0, 10) < date), ...src.docs.filter(d => d.id < date)];
+    // ürün ilgisi aylık tutulur: seçilen tarihin ayından önceki aylar silinir
+    const sel = document.getElementById('interestMonth');
+    const months = sel ? [...sel.options].map(o => o.value).filter(m => m < date.slice(0, 7)) : [];
+    for (const m of months) { const c = await db.collection('interest').doc(m).collection('c').get(); del.push(...c.docs); }
     for (let i = 0; i < del.length; i += 400) { const b = db.batch(); del.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
     st.textContent = `${del.length} kayıt silindi.`;
     showToast('İstatistikler sıfırlandı', 'success');

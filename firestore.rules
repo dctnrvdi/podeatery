@@ -81,6 +81,33 @@ service cloud.firestore {
                     && sameOrPlusOne('space') && sameOrPlusOne('contact');
     }
 
+    // ── Ziyaretçi kaynağı ve yeni/tekrar (günlük, sadece +1) ─────────
+    match /analyticsSrc/{day} {
+      allow read, delete: if isAdmin();
+      allow create: if day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+                    && request.resource.data.keys().hasOnly(['qr', 'ig', 'google', 'wa', 'fb', 'diger', 'direkt', 'yeni', 'tekrar'])
+                    && request.resource.data.size() == 1
+                    && oneOrAbsent('qr') && oneOrAbsent('ig') && oneOrAbsent('google') && oneOrAbsent('wa') && oneOrAbsent('fb')
+                    && oneOrAbsent('diger') && oneOrAbsent('direkt') && oneOrAbsent('yeni') && oneOrAbsent('tekrar');
+      allow update: if request.resource.data.keys().hasOnly(['qr', 'ig', 'google', 'wa', 'fb', 'diger', 'direkt', 'yeni', 'tekrar'])
+                    && request.resource.data.diff(resource.data).affectedKeys().size() == 1
+                    && sameOrPlusOne('qr') && sameOrPlusOne('ig') && sameOrPlusOne('google') && sameOrPlusOne('wa') && sameOrPlusOne('fb')
+                    && sameOrPlusOne('diger') && sameOrPlusOne('direkt') && sameOrPlusOne('yeni') && sameOrPlusOne('tekrar');
+    }
+
+    // ── Ürün/kategori ilgisi (aylık; g = görüldü, a = fotoğraf açıldı) ─
+    match /interest/{month}/c/{key} {
+      allow read, delete: if isAdmin();
+      allow create: if month.matches('^[0-9]{4}-[0-9]{2}$')
+                    && key.matches('^[ik]_[A-Za-z0-9_-]{1,60}$')
+                    && request.resource.data.keys().hasOnly(['g', 'a'])
+                    && request.resource.data.size() == 1
+                    && oneOrAbsent('g') && oneOrAbsent('a');
+      allow update: if request.resource.data.keys().hasOnly(['g', 'a'])
+                    && request.resource.data.diff(resource.data).affectedKeys().size() == 1
+                    && sameOrPlusOne('g') && sameOrPlusOne('a');
+    }
+
     // ── Saatlik ziyaret sayacı (ör. 2026-10-13-14): aynı kurallar ──
     match /analyticsHourly/{hour} {
       allow read, delete: if isAdmin();
