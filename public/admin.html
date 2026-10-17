@@ -483,6 +483,40 @@
     .src-split span { font-size: .72em; color: var(--muted); }
     .menu-mini { font-size: .78em; color: var(--muted); margin-top: .2em; }
     .admin-main { min-width: 0; }
+    .dash-head__right { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
+    .seg { display: inline-flex; padding: .2em; background: var(--white); border: 1px solid var(--border); border-radius: 999px; }
+    .seg button { border: 0; background: none; padding: .45em 1.05em; border-radius: 999px; font-family: var(--fp); font-size: .7em; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: background .2s, color .2s; }
+    .seg button.on { background: var(--text); color: #fff; }
+    .day-chips { display: flex; gap: .4em; overflow-x: auto; scrollbar-width: none; margin: 0 -1.25em .6em; padding: 0 1.25em .2em; }
+    .day-chips::-webkit-scrollbar { display: none; }
+    .day-chips button { flex: none; border: 1px solid var(--border); background: var(--white); color: var(--muted); border-radius: 999px; padding: .35em .85em; font-size: .7em; font-family: var(--fs); cursor: pointer; transition: all .2s; }
+    .day-chips button:hover { color: var(--text); border-color: #ccc; }
+    .day-chips button.on { background: var(--accent-light); border-color: var(--accent); color: #7a5a2a; font-weight: 500; }
+    .hbar.peak i { background: #a8864a; }
+    .chart-foot { font-size: .74em; color: var(--muted); margin-top: .9em; padding-top: .8em; border-top: 1px solid var(--border); line-height: 1.6; }
+    .chart-foot:empty { display: none; }
+    .chart-foot b { color: var(--text); font-weight: 500; }
+    .lg { display: inline-block; width: .7em; height: .7em; border-radius: .15em; margin: 0 .35em 0 .9em; vertical-align: -.05em; }
+    .lg--a { background: var(--accent); } .lg--b { background: #e7dcc6; }
+    .tbars { display: flex; align-items: flex-end; gap: .45em; height: 11em; padding-top: .4em; }
+    .tbars--dense { gap: .2em; }
+    .tbar { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+    .tbar__col { width: 100%; max-width: 2.6em; display: flex; flex-direction: column; border-radius: .3em .3em 0 0; overflow: hidden; min-height: 0; }
+    .tbar__col i { display: block; min-height: 0; } .tbar__col .m { background: var(--accent); } .tbar__col .o { background: #e7dcc6; }
+    .tbar b { font-size: .62em; font-weight: 500; margin-bottom: .25em; }
+    .tbar span { font-size: .6em; color: var(--muted); margin-top: .4em; text-align: center; line-height: 1.25; min-height: 1.25em; }
+    .tbar.wk span { color: #a8864a; font-weight: 600; }
+    .heat-wrap { overflow-x: auto; }
+    .heat { display: grid; gap: 3px; min-width: 30em; align-items: center; }
+    .heat__h { font-size: .6em; color: var(--muted); text-align: left; }
+    .heat__d { font-size: .68em; color: var(--muted); }
+    .heat__c { position: relative; height: 1.5em; border-radius: 3px; background: #f3f1ec; overflow: hidden; }
+    .heat__c i { position: absolute; inset: 0; background: var(--accent); }
+    .heat__c.na { background: repeating-linear-gradient(45deg, #f6f5f2 0 3px, #efede8 3px 6px); }
+    .heat-scale { display: inline-flex; gap: 2px; vertical-align: middle; margin: 0 .3em 0 .5em; }
+    .heat-scale i { width: .8em; height: .8em; border-radius: 2px; background: var(--accent); display: block; }
+    #dash-analytics-body { }
+    .dash-table-wrap { max-height: 24em; overflow-y: auto; }
     .pill-select { -webkit-appearance: none; appearance: none; width: auto; min-width: 0; margin: 0; font-family: var(--fp); font-size: .72em; font-weight: 500; letter-spacing: .02em; color: var(--text, #1a1a1a); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right .85em center; border: 1px solid var(--border); border-radius: 999px; padding: .5em 2.3em .5em 1em; line-height: 1.2; cursor: pointer; transition: border-color .2s; }
     .pill-select:hover, .pill-select:focus { border-color: #b9b9b9; outline: none; }
     .adv-settings > summary { cursor: pointer; list-style: none; padding: 1em 1.25em; background: var(--white); border: 1px solid var(--border); border-radius: .625em; font-family: var(--fp); font-size: .8em; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
@@ -693,23 +727,43 @@
 
       <!-- DASHBOARD -->
       <div class="section active" id="section-dashboard">
-        <div class="dash-head"><div class="section-header" style="margin:0"><h2>Genel Bakış</h2></div><span class="dash-head__date" id="dash-date"></span></div>
+        <div class="dash-head"><div class="section-header" style="margin:0"><h2>Genel Bakış</h2></div><div class="dash-head__right"><span class="dash-head__date" id="dash-date"></span><div class="seg" id="dash-period"><button class="on" data-p="7" onclick="setDashPeriod(7)">7 Gün</button><button data-p="30" onclick="setDashPeriod(30)">30 Gün</button></div></div></div>
 
         <div class="kpi-grid">
           <div class="dash-card"><div class="dash-card__label">Bugün Ziyaret</div><div class="dash-card__value" id="dash-today-total">—</div><div class="kpi-delta" id="dash-today-delta">&nbsp;</div></div>
           <div class="dash-card"><div class="dash-card__label">Bugün Menü</div><div class="dash-card__value" id="dash-today-menu">—</div><div class="kpi-delta" id="dash-menu-delta">&nbsp;</div></div>
-          <div class="dash-card"><div class="dash-card__label">Son 7 Gün</div><div class="dash-card__value" id="dash-week-total">—</div><div class="kpi-delta">toplam ziyaret</div></div>
-          <div class="dash-card"><div class="dash-card__label">Tekrar Gelen</div><div class="dash-card__value" id="dash-return-rate">—</div><div class="kpi-delta">son 7 gün</div></div>
+          <div class="dash-card"><div class="dash-card__label" id="dash-period-label">Son 7 Gün</div><div class="dash-card__value" id="dash-week-total">—</div><div class="kpi-delta" id="dash-period-delta">toplam ziyaret</div></div>
+          <div class="dash-card"><div class="dash-card__label">Tekrar Gelen</div><div class="dash-card__value" id="dash-return-rate">—</div><div class="kpi-delta" id="dash-return-sub">son 7 gün</div></div>
         </div>
 
         <div class="dash-two">
           <div class="card">
-            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Bugün Saat Saat</span></div><span class="card-header__meta">menü görüntüleme</span></div>
-            <div class="card-body" style="padding:1em 1.25em 1.1em"><div id="dash-hourly"><div class="empty-state">Yükleniyor…</div></div></div>
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Saat Saat</span></div><span class="card-header__meta">menü görüntüleme</span></div>
+            <div class="card-body" style="padding:.9em 1.25em 1.1em">
+              <div class="day-chips" id="dash-hour-days"></div>
+              <div id="dash-hourly"><div class="empty-state">Yükleniyor…</div></div>
+              <div class="chart-foot" id="dash-hourly-foot"></div>
+            </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ziyaretçi Kaynakları<span class="info-dot" title="Masa QR: menüyü masadaki QR ile açanlar. Doğrudan: adresi yazarak gelenler.">i</span></span></div><span class="card-header__meta">son 7 gün</span></div>
+            <div class="card-header"><div class="card-header__left"><span class="card-header__title">Ziyaretçi Kaynakları<span class="info-dot" title="Masa QR: menüyü masadaki QR ile açanlar. Doğrudan: adresi yazarak gelenler.">i</span></span></div><span class="card-header__meta" data-period-meta>son 7 gün</span></div>
             <div class="card-body" style="padding:1em 1.25em 1.1em"><div id="dash-sources"><div class="empty-state">Yükleniyor…</div></div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Günlük Trend</span></div><span class="card-header__meta"><span class="lg lg--a"></span>menü <span class="lg lg--b"></span>diğer sayfalar</span></div>
+          <div class="card-body" style="padding:1em 1.25em 1.1em">
+            <div id="dash-trend"><div class="empty-state">Yükleniyor…</div></div>
+            <div class="chart-foot" id="dash-trend-foot"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Haftalık Yoğunluk<span class="info-dot" title="Haftanın her günü ve saati için ortalama menü görüntüleme. Koyu kutular en kalabalık zamanlardır.">i</span></span></div><span class="card-header__meta" data-period-meta>son 7 gün</span></div>
+          <div class="card-body" style="padding:1em 1.25em 1.1em">
+            <div class="heat-wrap"><div id="dash-heat"><div class="empty-state">Yükleniyor…</div></div></div>
+            <div class="chart-foot" id="dash-heat-foot"></div>
           </div>
         </div>
 
@@ -726,7 +780,7 @@
         </div>
 
         <div class="card" style="margin-bottom:1.25em">
-          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Son 7 Gün</span></div><span class="card-header__meta">sayfa bazında ziyaret</span></div>
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Gün Gün Detay</span></div><span class="card-header__meta">sayfa bazında ziyaret</span></div>
           <div class="card-body dash-table-wrap" style="padding:0">
             <table style="width:100%;border-collapse:collapse;font-size:.8em" id="dash-analytics-table">
               <thead><tr style="border-bottom:1px solid var(--border)">
@@ -1949,74 +2003,170 @@ async function loadDashboard() {
   document.getElementById('seedNotice').style.display = cats.size === 0 ? 'flex' : 'none';
   _dashMenu = { cats, items };
   const dd = document.getElementById('dash-date'); if (dd) dd.textContent = new Date().toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul', weekday: 'long', day: 'numeric', month: 'long' });
-  loadSources(); initInterestMonths(); loadInterest();
-
-  // Analytics — last 7 days
-  try {
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      days.push(d.toLocaleDateString('sv-SE',{timeZone:'Europe/Istanbul'}));
-    }
-    const snaps = await Promise.all(days.map(d => db.collection('analytics').doc(d).get()));
-    let weekTotal = 0;
-    const tbody = document.getElementById('dash-analytics-body');
-    tbody.innerHTML = '';
-    snaps.forEach((snap, i) => {
-      const d = snap.exists ? snap.data() : {};
-      const home = d.home||0, menu = d.menu||0, space = d.space||0, contact = d.contact||0;
-      const total = home + menu + space + contact;
-      weekTotal += total;
-      if (i === 0) {
-        document.getElementById('dash-today-total').textContent = total;
-        document.getElementById('dash-today-menu').textContent  = menu;
-        window._dashToday = { total, menu };
-      }
-      if (i === 1 && window._dashToday) { setDelta('dash-today-delta', window._dashToday.total, total); setDelta('dash-menu-delta', window._dashToday.menu, menu); }
-      const isToday = i === 0;
-      const label = isToday ? 'Bugün' : days[i].slice(5).replace('-','/');
-      tbody.innerHTML += `<tr style="border-bottom:1px solid var(--border)${isToday?';font-weight:500':''}">
-        <td style="padding:.55em 1.25em">${label}</td>
-        <td style="padding:.55em 1em;text-align:right">${home||'—'}</td>
-        <td style="padding:.55em 1em;text-align:right">${menu||'—'}</td>
-        <td style="padding:.55em 1em;text-align:right">${space||'—'}</td>
-        <td style="padding:.55em 1em;text-align:right">${contact||'—'}</td>
-        <td style="padding:.55em 1.25em;text-align:right;font-weight:500">${total||'—'}</td>
-      </tr>`;
-    });
-    document.getElementById('dash-week-total').textContent = weekTotal;
-    loadHourlyStats();
-  } catch(e) {
-    document.getElementById('dash-analytics-body').innerHTML = '<tr><td colspan="6" style="padding:1em;opacity:.4;text-align:center">Veri yüklenemedi</td></tr>';
-  }
+  const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = istDate();
+  initInterestMonths(); loadInterest();
+  loadAnalytics();
 }
 
-let _dashMenu = null, _interestAll = false;
+let _dashMenu = null, _interestAll = false, _dashPeriod = 7, _hourSel = 0, _dash = null;
 const SRC_LABELS = { qr: 'Masa QR', direkt: 'Doğrudan', ig: 'Instagram', google: 'Google', wa: 'WhatsApp', fb: 'Facebook', diger: 'Diğer siteler' };
+const DOW_SHORT = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+const DOW_LONG = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
 const istDate = (offset = 0) => { const d = new Date(); d.setDate(d.getDate() - offset); return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }); };
+const dowOf = ds => new Date(ds + 'T12:00:00Z').getUTCDay();
+const hh = h => String(h).padStart(2, '0');
+const pageSum = d => (d.home || 0) + (d.menu || 0) + (d.space || 0) + (d.contact || 0);
 function rankRows(rows, max) {
   return '<table class="rank">' + rows.map((r, i) => `<tr><td class="n">${i + 1}</td><td>${escHtml(r.label)}${r.sub ? `<span class="sub">${escHtml(r.sub)}</span>` : ''}</td><td class="bar"><i style="width:${max ? Math.max(3, Math.round(r.n / max * 100)) : 0}%"></i></td><td class="v">${r.v ?? r.n}</td></tr>`).join('') + '</table>';
 }
-function setDelta(id, today, yday) {
+function setDelta(id, cur, prev, suffix = 'düne göre') {
   const el = document.getElementById(id); if (!el) return;
-  if (!yday) { el.textContent = 'dün veri yok'; el.className = 'kpi-delta'; return; }
-  const diff = Math.round((today - yday) / yday * 100);
-  el.textContent = (diff >= 0 ? '▲ %' : '▼ %') + Math.abs(diff) + ' düne göre';
+  if (!prev) { el.textContent = suffix === 'düne göre' ? 'dün veri yok' : 'karşılaştırma için veri yok'; el.className = 'kpi-delta'; return; }
+  const diff = Math.round((cur - prev) / prev * 100);
+  el.textContent = (diff >= 0 ? '▲ %' : '▼ %') + Math.abs(diff) + ' ' + suffix;
   el.className = 'kpi-delta ' + (diff >= 0 ? 'up' : 'down');
 }
-async function loadSources() {
-  const box = document.getElementById('dash-sources'); if (!box) return;
+// Belge kimliği tarih ile başlayan koleksiyonlardan, başlangıç tarihinden itibarenki kayıtlar
+async function fetchSince(col, startId) {
+  let snap;
+  try { snap = await db.collection(col).where(firebase.firestore.FieldPath.documentId(), '>=', startId).get(); }
+  catch (e) { snap = await db.collection(col).get(); }
+  const out = {}; snap.docs.forEach(d => { if (d.id >= startId) out[d.id] = d.data(); }); return out;
+}
+function setDashPeriod(p) {
+  if (p === _dashPeriod) return;
+  _dashPeriod = p;
+  document.querySelectorAll('#dash-period button').forEach(b => b.classList.toggle('on', Number(b.dataset.p) === p));
+  loadAnalytics();
+}
+async function loadAnalytics() {
+  const P = _dashPeriod;
+  const lbl = 'son ' + P + ' gün';
+  document.getElementById('dash-period-label').textContent = 'Son ' + P + ' Gün';
+  document.getElementById('dash-return-sub').textContent = lbl;
+  document.querySelectorAll('[data-period-meta]').forEach(e => e.textContent = lbl);
   try {
-    const snaps = await Promise.all([0,1,2,3,4,5,6].map(i => db.collection('analyticsSrc').doc(istDate(i)).get()));
-    const t = {}; snaps.forEach(sn => { if (sn.exists) Object.entries(sn.data()).forEach(([k, v]) => t[k] = (t[k] || 0) + (Number(v) || 0)); });
-    const rows = Object.keys(SRC_LABELS).map(k => ({ label: SRC_LABELS[k], n: t[k] || 0 })).filter(r => r.n).sort((a, b) => b.n - a.n);
-    const yeni = t.yeni || 0, tekrar = t.tekrar || 0, all = yeni + tekrar;
-    const rr = document.getElementById('dash-return-rate'); if (rr) rr.textContent = all ? '%' + Math.round(tekrar / all * 100) : '—';
-    if (!rows.length && !all) { box.innerHTML = '<div class="empty-state">Henüz veri yok</div>'; return; }
-    const sum = rows.reduce((a, r) => a + r.n, 0);
-    box.innerHTML = rankRows(rows.map(r => ({ ...r, v: `${r.n} <span style="color:var(--muted)">· %${Math.round(r.n / sum * 100)}</span>` })), Math.max(...rows.map(r => r.n), 1)).replace(/<td class="n">\d+<\/td>/g, '') +
-      `<div class="src-split"><div><b>${yeni}</b><span>yeni misafir</span></div><div><b>${tekrar}</b><span>tekrar gelen</span></div></div>`;
-  } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
+    const [daily, hourly, src] = await Promise.all([fetchSince('analytics', istDate(P * 2 - 1)), fetchSince('analyticsHourly', istDate(P - 1)), fetchSince('analyticsSrc', istDate(P - 1))]);
+    const days = Array.from({ length: P }, (_, i) => istDate(i));            // bugün → geriye
+    const hours = {};                                                       // 'YYYY-MM-DD' → [24]
+    Object.entries(hourly).forEach(([id, v]) => { const d = id.slice(0, 10), h = Number(id.slice(11, 13)); (hours[d] = hours[d] || Array(24).fill(0))[h] = v.menu || 0; });
+    _dash = { P, days, daily, hours, src };
+    renderKpis(); renderSources(); renderHourChips(); renderHourly(); renderTrend(); renderHeat(); renderTable();
+  } catch (e) {
+    ['dash-hourly', 'dash-sources', 'dash-trend', 'dash-heat'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; });
+    document.getElementById('dash-analytics-body').innerHTML = '<tr><td colspan="6" style="padding:1em;opacity:.4;text-align:center">Veri yüklenemedi</td></tr>';
+  }
+}
+function renderKpis() {
+  const { P, daily } = _dash;
+  const t = daily[istDate(0)] || {}, y = daily[istDate(1)] || {};
+  document.getElementById('dash-today-total').textContent = pageSum(t);
+  document.getElementById('dash-today-menu').textContent = t.menu || 0;
+  setDelta('dash-today-delta', pageSum(t), pageSum(y)); setDelta('dash-menu-delta', t.menu || 0, y.menu || 0);
+  let cur = 0, prev = 0;
+  for (let i = 0; i < P * 2; i++) { const v = pageSum(daily[istDate(i)] || {}); if (i < P) cur += v; else prev += v; }
+  document.getElementById('dash-week-total').textContent = cur;
+  setDelta('dash-period-delta', cur, prev, 'önceki ' + P + ' güne göre');
+}
+function renderSources() {
+  const box = document.getElementById('dash-sources'); if (!box) return;
+  const t = {}; Object.values(_dash.src).forEach(v => Object.entries(v).forEach(([k, n]) => t[k] = (t[k] || 0) + (Number(n) || 0)));
+  const rows = Object.keys(SRC_LABELS).map(k => ({ label: SRC_LABELS[k], n: t[k] || 0 })).filter(r => r.n).sort((a, b) => b.n - a.n);
+  const yeni = t.yeni || 0, tekrar = t.tekrar || 0, all = yeni + tekrar;
+  document.getElementById('dash-return-rate').textContent = all ? '%' + Math.round(tekrar / all * 100) : '—';
+  if (!rows.length && !all) { box.innerHTML = '<div class="empty-state">Henüz veri yok</div>'; return; }
+  const sum = rows.reduce((a, r) => a + r.n, 0);
+  box.innerHTML = rankRows(rows.map(r => ({ ...r, v: `${r.n} <span style="color:var(--muted)">· %${Math.round(r.n / sum * 100)}</span>` })), Math.max(...rows.map(r => r.n), 1)).replace(/<td class="n">\d+<\/td>/g, '') +
+    `<div class="src-split"><div><b>${yeni}</b><span>yeni misafir</span></div><div><b>${tekrar}</b><span>tekrar gelen</span></div></div>`;
+}
+function renderHourChips() {
+  const box = document.getElementById('dash-hour-days'); if (!box) return;
+  const chips = [0, 1, 2, 3, 4, 5, 6].map(i => { const ds = istDate(i); return { k: i, t: i === 0 ? 'Bugün' : i === 1 ? 'Dün' : DOW_SHORT[dowOf(ds)] + ' ' + Number(ds.slice(8)) }; });
+  chips.push({ k: 'avg', t: 'Ortalama' });
+  box.innerHTML = chips.map(c => `<button class="${c.k === _hourSel ? 'on' : ''}" onclick="_hourSel=${c.k === 'avg' ? "'avg'" : c.k};renderHourChips();renderHourly()">${c.t}</button>`).join('');
+}
+function hourVals(sel) {
+  const { hours, days } = _dash;
+  if (sel !== 'avg') return hours[istDate(sel)] || Array(24).fill(0);
+  const active = days.filter(d => hours[d] && hours[d].some(Boolean));
+  if (!active.length) return Array(24).fill(0);
+  return Array.from({ length: 24 }, (_, h) => Math.round(active.reduce((a, d) => a + hours[d][h], 0) / active.length * 10) / 10);
+}
+function renderHourly() {
+  const box = document.getElementById('dash-hourly'), foot = document.getElementById('dash-hourly-foot'); if (!box) return;
+  const vals = hourVals(_hourSel);
+  const nowH = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }));
+  const nz = vals.map((v, h) => v ? h : -1).filter(h => h >= 0);
+  if (!nz.length) { box.innerHTML = '<div class="empty-state">' + (_hourSel === 0 ? 'Bugün henüz menü görüntülenmedi' : 'Bu gün için veri yok') + '</div>'; foot.textContent = ''; return; }
+  const first = Math.min(8, nz[0]), last = _hourSel === 0 ? Math.max(nowH, nz[nz.length - 1]) : Math.max(22, nz[nz.length - 1]);
+  const max = Math.max(...vals, 1), peak = vals.indexOf(Math.max(...vals)), list = [];
+  for (let h = first; h <= last; h++) list.push(h);
+  const fmt = v => (_hourSel === 'avg' ? String(v).replace('.', ',') : v);
+  box.innerHTML = '<div class="hbars">' + list.map(h => `<div class="hbar${h === peak ? ' peak' : ''}" title="${hh(h)}:00 — ${fmt(vals[h])} görüntüleme">${vals[h] ? `<b>${fmt(vals[h])}</b>` : ''}<i class="${vals[h] ? '' : 'zero'}" style="height:${vals[h] ? Math.max(4, Math.round(vals[h] / max * 100)) : 2}%"></i><span>${hh(h)}</span></div>`).join('') + '</div>';
+  const total = Math.round(vals.reduce((a, b) => a + b, 0));
+  foot.innerHTML = `En yoğun saat <b>${hh(peak)}:00–${hh(peak + 1)}:00</b> · ${_hourSel === 'avg' ? 'günlük ortalama' : 'toplam'} <b>${total}</b> görüntüleme`;
+}
+function renderTrend() {
+  const box = document.getElementById('dash-trend'), foot = document.getElementById('dash-trend-foot'); if (!box) return;
+  const { P, daily } = _dash;
+  const days = Array.from({ length: P }, (_, i) => istDate(P - 1 - i));   // eskiden yeniye
+  const rows = days.map(ds => { const d = daily[ds] || {}; return { ds, menu: d.menu || 0, other: pageSum(d) - (d.menu || 0) }; });
+  const max = Math.max(...rows.map(r => r.menu + r.other), 1);
+  if (!rows.some(r => r.menu + r.other)) { box.innerHTML = '<div class="empty-state">Henüz veri yok</div>'; foot.textContent = ''; return; }
+  box.innerHTML = `<div class="tbars${P > 7 ? ' tbars--dense' : ''}">` + rows.map((r, i) => {
+    const dw = dowOf(r.ds), tot = r.menu + r.other, wk = dw === 0 || dw === 6;
+    const lab = P > 7 ? (i % 2 === (P - 1) % 2 ? Number(r.ds.slice(8)) : '') : DOW_SHORT[dw] + '<br>' + Number(r.ds.slice(8));
+    return `<div class="tbar${wk ? ' wk' : ''}" title="${DOW_LONG[dw]} ${Number(r.ds.slice(8))}.${Number(r.ds.slice(5, 7))} — ${r.menu} menü · ${tot} toplam ziyaret">${P <= 7 && tot ? `<b>${tot}</b>` : ''}<div class="tbar__col" style="height:${tot ? Math.max(3, Math.round(tot / max * 100)) : 0}%"><i class="o" style="flex:${r.other}"></i><i class="m" style="flex:${r.menu}"></i></div><span>${lab}</span></div>`;
+  }).join('') + '</div>';
+  const active = rows.filter(r => r.menu + r.other);
+  const best = active.reduce((a, r) => (r.menu + r.other > a.menu + a.other ? r : a), active[0]);
+  const avg = Math.round(active.reduce((a, r) => a + r.menu + r.other, 0) / active.length);
+  // haftanın en güçlü günü (ortalama)
+  const byDow = {}; active.forEach(r => { const k = dowOf(r.ds); (byDow[k] = byDow[k] || []).push(r.menu + r.other); });
+  const bestDow = Object.entries(byDow).map(([k, a]) => [k, a.reduce((x, y) => x + y, 0) / a.length]).sort((a, b) => b[1] - a[1])[0];
+  foot.innerHTML = `Günlük ortalama <b>${avg}</b> ziyaret · En iyi gün <b>${DOW_LONG[dowOf(best.ds)]} ${Number(best.ds.slice(8))}.${Number(best.ds.slice(5, 7))}</b> (${best.menu + best.other})` +
+    (P > 7 && bestDow ? ` · Genelde en kalabalık <b>${DOW_LONG[bestDow[0]]}</b>` : '');
+}
+function renderHeat() {
+  const box = document.getElementById('dash-heat'), foot = document.getElementById('dash-heat-foot'); if (!box) return;
+  const { days, hours } = _dash;
+  const active = days.filter(d => hours[d] && hours[d].some(Boolean));
+  if (!active.length) { box.innerHTML = '<div class="empty-state">Henüz veri yok</div>'; foot.textContent = ''; return; }
+  const sum = {}, cnt = {};
+  active.forEach(d => { const w = dowOf(d); cnt[w] = (cnt[w] || 0) + 1; hours[d].forEach((v, h) => { sum[w + '-' + h] = (sum[w + '-' + h] || 0) + v; }); });
+  let minH = 8; active.forEach(d => hours[d].forEach((v, h) => { if (v && h < minH) minH = h; }));
+  const H = []; for (let h = minH; h <= 23; h++) H.push(h);
+  const avg = (w, h) => cnt[w] ? (sum[w + '-' + h] || 0) / cnt[w] : null;
+  let max = 0, best = null;
+  [1, 2, 3, 4, 5, 6, 0].forEach(w => H.forEach(h => { const v = avg(w, h); if (v != null && v > max) { max = v; best = [w, h]; } }));
+  const cols = `grid-template-columns:2.6em repeat(${H.length},1fr)`;
+  let html = `<div class="heat" style="${cols}"><span></span>` + H.map(h => `<span class="heat__h">${h % 2 === 0 ? hh(h) : ''}</span>`).join('');
+  [1, 2, 3, 4, 5, 6, 0].forEach(w => {
+    html += `<span class="heat__d">${DOW_SHORT[w]}</span>`;
+    H.forEach(h => {
+      const v = avg(w, h);
+      if (v == null) { html += '<span class="heat__c na" title="' + DOW_LONG[w] + ' — veri yok"></span>'; return; }
+      const a = max ? v / max : 0;
+      html += `<span class="heat__c" title="${DOW_LONG[w]} ${hh(h)}:00 — ort. ${String(Math.round(v * 10) / 10).replace('.', ',')} görüntüleme"><i style="opacity:${v ? (0.12 + a * 0.88).toFixed(2) : 0}"></i></span>`;
+    });
+  });
+  box.innerHTML = html + '</div>';
+  foot.innerHTML = best ? `En kalabalık zaman <b>${DOW_LONG[best[0]]} ${hh(best[1])}:00</b> · <span class="heat-scale"><i style="opacity:.15"></i><i style="opacity:.45"></i><i style="opacity:.75"></i><i></i></span> az → çok` : '';
+}
+function renderTable() {
+  const tbody = document.getElementById('dash-analytics-body'); if (!tbody) return;
+  const { days, daily } = _dash;
+  tbody.innerHTML = days.map((ds, i) => {
+    const d = daily[ds] || {}, total = pageSum(d), dw = dowOf(ds);
+    const label = i === 0 ? 'Bugün' : i === 1 ? 'Dün' : DOW_SHORT[dw] + ' ' + Number(ds.slice(8)) + '.' + ds.slice(5, 7);
+    return `<tr style="border-bottom:1px solid var(--border)${i === 0 ? ';font-weight:500' : ''}">
+      <td style="padding:.55em 1.25em">${label}</td>
+      <td style="padding:.55em 1em;text-align:right">${d.home || '—'}</td>
+      <td style="padding:.55em 1em;text-align:right">${d.menu || '—'}</td>
+      <td style="padding:.55em 1em;text-align:right">${d.space || '—'}</td>
+      <td style="padding:.55em 1em;text-align:right">${d.contact || '—'}</td>
+      <td style="padding:.55em 1.25em;text-align:right;font-weight:500">${total || '—'}</td></tr>`;
+  }).join('');
 }
 function initInterestMonths() {
   const sel = document.getElementById('interestMonth'); if (!sel || sel.options.length) return;
@@ -2044,21 +2194,6 @@ async function loadInterest() {
         (it.length > 8 ? `<button class="link-btn" onclick="_interestAll=!_interestAll;loadInterest()">${_interestAll ? 'Daha az göster' : 'Tümünü göster (' + it.length + ')'}</button>` : '');
     }
     if (cbox) cbox.innerHTML = ct.length ? rankRows(ct, Math.max(...ct.map(r => r.n), 1)).replace(/<td class="n">\d+<\/td>/g, '') : '<div class="empty-state">Henüz veri yok</div>';
-  } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
-}
-async function loadHourlyStats() {
-  const box = document.getElementById('dash-hourly'); if (!box) return;
-  const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = istDate();
-  try {
-    const today = istDate();
-    const snaps = await Promise.all(Array.from({ length: 24 }, (_, h) => db.collection('analyticsHourly').doc(today + '-' + String(h).padStart(2, '0')).get()));
-    const vals = snaps.map(sn => sn.exists ? (sn.data().menu || 0) : 0);
-    const nowH = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }));
-    const firstH = Math.min(8, ...vals.map((v, h) => v ? h : 99)), hours = [];
-    for (let h = firstH; h <= Math.max(nowH, firstH); h++) hours.push(h);
-    const max = Math.max(...vals, 1);
-    if (!vals.some(Boolean)) { box.innerHTML = '<div class="empty-state">Bugün henüz menü görüntülenmedi</div>'; return; }
-    box.innerHTML = '<div class="hbars">' + hours.map(h => `<div class="hbar" title="${String(h).padStart(2,'0')}:00 — ${vals[h]} görüntüleme">${vals[h] ? `<b>${vals[h]}</b>` : ''}<i class="${vals[h] ? '' : 'zero'}" style="height:${vals[h] ? Math.max(4, Math.round(vals[h] / max * 100)) : 2}%"></i><span>${String(h).padStart(2,'0')}</span></div>`).join('') + '</div>';
   } catch (e) { box.innerHTML = '<div class="empty-state">Veri yüklenemedi</div>'; }
 }
 
