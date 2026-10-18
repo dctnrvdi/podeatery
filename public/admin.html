@@ -484,6 +484,18 @@
     .menu-mini { font-size: .78em; color: var(--muted); margin-top: .2em; }
     .admin-main { min-width: 0; }
     .dash-head__right { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
+    .guest-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; }
+    .guest-stats > div { padding-left: 1em; border-left: 1px solid var(--border); }
+    .guest-stats > div:first-child { padding-left: 0; border-left: 0; }
+    .guest-stats b { display: block; font-family: var(--fp); font-size: 1.9em; font-weight: 300; line-height: 1.1; }
+    .guest-stats span { font-size: .72em; color: var(--muted); }
+    .guest-stats .hl b { color: #a8864a; }
+    .guest-bday { margin-top: 1em; padding-top: .9em; border-top: 1px solid var(--border); font-size: .82em; }
+    .guest-bday__row { display: flex; align-items: center; justify-content: space-between; gap: 1em; flex-wrap: wrap; }
+    .guest-bday__up { color: var(--muted); margin-top: .35em; } .guest-bday__row + .guest-bday__up { margin-top: .6em; }
+    .guest-bday__up span { color: var(--muted2); }
+    .guest-bday .ok { color: var(--success); font-weight: 600; }
+    @media (max-width: 600px) { .guest-stats { grid-template-columns: 1fr 1fr; row-gap: 1.1em; } .guest-stats > div:nth-child(3) { padding-left: 0; border-left: 0; } }
     .period-nav { display: inline-flex; align-items: center; gap: .2em; background: var(--white); border: 1px solid var(--border); border-radius: 999px; padding: .2em; }
     .period-nav span { font-size: .78em; padding: 0 .6em; min-width: 11em; text-align: center; white-space: nowrap; }
     .period-nav button { width: 2em; height: 2em; border: 0; border-radius: 50%; background: none; font-size: 1em; line-height: 1; cursor: pointer; color: var(--text); }
@@ -741,6 +753,19 @@
           <div class="dash-card"><div class="dash-card__label">Menü Görüntüleme</div><div class="dash-card__value" id="dash-today-menu">—</div><div class="kpi-delta" id="dash-menu-delta">&nbsp;</div></div>
           <div class="dash-card"><div class="dash-card__label" id="dash-period-label">En Yoğun Saat</div><div class="dash-card__value" id="dash-week-total">—</div><div class="kpi-delta" id="dash-period-delta">toplam ziyaret</div></div>
           <div class="dash-card"><div class="dash-card__label">Tekrar Gelen</div><div class="dash-card__value" id="dash-return-rate">—</div><div class="kpi-delta" id="dash-return-sub">&nbsp;</div></div>
+        </div>
+
+        <div class="card guest-card" style="margin-bottom:1.25em">
+          <div class="card-header"><div class="card-header__left"><span class="card-header__title">Misafirler &amp; Aboneler</span></div><button class="link-btn" style="padding:0" onclick="showSection(document.querySelector('[data-section=subscribers]'),'subscribers')">Abonelere git →</button></div>
+          <div class="card-body" style="padding:1.1em 1.25em">
+            <div class="guest-stats">
+              <div><b id="g-today">—</b><span>bugün abone oldu</span></div>
+              <div><b id="g-month">—</b><span>bu ay yeni abone</span></div>
+              <div><b id="g-total">—</b><span>toplam abone</span></div>
+              <div class="hl"><b id="g-bday">—</b><span>bugün doğum günü</span></div>
+            </div>
+            <div class="guest-bday" id="g-bday-box"></div>
+          </div>
         </div>
 
         <div class="dash-two">
@@ -2010,7 +2035,7 @@ async function loadDashboard() {
   _dashMenu = { cats, items };
   const rd = document.getElementById('statsResetDate'); if (rd && !rd.value) rd.value = istDate();
   initInterestMonths(); loadInterest();
-  loadAnalytics();
+  loadAnalytics(); loadGuests();
 }
 
 let _dashMenu = null, _interestAll = false, _dashMode = 'day', _dashOff = 0, _dash = null, _dashReq = 0;
@@ -2204,6 +2229,36 @@ function renderTable() {
       <td style="padding:.55em 1em;text-align:right">${d.contact || '—'}</td>
       <td style="padding:.55em 1.25em;text-align:right;font-weight:500">${total || '—'}</td></tr>`;
   }).join('');
+}
+async function loadGuests() {
+  const box = document.getElementById('g-bday-box'); if (!box) return;
+  try {
+    const snap = await db.collection('subscribers').get();
+    const today = istDate(0), td = istanbulToday();
+    const dayOf = ts => ts && ts.seconds ? new Date(ts.seconds * 1000).toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' }) : '';
+    let nToday = 0, nMonth = 0, nTotal = 0; const bdays = [], upcoming = [];
+    snap.docs.forEach(doc => {
+      const d = doc.data(), sd = dayOf(d.subscribedAt);
+      if (sd === today) nToday++;
+      if (sd.slice(0, 7) === today.slice(0, 7)) nMonth++;
+      if (!hasConsent(d) || d.unsubscribedAt) return;
+      nTotal++;
+      const b = bdayParse(d.birthDate); if (!b) return;
+      if (bdayMatches(b, td)) { bdays.push({ name: d.name || d.email, sent: d.bdaySentYear === td.y }); return; }
+      for (let i = 1; i <= 7; i++) if (bdayMatches(b, istanbulToday(i))) { upcoming.push({ name: d.name || d.email, i, label: bdayLabel(d.birthDate) }); break; }
+    });
+    document.getElementById('g-today').textContent = nToday;
+    document.getElementById('g-month').textContent = nMonth;
+    document.getElementById('g-total').textContent = nTotal;
+    document.getElementById('g-bday').textContent = bdays.length;
+    const pending = bdays.filter(x => !x.sent).length;
+    const go = `showSection(document.querySelector('[data-section=subscribers]'),'subscribers')`;
+    upcoming.sort((a, b) => a.i - b.i);
+    const up = upcoming.length ? `<div class="guest-bday__up">Önümüzdeki 7 gün: ${upcoming.slice(0, 5).map(u => escHtml(u.name) + ' <span>(' + escHtml(u.label) + ')</span>').join(', ')}${upcoming.length > 5 ? ' ve ' + (upcoming.length - 5) + ' kişi daha' : ''}</div>` : '';
+    box.innerHTML = bdays.length
+      ? `<div class="guest-bday__row"><div><b>Bugün doğum günü:</b> ${bdays.map(x => escHtml(x.name) + (x.sent ? ' <span class="ok">✓</span>' : '')).join(', ')}</div>${pending ? `<button class="btn btn-accent btn-sm" onclick="${go}">Kutlama Maili Gönder (${pending})</button>` : '<span class="ok">Hepsine gönderildi</span>'}</div>${up}`
+      : (up || '<div class="guest-bday__up">Önümüzdeki 7 gün içinde doğum günü olan abone yok.</div>');
+  } catch (e) { box.innerHTML = '<div class="guest-bday__up">Abone verisi yüklenemedi</div>'; }
 }
 function initInterestMonths() {
   const sel = document.getElementById('interestMonth'); if (!sel || sel.options.length) return;
