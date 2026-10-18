@@ -595,6 +595,95 @@
       .dash-grid { grid-template-columns: 1fr; }
       .auth-card { padding: 2.25em 1.75em 2em; }
     }
+
+    /* ═══ UI 2.0 — rafine görünüm ═══ */
+    :root { --border: #ebe8e2; --muted: #8a867e; --muted2: #b9b5ad; --bg: #f5f4f0; --shadow: 0 1px 2px rgba(28,24,16,.04), 0 1px 1px rgba(28,24,16,.02); --ring: 0 0 0 3px rgba(200,169,110,.22); --r: .75em; }
+    body { font-size: 15px; letter-spacing: .005em; }
+    /* Kenar çubuğu */
+    .sidebar { background: #121210; border-right: 1px solid #000; }
+    .sidebar__brand { display: flex; align-items: center; gap: .8em; padding: 1.5em 1.35em 1.35em; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .sidebar__mark { width: 3.7em; height: 3.7em; border-radius: .95em; background: linear-gradient(145deg, #d6b97f, #a8864a); color: #121210; display: grid; place-items: center; font-family: var(--fp); font-weight: 700; font-size: .62em; letter-spacing: .06em; padding: .15em 0 0 .06em; flex: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+    .sidebar__logo { font-family: var(--fs); font-size: 1em; font-weight: 600; letter-spacing: .01em; text-transform: none; line-height: 1.15; }
+    .sidebar__label { font-family: var(--fs); font-size: .72em; font-weight: 400; letter-spacing: .01em; text-transform: none; color: rgba(255,255,255,.38); margin-top: .1em; }
+    .sidebar__nav { padding: .9em .7em; gap: .1em; }
+    .sidebar__section-label { font-family: var(--fs); font-size: .66em; font-weight: 500; letter-spacing: .08em; color: rgba(255,255,255,.28); padding: 1.3em .95em .45em; }
+    .sidebar__nav > .sidebar__section-label:first-child { padding-top: .3em; }
+    .nav-item { position: relative; font-family: var(--fs); font-size: .86em; font-weight: 400; letter-spacing: .005em; text-transform: none; color: rgba(255,255,255,.62); padding: .62em .9em; border-radius: .5em; gap: .8em; }
+    .nav-item svg { width: 1.05em; height: 1.05em; opacity: .55; }
+    .nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.08); color: #fff; font-weight: 500; }
+    .nav-item.active svg { opacity: 1; color: var(--accent); }
+    .nav-item.active::before { content: ''; position: absolute; left: -.7em; top: .55em; bottom: .55em; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+    .sidebar__footer { padding: .9em .7em 1em; border-top: 1px solid rgba(255,255,255,.06); }
+    .sidebar__user { display: flex; align-items: center; gap: .7em; font-size: .78em; color: rgba(255,255,255,.55); padding: .4em .9em .7em; margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .sidebar__user::before { content: attr(data-initial); flex: none; width: 2.1em; height: 2.1em; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.08); color: #fff; font-weight: 500; font-size: .95em; }
+    /* Üst çubuk */
+    .admin-topbar { height: 3.6em; padding: 0 2.25em; background: rgba(255,255,255,.86); -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--border); }
+    .admin-topbar__title { font-family: var(--fs); font-size: .9em; font-weight: 500; letter-spacing: .005em; text-transform: none; color: var(--muted); }
+    .admin-topbar__title::before { content: 'POD  /  '; white-space: pre; color: var(--muted2); }
+    /* Bölüm başlıkları */
+    .section { padding: 2.25em 2.25em 3em; max-width: 84em; }
+    .section-header h2 { font-family: var(--fs); font-size: 1.65em; font-weight: 600; letter-spacing: -.015em; text-transform: none; }
+    .dash-head { align-items: center; }
+    /* Kartlar */
+    .card { border-radius: var(--r); border-color: var(--border); box-shadow: var(--shadow); }
+    .card-header { padding: 1.05em 1.35em; border-bottom-color: #f0eee9; }
+    .card-header__title { font-family: var(--fs); font-size: .95em; font-weight: 600; letter-spacing: -.005em; text-transform: none; }
+    .card-header__meta { font-size: .76em; letter-spacing: 0; }
+    .card-header__badge { font-family: var(--fs); font-size: .68em; font-weight: 500; letter-spacing: .02em; text-transform: none; }
+    .dash-card { border-radius: var(--r); border-color: var(--border); box-shadow: var(--shadow); }
+    .dash-card__label { font-family: var(--fs); font-size: .72em; font-weight: 500; letter-spacing: .02em; text-transform: none; color: var(--muted); }
+    .dash-card__value, .kpi-grid .dash-card__value { font-family: var(--fs); font-size: 2.1em; font-weight: 500; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+    .kpi-delta { font-size: .76em; }
+    .kpi-delta.up { color: #3f7d4f; } .kpi-delta.down { color: #b4632a; }
+    .guest-stats b, .src-split b { font-family: var(--fs); font-weight: 500; font-size: 1.7em; letter-spacing: -.02em; }
+    .info-dot { font-family: var(--fs); }
+    /* Düğmeler */
+    .btn { font-family: var(--fs); font-size: .86em; font-weight: 500; letter-spacing: .005em; text-transform: none; padding: .7em 1.25em; border-radius: .55em; transition: background .15s, border-color .15s, box-shadow .15s, opacity .15s, transform .1s; }
+    .btn:hover { opacity: 1; }
+    .btn:focus-visible { outline: none; box-shadow: var(--ring); }
+    .btn-primary { background: #1a1a1a; } .btn-primary:hover { background: #333; }
+    .btn-accent { background: #b8975a; color: #fff; } .btn-accent:hover { background: #a8864a; }
+    .btn-danger:hover { background: #ad5442; }
+    .btn-success:hover { background: #678670; }
+    .btn-ghost { background: var(--white); border-color: var(--border); box-shadow: var(--shadow); }
+    .btn-ghost:hover { background: #faf9f6; border-color: #dcd8d0; }
+    .btn-sm { font-size: .8em; padding: .5em .95em; }
+    .btn-icon { padding: .5em; }
+    /* Form alanları */
+    .form-group label { font-family: var(--fs); font-size: .76em; font-weight: 500; letter-spacing: .01em; text-transform: none; color: #5e5a53; }
+    .form-group input, .form-group select, .form-group textarea { border-color: #e2dfd8; border-radius: .55em; padding: .7em .85em; font-size: .92em; transition: border-color .15s, box-shadow .15s; }
+    .form-group input:hover, .form-group select:hover, .form-group textarea:hover { border-color: #d3cfc6; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: var(--ring); }
+    /* Liste satırları */
+    .item-row { padding: .85em 1.35em; border-bottom-color: #f0eee9; }
+    .item-row:hover { background: #faf9f6; }
+    .item-row__price { font-family: var(--fs); font-size: .86em; font-weight: 500; color: #5e5a53; font-variant-numeric: tabular-nums; }
+    /* Tablolar */
+    .card-body table th { font-family: var(--fs); font-size: .92em; font-weight: 500; color: var(--muted); opacity: 1 !important; letter-spacing: .01em; }
+    .card-body table tr:hover td { background: #fbfaf7; }
+    /* Dönem seçici ve küçük kontroller */
+    .seg button { font-family: var(--fs); font-size: .8em; font-weight: 500; letter-spacing: .01em; text-transform: none; padding: .45em 1.1em; }
+    .period-nav span { font-size: .84em; font-weight: 500; }
+    .pill-select { font-family: var(--fs); font-size: .8em; }
+    .adv-settings > summary { font-family: var(--fs); font-size: .95em; text-transform: none; letter-spacing: 0; box-shadow: var(--shadow); border-radius: var(--r); }
+    .link-btn { font-size: .82em; color: #7a5a2a; text-decoration: none; font-weight: 500; }
+    .link-btn:hover { text-decoration: underline; }
+    /* Giriş ekranı */
+    .auth-card__label, .auth-card__sub { font-family: var(--fs); text-transform: none; letter-spacing: .02em; font-size: .8em; }
+    .auth-card__btn { font-weight: 600; letter-spacing: .01em; }
+    :where(.section) :where(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]):not([type=range]), textarea) { border: 1px solid #e2dfd8; border-radius: .55em; padding: .62em .85em; font-size: .9em; background: var(--white); color: var(--text); transition: border-color .15s, box-shadow .15s; }
+    :where(.section) :where(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]):not([type=range]), textarea):focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+    .btn-danger.btn-sm { background: var(--danger-light); color: #a84a37; box-shadow: inset 0 0 0 1px #f2d6ce; }
+    .btn-danger.btn-sm:hover { background: #f9e1da; }
+    @media (max-width: 768px) {
+      .section { padding: 1.25em 1em 2.5em; }
+      .section-header h2 { font-size: 1.35em; }
+      .admin-topbar { padding: 0 1em; }
+      .admin-topbar__title::before { content: ''; }
+      .admin-topbar__title { color: var(--text); }
+      .nav-item.active::before { left: -.7em; }
+    }
   </style>
 </head>
 <body>
@@ -653,14 +742,14 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar__brand">
-        <div class="sidebar__logo">POD</div>
-        <div class="sidebar__label">Admin Panel</div>
+        <div class="sidebar__mark">POD</div>
+        <div><div class="sidebar__logo">POD Eatery</div><div class="sidebar__label">Yönetim Paneli</div></div>
       </div>
       <nav class="sidebar__nav">
         <span class="sidebar__section-label">Genel</span>
         <button class="nav-item active" data-section="dashboard" onclick="showSection(this,'dashboard')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11l8-9 8 9v7a1 1 0 01-1 1h-4v-5H7v5H3a1 1 0 01-1-1v-7z"/></svg>
-          Dashboard
+          Genel Bakış
         </button>
         <button class="nav-item" data-section="messages" onclick="showSection(this,'messages')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/></svg>
@@ -690,7 +779,7 @@
         </button>
         <button class="nav-item" data-section="footer" onclick="showSection(this,'footer')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0-4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0-4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-          Footer
+          Sayfa Altı
         </button>
         <button class="nav-item" data-section="brand" onclick="showSection(this,'brand')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
@@ -698,7 +787,7 @@
         </button>
         <button class="nav-item" data-section="nav" onclick="showSection(this,'nav')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-          Navigasyon
+          Üst Menü
         </button>
         <button class="nav-item" data-section="homepage" onclick="showSection(this,'homepage')">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
@@ -737,7 +826,7 @@
           <button class="mob-menu-btn" onclick="toggleMobileNav()" aria-label="Menü">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect y="4" width="22" height="2" rx="1" fill="currentColor"/><rect y="10" width="22" height="2" rx="1" fill="currentColor"/><rect y="16" width="22" height="2" rx="1" fill="currentColor"/></svg>
           </button>
-          <span class="admin-topbar__title" id="topbarTitle">Dashboard</span>
+          <span class="admin-topbar__title" id="topbarTitle">Genel Bakış</span>
         </div>
         <div class="admin-topbar__actions">
           <a href="/" target="_blank" class="btn btn-ghost btn-sm">↗ Siteyi Gör</a>
@@ -899,7 +988,7 @@
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">"Visit Us" Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
-              <div class="form-group"><label>Eyebrow Yazısı</label><input id="c-visitEyebrow" placeholder="Visit Us"></div>
+              <div class="form-group"><label>Üst Etiket</label><input id="c-visitEyebrow" placeholder="Visit Us"></div>
               <div class="form-group"><label>Başlık 1. Satır</label><input id="c-visitLine1" placeholder="Find Us"></div>
               <div class="form-group"><label>Başlık 2. Satır</label><input id="c-visitLine2" placeholder="in Istanbul"></div>
               <div class="form-group"><label>Buton Yazısı</label><input id="c-getInTouchText" placeholder="Get in Touch"></div>
@@ -946,7 +1035,7 @@
       <!-- FOOTER -->
       <div class="section" id="section-footer">
         <div class="section-header">
-          <h2>Footer</h2>
+          <h2>Sayfa Altı</h2>
           <button class="btn btn-primary btn-sm" onclick="saveFooter()">Kaydet</button>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -1096,7 +1185,7 @@
       <!-- NAV EDITOR -->
       <div class="section" id="section-nav">
         <div class="section-header">
-          <h2>Navigasyon</h2>
+          <h2>Üst Menü</h2>
           <button class="btn btn-primary btn-sm" onclick="saveNav()">Kaydet</button>
         </div>
         <div class="card" style="margin-bottom:1em">
@@ -1341,7 +1430,7 @@
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">İç Mekan Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
-              <div class="form-group"><label>Eyebrow</label><input id="sp-introEyebrow" placeholder="İç Mekan"></div>
+              <div class="form-group"><label>Üst Etiket</label><input id="sp-introEyebrow" placeholder="İç Mekan"></div>
               <div class="form-group"><label>Kısa Statement</label><input id="sp-introStatement" placeholder="Sıcak ahşap, yumuşak ışık ve iyi müzik."></div>
             </div>
             <div class="form-group"><label>Açıklama Metni</label><textarea id="sp-introText" placeholder="Mekan hakkında…" style="min-height:5em"></textarea></div>
@@ -1369,7 +1458,7 @@
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Detaylar Bölümü</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
-              <div class="form-group"><label>Eyebrow</label><input id="sp-detailsEyebrow" placeholder="Detaylar"></div>
+              <div class="form-group"><label>Üst Etiket</label><input id="sp-detailsEyebrow" placeholder="Detaylar"></div>
               <div class="form-group"><label>Açıklama Metni</label><input id="sp-detailsText" placeholder="El yapımı seramikler…"></div>
             </div>
             <div class="contact-grid">
@@ -1398,7 +1487,7 @@
           <div class="card-header"><div class="card-header__left"><span class="card-header__title">Rezervasyon Bölümü (koyu alan)</span></div></div>
           <div class="card-body" style="padding:1.25em">
             <div class="contact-grid">
-              <div class="form-group"><label>Eyebrow</label><input id="sp-reserveEyebrow" placeholder="Rezervasyon"></div>
+              <div class="form-group"><label>Üst Etiket</label><input id="sp-reserveEyebrow" placeholder="Rezervasyon"></div>
               <div class="form-group"><label>Başlık</label><input id="sp-reserveTitle" placeholder="Bir köşe ayırtın sizi bekliyor."></div>
             </div>
             <div class="contact-grid">
@@ -1805,7 +1894,7 @@ function bootstrapFirebase(cfg) {
       if (user) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminApp').style.display = 'block';
-        document.getElementById('sidebarUser').textContent = user.email;
+        { const su = document.getElementById('sidebarUser'); su.textContent = user.email; su.dataset.initial = (user.email || '?')[0].toUpperCase(); }
         try { localStorage.setItem('pod_noTrack', '1'); } catch (e) {} // bu cihazdaki ziyaretler sayılmasın
         loadAll();
       } else {
@@ -1938,7 +2027,7 @@ function doLogout() {
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
-const topbarTitles = { dashboard:'Dashboard', messages:'Mesajlar', subscribers:'Aboneler', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', nav:'Navigasyon', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
+const topbarTitles = { dashboard:'Genel Bakış', footer:'Sayfa Altı', nav:'Üst Menü', messages:'Mesajlar', subscribers:'Aboneler', food:'Yiyecek Menüsü', drinks:'İçecek Menüsü', contact:'İletişim & Saatler', brand:'Marka & Görsel', homepage:'Ana Sayfa', menupage:'Menü Sayfası', spacepage:'Mekan Sayfası', legal:'Sözleşmeler', settings:'Ayarlar' };
 
 function showSection(btn, id) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
