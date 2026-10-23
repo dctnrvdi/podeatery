@@ -1386,7 +1386,7 @@
 
       const activationY = window.innerHeight * 0.48;
       let hit = null;
-      if (window.scrollY > 30) {
+      if (window.scrollY > 2) { // en üstte kart kapalı; kaydırma başlar başlamaz ilk ürün (Klasik) de tam süre görünür
         for (let i = allItems.length - 1; i >= 0; i--) {
           const r = allItems[i].getBoundingClientRect();
           if (r.top <= activationY) {
