@@ -187,6 +187,11 @@
       padding: 9em 4em 3em; border-bottom: 1px solid #ebebeb;
       display: flex; align-items: flex-end; justify-content: space-between; gap: 2em;
     }
+    .page-intro__head { display: flex; align-items: center; gap: 1.5em; }
+    .lang-switch { display: inline-flex; flex: none; padding: 3px; border: 1px solid rgba(3,9,13,.14); border-radius: 999px; background: #fff; }
+    .lang-switch button { min-width: 2.75em; min-height: 2.1em; padding: 0 .85em; border: 0; border-radius: 999px; background: transparent; color: rgba(3,9,13,.5); font-family: var(--font-primary); font-size: .75rem; font-weight: 500; letter-spacing: .12em; cursor: pointer; transition: background .2s, color .2s; }
+    .lang-switch button[aria-pressed="true"] { background: #03090D; color: #F8F2E5; }
+    .lang-switch button:focus-visible { outline: 2px solid #c8a96e; outline-offset: 2px; }
     .page-intro__title { font-family: var(--font-primary); font-size: 4.5em; font-weight: 300; letter-spacing: 0.04em; line-height: 1; }
     .page-intro__sub { font-family: var(--font-secondary); font-size: 0.875em; color: #999; max-width: 20em; line-height: 1.6; text-align: right; }
 
@@ -515,6 +520,7 @@
       .block-header, .block-header__menu { max-width: calc(100% - 2em); }
       .page-intro { padding: 8em 2em 2.5em; flex-direction: column; align-items: flex-start; }
       .page-intro__sub { text-align: left; }
+      .page-intro__head { width: 100%; justify-content: space-between; }
       .filter-bar { padding: 0; }
       .cat-section { flex-direction: column !important; min-height: auto; }
       .cat-section__text { width: 100%; padding: 3em 2em; border-right: none !important; border-left: none !important; border-bottom: 1px solid #ebebeb; }
@@ -630,6 +636,21 @@
     .mg-actions button { border-color: transparent; color: rgba(248,242,229,.45); padding: .9em .4em; }
     .mg-actions button:hover { color: #F8F2E5; }
   </style>
+  <script>
+  /* Menü dili: ?lang=en|tr > kayıtlı seçim > telefonun dili (Türkçe değilse İngilizce) */
+  window.POD_LANG = (function () {
+    try {
+      var q = new URLSearchParams(location.search).get('lang');
+      if (q === 'en' || q === 'tr') { localStorage.setItem('pod_lang', q); return q; }
+      var s = localStorage.getItem('pod_lang');
+      if (s === 'en' || s === 'tr') return s;
+    } catch (e) {}
+    var l = (navigator.languages && navigator.languages[0]) || navigator.language || 'tr';
+    return /^tr/i.test(l) ? 'tr' : 'en';
+  })();
+  document.documentElement.lang = window.POD_LANG;
+  </script>
+  <script src="/menu-en.js"></script>
 </head>
 <body>
   <div id="menuGate" role="dialog" aria-label="Menü telefonda açılır">
@@ -646,6 +667,7 @@
     </div>
   </div>
   <script>try{if(sessionStorage.getItem('podGateOff')||/[?&]onizleme/.test(location.search))document.documentElement.classList.add('gate-off')}catch(e){}</script>
+  <script>(function(){if(window.POD_LANG!=='en')return;var g=document.getElementById('menuGate');if(!g)return;g.setAttribute('aria-label','The menu opens on your phone');g.querySelector('.mg-title').textContent='Our menu, on your phone';g.querySelector('.mg-text').textContent='Our menu is designed for your phone. Point your camera at the code below or scan the QR code on your table.';g.querySelector('.mg-actions a').textContent='Back to home';g.querySelector('.mg-actions button').textContent='Show it here anyway';})();</script>
   <div id="podLoader" role="status" aria-label="Menü yükleniyor">
     <div class="pl-box">
       <div class="pl-logo" aria-hidden="true">
@@ -708,7 +730,13 @@
 
   <!-- PAGE INTRO -->
   <div class="page-intro" data-reveal>
-    <h1 class="page-intro__title" id="menuPageTitle">Menü</h1>
+    <div class="page-intro__head">
+      <h1 class="page-intro__title" id="menuPageTitle">Menü</h1>
+      <div class="lang-switch" role="group" aria-label="Dil / Language">
+        <button type="button" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
     <p class="page-intro__sub" id="menuPageSub">Her sabah taze hazırlanan, mevsimsel malzemelerle yapılan yiyecek ve içeceklerimiz.</p>
   </div>
 
@@ -844,6 +872,23 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script>
+  /* ════════════════════════════════════════
+     DİL (TR / EN)
+     İngilizce metin önceliği: admin'de girilen *_en alanı > menu-en.js > Türkçe
+  ════════════════════════════════════════ */
+  let LANG = window.POD_LANG === 'en' ? 'en' : 'tr';
+  const ENX = Object.assign({ cats:{}, items:{}, addons:{}, extras:{}, ui:{} }, window.POD_EN || {});
+  const UI_TR = { pageTitle:'Menü', food:'Yiyecek', drinks:'İçecek', extras:'Ekstralar', addons:'İsteğe Göre Ekle', tapHint:'Görseli Gör', seasonal:'Sezonluk', loading:'Yükleniyor…', empty:'İçerik bulunamadı.', open:'Açık', closed:'Kapalı' };
+  function L(k) { return (LANG === 'en' && ENX.ui[k]) || UI_TR[k] || ''; }
+  function tx(obj, field, map) {
+    if (LANG !== 'en' || !obj) return obj ? obj[field] : '';
+    if (obj[field + '_en']) return obj[field + '_en'];
+    const m = map && obj.id ? map[obj.id] : null;
+    if (m && typeof m[field] === 'string' && (m[field] !== '' || !obj[field])) return m[field];
+    return obj[field];
+  }
+  function txExtra(e) { return LANG === 'en' ? (e.name_en || ENX.extras[e.name] || e.name) : e.name; }
+
   /* ════════════════════════════════════════
      STATIC FALLBACK DATA
   ════════════════════════════════════════ */
@@ -1113,11 +1158,11 @@
 
     const addonsHtml = showAddons && addons && addons.length ? `
       <div class="addons-box">
-        <span class="addons-box__label">İsteğe Göre Ekle</span>
+        <span class="addons-box__label">${L('addons')}</span>
         <div class="addons-list">
           ${addons.map(a => `
             <div class="addon-item">
-              <span class="addon-name">${esc(a.name)}${a.note ? ` <span class="addon-note">— ${esc(a.note)}</span>` : ''}</span>
+              <span class="addon-name">${esc(tx(a,'name',ENX.addons))}${tx(a,'note',ENX.addons) ? ` <span class="addon-note">— ${esc(tx(a,'note',ENX.addons))}</span>` : ''}</span>
               <span class="addon-price">+${a.price} ₺</span>
             </div>`).join('')}
         </div>
@@ -1126,15 +1171,18 @@
     const extrasArr = Array.isArray(cat.extras) ? cat.extras : [];
     const extrasHtml = extrasArr.length ? `
       <div class="extras-box">
-        <span class="extras-box__label">Ekstralar</span>
+        <span class="extras-box__label">${L('extras')}</span>
         <div class="extras-list">
-          ${extrasArr.map(e => `<span class="extra-item">${esc(e.name)} <strong>+${e.price}₺</strong></span>`).join('')}
+          ${extrasArr.map(e => `<span class="extra-item">${esc(txExtra(e))} <strong>+${e.price}₺</strong></span>`).join('')}
         </div>
       </div>` : '';
 
-    const specialBadge = cat.special ? `<span class="cat-special-badge">Sezonluk</span>` : '';
-    const subtitleHtml = cat.subtitle ? `<span class="cat-subtitle">${esc(cat.subtitle)}</span>` : '';
-    const noteHtml     = cat.note    ? `<div class="cat-note">${esc(cat.note)}</div>` : '';
+    const specialBadge = cat.special ? `<span class="cat-special-badge">${L('seasonal')}</span>` : '';
+    const catName  = tx(cat, 'name', ENX.cats);
+    const catSub   = tx(cat, 'subtitle', ENX.cats);
+    const catNote  = tx(cat, 'note', ENX.cats);
+    const subtitleHtml = catSub  ? `<span class="cat-subtitle">${esc(catSub)}</span>` : '';
+    const noteHtml     = catNote ? `<div class="cat-note">${esc(catNote)}</div>` : '';
 
     const itemsHtml = (cat.items || []).map(item => {
       const hasImg = !!item.imageUrl;
@@ -1144,11 +1192,11 @@
             data-item-id="${esc(item.id || '')}"
             data-img="${esc(item.imageUrl || '')}">
           <div class="menu-item__row">
-            <span class="menu-item__name">${esc(item.name)}</span>
+            <span class="menu-item__name">${esc(tx(item,'name',ENX.items))}</span>
             ${(item.priceText || item.price) ? `<span class="menu-item__price">${esc(String(item.priceText || item.price))} ₺</span>` : ''}
           </div>
-          ${item.desc ? `<p class="menu-item__desc">${esc(item.desc)}</p>` : ''}
-          ${hasImg ? `<span class="menu-item__tap-hint">Görseli Gör</span>` : ''}
+          ${tx(item,'desc',ENX.items) ? `<p class="menu-item__desc">${esc(tx(item,'desc',ENX.items))}</p>` : ''}
+          ${hasImg ? `<span class="menu-item__tap-hint">${L('tapHint')}</span>` : ''}
         </li>`;
     }).join('');
 
@@ -1159,7 +1207,7 @@
             <div class="cat-label">
               <span class="cat-label__number">${numStr}</span>
               <div>
-                <span class="cat-label__name">${esc(cat.name)}${specialBadge}</span>
+                <span class="cat-label__name">${esc(catName)}${specialBadge}</span>
                 ${subtitleHtml}
               </div>
             </div>
@@ -1172,7 +1220,7 @@
         <div class="cat-section__image">
           <div class="cat-section__image-inner ${cat.gradient || 'grad-1'}" data-panel="${cat.id}">
             <div class="cat-img-overlay" id="overlay-${cat.id}"></div>
-            <div class="cat-section__image-caption"><span>${esc(cat.name)}</span></div>
+            <div class="cat-section__image-caption"><span>${esc(catName)}</span></div>
           </div>
         </div>
       </div>`;
@@ -1208,7 +1256,7 @@
   function renderTab(tabId, categories, addons) {
     const el = document.getElementById(tabId + 'Content');
     if (!categories || categories.length === 0) {
-      el.innerHTML = '<div class="menu-loading"><p class="menu-loading__label">İçerik bulunamadı.</p></div>';
+      el.innerHTML = '<div class="menu-loading"><p class="menu-loading__label">' + L('empty') + '</p></div>';
       return;
     }
     try {
@@ -1373,6 +1421,7 @@
      Çizgide fotoğraflı ürün yoksa (sayfanın en üstü, kategori başlığı,
      fotoğrafsız ürün ya da listenin sonu) kart hemen gizlenir. */
   function bindPeekCard(container) {
+    if (container._peekUnbind) { container._peekUnbind(); container._peekUnbind = null; }
     const tabEl = container.closest('.menu-content');
     const allItems = Array.from(container.querySelectorAll('.menu-item'));
     if (!allItems.some(el => !!el.dataset.img)) return;
@@ -1408,21 +1457,79 @@
       showPeek(hit.dataset.img, name, price, hit);
     };
 
-    window.addEventListener('scroll', () => {
+    const onScroll = () => {
       if (!ticking) { requestAnimationFrame(checkScroll); ticking = true; }
-    }, { passive: true });
-    window.addEventListener('resize', () => { currentEl = null; checkScroll(); }, { passive: true });
+    };
+    const onResize = () => { currentEl = null; checkScroll(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+    container._peekUnbind = () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+    };
   }
 
   /* ════════════════════════════════════════
      INIT
   ════════════════════════════════════════ */
+  /* ── Dil değişimi: sayfa yenilenmeden menü yeniden çizilir ── */
+  let MENU_DATA = null, MENU_PAGE = {};
+  const PAGE_SUB_TR = document.getElementById('menuPageSub').textContent;
+  function applyLangTexts() {
+    const en = LANG === 'en';
+    document.documentElement.lang = LANG;
+    document.getElementById('menuPageTitle').textContent = en ? (MENU_PAGE.pageTitle_en || ENX.ui.pageTitle || 'Menu') : (MENU_PAGE.pageTitle || UI_TR.pageTitle);
+    document.getElementById('menuPageSub').textContent   = en ? (MENU_PAGE.pageSub_en || ENX.ui.pageSub || PAGE_SUB_TR) : (MENU_PAGE.pageSub || PAGE_SUB_TR);
+    const ft = document.querySelector('.filter-tab[data-filter="yiyecek"]'); if (ft) ft.textContent = L('food');
+    const fd = document.querySelector('.filter-tab[data-filter="icecek"]');  if (fd) fd.textContent = L('drinks');
+    document.querySelectorAll('.menu-loading__label').forEach(e => { if (/Yükleniyor|Loading/.test(e.textContent)) e.textContent = L('loading'); });
+    document.querySelectorAll('.lang-switch button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
+    if (typeof updateOpenBadge === 'function') updateOpenBadge(window.POD_HOURS || {});
+    // sayfa çerçevesi: üst buton, açılır menü bağlantıları, çerez bildirimi
+    const CHROME_EN = [
+      ['.block-header__book-btn', 'Menu'],
+      ['.block-header__menu-nav a:nth-child(1)', 'Home'],
+      ['.block-header__menu-nav a:nth-child(2)', 'Menu'],
+      ['.block-header__menu-nav a:nth-child(3)', 'The Space'],
+      ['.block-header__menu-nav a:nth-child(4)', 'Contact'],
+      ['#cookieAccept', 'Accept']
+    ];
+    CHROME_EN.forEach(([sel, txt]) => {
+      const el = document.querySelector(sel); if (!el) return;
+      if (el.dataset.tr === undefined) el.dataset.tr = el.textContent;
+      el.textContent = en ? txt : el.dataset.tr;
+    });
+    const ck = document.querySelector('.cookie-banner__text');
+    if (ck) {
+      if (ck.dataset.tr === undefined) ck.dataset.tr = ck.innerHTML;
+      ck.innerHTML = en ? 'This site uses cookies in line with KVKK, Turkey’s data protection law. By continuing to use the site, you accept this. <a href="/privacy">Privacy Policy</a>' : ck.dataset.tr;
+    }
+  }
+  window.podApplyLang = applyLangTexts;
+  function setLang(l) {
+    if (l !== 'tr' && l !== 'en') return;
+    try { localStorage.setItem('pod_lang', l); } catch (e) {}
+    if (l === LANG) return;
+    LANG = l; window.POD_LANG = l;
+    applyLangTexts();
+    if (!MENU_DATA) return;
+    hidePeek();
+    renderTab('yiyecek', MENU_DATA.yiyecek, MENU_DATA.addons);
+    renderTab('icecek',  MENU_DATA.icecek,  MENU_DATA.addons);
+    document.querySelectorAll('.menu-content [data-reveal]').forEach(el => el.classList.add('is-visible'));
+    requestAnimationFrame(() => window.dispatchEvent(new Event('scroll')));
+  }
+  document.querySelectorAll('.lang-switch button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  applyLangTexts();
+
   async function init() {
     // Reveal page immediately — loading state is already visible in HTML
     document.body.style.opacity = '1';
 
     let data = await fetchFromFirestore();
     if (!data) data = STATIC;
+    MENU_DATA = data;
+    applyLangTexts();
 
     renderTab('yiyecek', data.yiyecek, data.addons);
     renderTab('icecek',  data.icecek,  data.addons);
@@ -1439,9 +1546,8 @@
           db.collection('siteConfig').doc('footer').get(),
         ]);
         if (menuPageSnap.exists) {
-          const mp = menuPageSnap.data();
-          if (mp.pageTitle) document.getElementById('menuPageTitle').textContent = mp.pageTitle;
-          if (mp.pageSub)   document.getElementById('menuPageSub').textContent   = mp.pageSub;
+          MENU_PAGE = menuPageSnap.data();
+          applyLangTexts();
         }
         if (cfg.exists) {
           const d = cfg.data();
@@ -1454,13 +1560,14 @@
             document.getElementById('nav-email').href = `mailto:${d.email}`;
             document.getElementById('nav-email').textContent = d.email;
           }
-          updateOpenBadge(d.hours || {});
+          window.POD_HOURS = d.hours || {};
+          updateOpenBadge(window.POD_HOURS);
         }
         if (brand.exists) {
           const b = brand.data();
           if (b.siteName) document.getElementById('footerLogo').textContent = b.siteName;
         }
-        if (navSnap.exists) applyNav(navSnap.data());
+        if (navSnap.exists) { applyNav(navSnap.data()); applyLangTexts(); }
         if (footerSnap.exists) {
           const f = footerSnap.data();
           if (f.desc) document.getElementById('footerDesc').textContent = f.desc;
@@ -1510,11 +1617,11 @@
 
   function applyNav(d) {
     const btn = document.querySelector('.block-header__book-btn');
-    if (btn) { if (d.btnLabel) btn.textContent = d.btnLabel; if (d.btnHref) btn.href = d.btnHref; }
+    if (btn) { if (d.btnLabel) { btn.textContent = d.btnLabel; btn.dataset.tr = d.btnLabel; } if (d.btnHref) btn.href = d.btnHref; }
     const links = document.querySelectorAll('.block-header__menu-nav a');
     for (let i = 0; i < 4; i++) {
       if (!links[i]) continue;
-      if (d['link'+(i+1)+'label']) links[i].textContent = d['link'+(i+1)+'label'];
+      if (d['link'+(i+1)+'label']) { links[i].textContent = d['link'+(i+1)+'label']; links[i].dataset.tr = d['link'+(i+1)+'label']; }
       if (d['link'+(i+1)+'href'])  links[i].href        = d['link'+(i+1)+'href'];
     }
     const soc = document.querySelectorAll('.block-header__menu-social a');
@@ -1666,7 +1773,7 @@
     const dayKey = keys[tr.getDay()];
     const nowM = tr.getHours() * 60 + tr.getMinutes();
     const raw = String((hoursData && hoursData[dayKey]) || defs[dayKey]).trim();
-    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = o ? 'Açık' : 'Kapalı'; };
+    const setOpen = o => { badge.classList.toggle('open-badge--open', o); badge.classList.toggle('open-badge--closed', !o); badge.querySelector('.open-badge__text').textContent = window.POD_LANG === 'en' ? (o ? 'Open' : 'Closed') : (o ? 'Açık' : 'Kapalı'); };
     if (/kapal|closed/i.test(raw)) { setOpen(false); return; }
     const mm = raw.match(/(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/);
     if (!mm) return;
@@ -1678,6 +1785,7 @@
     setOpen(now >= openM && now < closeM);
   }
   updateOpenBadge({});
+  if (window.podApplyLang) window.podApplyLang();
 
   /* ── Food icon cycle ── */
   (function(){

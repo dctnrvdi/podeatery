@@ -484,6 +484,10 @@
     .src-split span { font-size: .72em; color: var(--muted); }
     .menu-mini { font-size: .78em; color: var(--muted); margin-top: .2em; }
     .admin-main { min-width: 0; }
+    .en-block { margin: .4em 0 1em; padding: 1em 1em .2em; border: 1px solid var(--border); border-radius: .6em; background: #faf9f6; }
+    .en-block__head { display: flex; align-items: center; gap: .5em; font-size: .78em; font-weight: 600; margin-bottom: .8em; color: #3a3833; }
+    .en-block__head b { font-size: .85em; letter-spacing: .08em; background: #f5ead8; color: #7a5a2a; padding: .15em .45em; border-radius: .3em; }
+    .en-miss { display: inline-block; margin-top: .25em; font-size: .7em; color: #b45309; }
     .dash-head__right { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .guest-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; }
     .guest-stats > div { padding-left: 1em; border-left: 1px solid var(--border); }
@@ -1740,6 +1744,9 @@
       <input type="hidden" id="catId">
       <input type="hidden" id="catTab">
       <div class="form-group"><label>Kategori Adı</label><input id="catName" placeholder="PANCAKE"></div>
+      <div class="en-block"><div class="en-block__head"><b>EN</b> İngilizce menü</div>
+        <div class="form-group"><label>Kategori adı (İngilizce)</label><input id="catNameEn" placeholder="PANCAKES"></div>
+      </div>
       <div class="form-group"><label>Sıra</label><input id="catOrder" type="number" placeholder="1" min="1"></div>
       <div class="form-group">
         <label>Renk Tema</label>
@@ -1783,6 +1790,10 @@
       <div class="form-group"><label>Ürün Adı</label><input id="itemName" placeholder="Klasik"></div>
       <div class="form-group"><label>Fiyat (₺)</label><input id="itemPrice" type="number" placeholder="420" min="0"></div>
       <div class="form-group"><label>Açıklama</label><textarea id="itemDesc" placeholder="Malzemeler…"></textarea></div>
+      <div class="en-block"><div class="en-block__head"><b>EN</b> İngilizce menü</div>
+        <div class="form-group"><label>Ürün adı (İngilizce)</label><input id="itemNameEn" placeholder="Classic"></div>
+        <div class="form-group"><label>Açıklama (İngilizce)</label><textarea id="itemDescEn" placeholder="Ingredients…"></textarea></div>
+      </div>
       <div class="form-group">
         <label>Görsel (menüde ürüne dokununca gösterilir)</label>
         <div id="itemImgPreview" style="display:none;align-items:center;gap:.9em;padding:.6em;border:1px solid var(--border);border-radius:.5em">
@@ -1837,6 +1848,10 @@
       <div class="form-group"><label>Ürün Adı</label><input id="addonName" placeholder="Whey Protein Tozu"></div>
       <div class="form-group"><label>Fiyat (₺)</label><input id="addonPrice" type="number" placeholder="120" min="0"></div>
       <div class="form-group"><label>Not (opsiyonel)</label><input id="addonNote" placeholder="23 gr protein içerir"></div>
+      <div class="en-block"><div class="en-block__head"><b>EN</b> İngilizce menü</div>
+        <div class="form-group"><label>Ürün adı (İngilizce)</label><input id="addonNameEn" placeholder="Whey Protein"></div>
+        <div class="form-group"><label>Not (İngilizce)</label><input id="addonNoteEn" placeholder="adds 23 g of protein"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('addonModal')">İptal</button>
@@ -1861,6 +1876,7 @@
 <div id="toastContainer"></div>
 
 <!-- Firebase SDKs -->
+<script src="/menu-en.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -2425,6 +2441,11 @@ async function loadDrinkMenu() {
   renderCategoryList(container, filtered, itemSnap, 'icecek');
 }
 
+/* İngilizce menü: admin'de girilen *_en alanı > menu-en.js (ilk çeviri) */
+const CAT_CACHE = {}, ITEM_CACHE = {}, ADDON_CACHE = {};
+const POD_EN_MAP = Object.assign({ cats:{}, items:{}, addons:{} }, window.POD_EN || {});
+const enVal = (doc, field, map, id) => (doc && doc[field + '_en']) || ((map[id] || {})[field]) || '';
+
 function renderCategoryList(container, catSnap, itemSnap, tab) {
   const catDocs = catSnap.docs || [];
   if (catDocs.length === 0) {
@@ -2434,6 +2455,7 @@ function renderCategoryList(container, catSnap, itemSnap, tab) {
   container.innerHTML = '';
   catDocs.forEach(catDoc => {
     const cat   = catDoc.data();
+    CAT_CACHE[catDoc.id] = cat;
     const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
     const items = itemSnap.docs.filter(d => d.data().categoryId === catDoc.id)
                               .sort((a,b) => ((a.data().pinLast?1:0)-(b.data().pinLast?1:0)) || (priceOf(a.data())-priceOf(b.data())) || ((a.data().order||0)-(b.data().order||0)));
@@ -2461,6 +2483,8 @@ function renderCategoryList(container, catSnap, itemSnap, tab) {
 
 function renderItemRow(doc) {
   const d = doc.data();
+  ITEM_CACHE[doc.id] = d;
+  const enMissing = !enVal(d, 'name', POD_EN_MAP.items, doc.id);
   const hasImg = !!d.imageUrl;
   return `
     <div class="item-row">
@@ -2468,6 +2492,7 @@ function renderItemRow(doc) {
       <div class="item-row__info">
         <div class="item-row__name">${escHtml(d.name)}</div>
         ${d.desc ? `<div class="item-row__desc">${escHtml(d.desc)}</div>` : ''}
+        ${enMissing ? '<span class="en-miss">İngilizcesi girilmemiş</span>' : ''}
       </div>
       <span class="item-row__price">${(d.priceText || d.price) ? escHtml(String(d.priceText || d.price)) + ' ₺' : ''}${d.pinLast ? ' <span title="En sona sabit" style="opacity:.5">⤓</span>' : ''}</span>
       <div class="item-row__actions">
@@ -2486,6 +2511,7 @@ function openCatModal(tab, id='', name='', order=1, gradient='grad-1') {
   document.getElementById('catName').value    = name;
   document.getElementById('catOrder').value   = order;
   document.getElementById('catGradient').value= gradient;
+  document.getElementById('catNameEn').value  = id ? enVal(CAT_CACHE[id], 'name', POD_EN_MAP.cats, id) : '';
   openModal('catModal');
 }
 
@@ -2495,12 +2521,13 @@ async function saveCat() {
   const name     = document.getElementById('catName').value.trim().toLocaleUpperCase('tr-TR');
   const order    = parseInt(document.getElementById('catOrder').value) || 1;
   const gradient = document.getElementById('catGradient').value;
+  const name_en  = document.getElementById('catNameEn').value.trim().toUpperCase();
   if (!name) return showToast('Kategori adı gerekli', 'error');
   try {
     if (id) {
-      await db.collection('menuCategories').doc(id).update({ name, order, gradient });
+      await db.collection('menuCategories').doc(id).update({ name, order, gradient, name_en });
     } else {
-      await db.collection('menuCategories').add({ name, tab, order, gradient, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('menuCategories').add({ name, tab, order, gradient, name_en, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeModal('catModal');
     showToast('Kategori kaydedildi', 'success');
@@ -2531,6 +2558,9 @@ function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='
   document.getElementById('itemPinLast').checked  = !!pinLast;
   document.getElementById('itemImageUrl').value = imageUrl || '';
   document.getElementById('itemImageUrl').dataset.orig = imageUrl || '';
+  const cached = id ? ITEM_CACHE[id] : null;
+  document.getElementById('itemNameEn').value = id ? enVal(cached, 'name', POD_EN_MAP.items, id) : '';
+  document.getElementById('itemDescEn').value = id ? enVal(cached, 'desc', POD_EN_MAP.items, id) : '';
   syncItemImg();
   openModal('itemModal');
 }
@@ -2561,9 +2591,11 @@ async function saveItem() {
   const imageUrl = document.getElementById('itemImageUrl').value.trim();
   const priceText = document.getElementById('itemPriceText').value.trim();
   const pinLast  = document.getElementById('itemPinLast').checked;
+  const name_en  = document.getElementById('itemNameEn').value.trim();
+  const desc_en  = document.getElementById('itemDescEn').value.trim();
   if (!name) return showToast('Ürün adı gerekli', 'error');
   try {
-    const data = { categoryId: catId, name, price, desc, order, imageUrl, priceText, pinLast };
+    const data = { categoryId: catId, name, price, desc, order, imageUrl, priceText, pinLast, name_en, desc_en };
     if (id) {
       await db.collection('menuItems').doc(id).update(data);
     } else {
@@ -2591,6 +2623,7 @@ async function loadAddons() {
   if (snap.empty) { el.innerHTML = '<div class="empty-state"><p>Henüz ek ürün eklenmemiş.</p></div>'; return; }
   el.innerHTML = snap.docs.map(doc => {
     const d = doc.data();
+    ADDON_CACHE[doc.id] = d;
     return `<div class="addon-row">
       <div style="flex:1"><div class="addon-row__name">${escHtml(d.name)}</div>${d.note?`<div class="addon-row__note">${escHtml(d.note)}</div>`:''}</div>
       <span class="addon-row__price">+${d.price} ₺</span>
@@ -2608,6 +2641,8 @@ function openAddonModal(id='', name='', price=0, note='', order=1) {
   document.getElementById('addonName').value  = name;
   document.getElementById('addonPrice').value = price || '';
   document.getElementById('addonNote').value  = note;
+  document.getElementById('addonNameEn').value = id ? enVal(ADDON_CACHE[id], 'name', POD_EN_MAP.addons, id) : '';
+  document.getElementById('addonNoteEn').value = id ? enVal(ADDON_CACHE[id], 'note', POD_EN_MAP.addons, id) : '';
   openModal('addonModal');
 }
 
@@ -2616,8 +2651,10 @@ async function saveAddon() {
   const name  = document.getElementById('addonName').value.trim();
   const price = parseFloat(document.getElementById('addonPrice').value) || 0;
   const note  = document.getElementById('addonNote').value.trim();
+  const name_en = document.getElementById('addonNameEn').value.trim();
+  const note_en = document.getElementById('addonNoteEn').value.trim();
   if (!name) return showToast('Ad gerekli', 'error');
-  const data = { name, price, note, order: 1 };
+  const data = { name, price, note, order: 1, name_en, note_en };
   if (id) await db.collection('addons').doc(id).update(data);
   else await db.collection('addons').add(data);
   closeModal('addonModal');
