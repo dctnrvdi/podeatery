@@ -466,7 +466,8 @@
     .hbar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
     .hbar i { display: block; width: 100%; max-width: 1.6em; border-radius: .25em .25em 0 0; background: var(--accent); min-height: 2px; }
     .hbar i.zero { background: var(--border); }
-    .hbar b { font-size: .62em; font-weight: 500; margin-bottom: .25em; color: var(--text); }
+    .hbar b { font-size: .62em; font-weight: 500; margin-bottom: .25em; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+    @media (max-width: 600px) { .hbars { gap: .18em; } .hbar b { font-size: .56em; } .hbar span { font-size: .54em; } }
     .hbar span { font-size: .6em; color: var(--muted); margin-top: .35em; }
     .rank { width: 100%; border-collapse: collapse; font-size: .82em; }
     .rank td { padding: .55em 0; border-top: 1px solid var(--border); vertical-align: middle; }
@@ -2257,7 +2258,8 @@ function renderHourly() {
   const max = Math.max(...vals, 1), peak = vals.indexOf(Math.max(...vals)), list = [];
   for (let h = first; h <= last; h++) list.push(h);
   const fmt = v => (avgMode ? String(v).replace('.', ',') : v);
-  box.innerHTML = '<div class="hbars">' + list.map(h => `<div class="hbar${h === peak ? ' peak' : ''}" title="${hh(h)}:00 — ${fmt(vals[h])} görüntüleme">${vals[h] ? `<b>${fmt(vals[h])}</b>` : ''}<i class="${vals[h] ? '' : 'zero'}" style="height:${vals[h] ? Math.max(4, Math.round(vals[h] / max * 100)) : 2}%"></i><span>${hh(h)}</span></div>`).join('') + '</div>';
+  const lab = v => (avgMode ? Math.round(v) : v); // ortalamada sütun üstünde tam sayı, ondalık ipucunda
+  box.innerHTML = '<div class="hbars">' + list.map(h => `<div class="hbar${h === peak ? ' peak' : ''}" title="${hh(h)}:00 — ${fmt(vals[h])} görüntüleme">${lab(vals[h]) ? `<b>${lab(vals[h])}</b>` : ''}<i class="${vals[h] ? '' : 'zero'}" style="height:${vals[h] ? Math.max(4, Math.round(vals[h] / max * 100)) : 2}%"></i><span>${hh(h)}</span></div>`).join('') + '</div>';
   const total = Math.round(vals.reduce((a, b) => a + b, 0));
   foot.innerHTML = `En yoğun saat <b>${hh(peak)}:00–${hh(peak + 1)}:00</b> · ${avgMode ? 'günlük ortalama' : 'toplam'} <b>${total}</b> görüntüleme`;
 }
