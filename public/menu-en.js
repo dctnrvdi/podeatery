@@ -58,7 +58,7 @@ window.POD_EN = {
    "name": "SMOOTHIE & PROTEIN BAR"
   },
   "buzgibiler": {
-   "name": "ICED COOLERS"
+   "name": "COOLERS"
   },
   "detoks": {
    "name": "DETOX JUICES"
@@ -80,7 +80,7 @@ window.POD_EN = {
   },
   "RCdlcSSxB4GargWljPIn": {
    "name": "Salted Caramel & Crumble",
-   "desc": "Salted caramel sauce, banana, house-made crumble, crushed crêpe"
+   "desc": "Salted caramel sauce, banana, house-made crumble, crispy crêpe flakes"
   },
   "l5D7aXRVbVqHGplmeL6j": {
    "name": "Chocolate & Forest Berries",
@@ -104,7 +104,7 @@ window.POD_EN = {
   },
   "whUXDbUsY67YUvSQws6Z": {
    "name": "Avocado & Beetroot",
-   "desc": "Roasted beetroot herbed labneh, sliced avocado, chia seeds, olive oil; served with fresh greens and roasted potatoes"
+   "desc": "Herbed labneh with roasted beetroot, sliced avocado, chia seeds, olive oil; served with fresh greens and roasted potatoes"
   },
   "gCfxPvO6q1qtJ2C68H7v": {
    "name": "Ezine Cheese",
@@ -112,7 +112,7 @@ window.POD_EN = {
   },
   "qbL9PkMEZTPd62jcZtsg": {
    "name": "Three Cheese",
-   "desc": "Mozzarella, tulum cheese, fresh curd cheese, scrambled eggs, red capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens and roasted potatoes"
+   "desc": "Mozzarella, tulum cheese, fresh curd cheese, scrambled eggs, capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens and roasted potatoes"
   },
   "8NaCaabNLhPUjad6cCyG": {
    "name": "Smoked Turkey",
@@ -132,7 +132,7 @@ window.POD_EN = {
   },
   "vQfMSHdZfeVkzb4e9KWu": {
    "name": "French Toast",
-   "desc": "Buttery egg-dipped brioche with our signature caramel sauce, banana, strawberries, red forest berries, flaked almonds and maple syrup (served until 18:00) · Add ice cream +50 ₺"
+   "desc": "Buttery egg-dipped brioche with our signature caramel sauce, banana, strawberries, mixed red berries, flaked almonds and maple syrup (served until 18:00) · Add ice cream +50 ₺"
   },
   "Cs9CJrPdUR4orGC5ONzP": {
    "name": "Sausage",
@@ -140,7 +140,7 @@ window.POD_EN = {
   },
   "miuHBuPLtqk8BCczHBgm": {
    "name": "Turkish Sausage",
-   "desc": "Scrambled eggs, sucuk (spiced Turkish beef sausage), halloumi, red capia pepper, raw pumpkin seeds; served with fresh greens and roasted potatoes"
+   "desc": "Scrambled eggs, sucuk (spiced Turkish beef sausage), halloumi, capia pepper, raw pumpkin seeds; served with fresh greens and roasted potatoes"
   },
   "HJ0fQMZT8m2oUborne7Y": {
    "name": "Smoked Salmon",
@@ -231,7 +231,7 @@ window.POD_EN = {
    "desc": "Two poached eggs over diced potatoes and green & red peppers; served with sourdough bread"
   },
   "79G4dQFLr7hDZPdkPLWu": {
-   "name": "Turkish Poached Eggs",
+   "name": "Turkish Eggs",
    "desc": "Poached eggs on fresh herbed yogurt, finished with our spiced butter sauce"
   },
   "AWLLMOZ18NMLJPFAnZv8": {
@@ -240,11 +240,11 @@ window.POD_EN = {
   },
   "5tBGEr2CYyfm4kAMkNuZ": {
    "name": "Three Cheese Omelette",
-   "desc": "Mozzarella, tulum cheese, fresh curd cheese, red capia pepper, poppy seeds; served with sourdough bread and roasted potatoes"
+   "desc": "Mozzarella, tulum cheese, fresh curd cheese, capia pepper, poppy seeds; served with sourdough bread and roasted potatoes"
   },
   "AT6OiZ06D4e799G38smi": {
    "name": "Spanish Omelette",
-   "desc": "Diced potatoes, red capia pepper, mild green pepper, pumpkin seeds; served with sourdough bread and fresh greens"
+   "desc": "Diced potatoes, capia pepper, mild green pepper, pumpkin seeds; served with sourdough bread and fresh greens"
   },
   "nkp46TmKr46Vs12gJPi2": {
    "name": "Ezine Cheese Omelette",
@@ -272,11 +272,11 @@ window.POD_EN = {
   },
   "Ayfy2hAF3iwCtOIOMKUr": {
    "name": "Three Cheese",
-   "desc": "Mozzarella, tulum cheese, fresh curd cheese, scrambled eggs, red capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens"
+   "desc": "Mozzarella, tulum cheese, fresh curd cheese, scrambled eggs, capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens"
   },
   "0PO0HnBKvxVSxQ93Qsqx": {
    "name": "Turkish Sausage",
-   "desc": "Scrambled eggs, sucuk (spiced Turkish beef sausage), halloumi, red capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens"
+   "desc": "Scrambled eggs, sucuk (spiced Turkish beef sausage), halloumi, capia pepper, poppy seeds, raw pumpkin seeds; served with fresh greens"
   },
   "xAaO8iFHroRv0AUH2SJA": {
    "name": "Sausage",
@@ -316,7 +316,7 @@ window.POD_EN = {
   },
   "5owbL388exf58vpfDGeo": {
    "name": "Magnolia",
-   "desc": "Strawberry / Oreo & banana / Lotus"
+   "desc": "Layered cream pudding: strawberry / Oreo & banana / Lotus"
   },
   "T9Lai8M9e3lX7z9Y8qhW": {
    "name": "Blackberry Brownie",
@@ -343,7 +343,7 @@ window.POD_EN = {
    "desc": ""
   },
   "AvyrZjjEYGqpnk2CNr04": {
-   "name": "Espresso Single / Double",
+   "name": "Espresso (Single / Double)",
    "desc": ""
   },
   "ZsFZRu9NBUYkvdQy1HrN": {
@@ -544,7 +544,7 @@ window.POD_EN = {
   },
   "ytXAO2QDs6DchcMzTvLC": {
    "name": "Boost",
-   "desc": "Apple, elderberry, rosehip, natural flavoring, goji, lime, echinacea, ginger, marshmallow blossom · steep 6 min"
+   "desc": "Apple, elderberry, rosehip, natural flavoring, goji, lime, echinacea, ginger, marshmallow flower · steep 6 min"
   },
   "JQfoUKeEybN1i0g3l3FN": {
    "name": "Ginger Tea",
@@ -570,7 +570,7 @@ window.POD_EN = {
  "addons": {
   "GfKaVcx3qIszTTO8vbTj": {
    "name": "Whey Protein",
-   "note": "adds 23 g of protein"
+   "note": "Adds 23 g of protein"
   },
   "kzlmwqUH7xi6cqHKLFm0": {
    "name": "Collagen"
