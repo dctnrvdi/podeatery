@@ -601,6 +601,7 @@
       .auth-card { padding: 2.25em 1.75em 2em; }
     }
 
+
     /* ═══ UI 2.0 — rafine görünüm ═══ */
     :root { --border: #ebe8e2; --muted: #8a867e; --muted2: #b9b5ad; --bg: #f5f4f0; --shadow: 0 1px 2px rgba(28,24,16,.04), 0 1px 1px rgba(28,24,16,.02); --ring: 0 0 0 3px rgba(200,169,110,.22); --r: .75em; }
     body { font-size: 15px; letter-spacing: .005em; }
@@ -689,6 +690,40 @@
       .admin-topbar__title { color: var(--text); }
       .nav-item.active::before { left: -.7em; }
     }
+    /* ═══ Telefon: uygulama gibi ═══ */
+    .soldout-chip { border: 1px solid var(--border); background: var(--white); color: var(--muted); border-radius: 999px; padding: .32em .8em; font-family: var(--fs); font-size: .74em; font-weight: 500; white-space: nowrap; cursor: pointer; transition: all .15s; }
+    .soldout-chip:hover { border-color: #d3cfc6; color: var(--text); }
+    .soldout-chip.on { background: #fff3e6; border-color: #e9b27a; color: #9a4f12; }
+    .item-row.is-soldout .item-row__name, .item-row.is-soldout .item-row__desc, .item-row.is-soldout img { opacity: .45; }
+    .mob-tabbar { display: none; }
+    @media (max-width: 768px) {
+      .item-row { cursor: pointer; flex-wrap: nowrap; gap: .75em; padding: .8em 1em; }
+      .item-row__name { white-space: normal; line-height: 1.3; }
+      .item-row__desc { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .item-row__actions { flex-direction: column; align-items: flex-end; gap: .4em; }
+      .item-row__actions .btn-edit, .item-row__actions .btn-del { display: none; }
+      .item-row__price { align-self: flex-start; padding-top: .1em; }
+      .soldout-chip { min-height: 32px; padding: .35em .85em; }
+      .card-header__actions .btn { min-height: 38px; min-width: 38px; }
+      .modal-backdrop { padding: 0; align-items: stretch; }
+      .modal, .modal[style] { max-width: none !important; width: 100% !important; max-height: none; height: 100%; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; }
+      .modal-header { flex: none; padding: max(1em, env(safe-area-inset-top, 0px)) 1.1em 1em; }
+      .modal-close { min-width: 44px; min-height: 44px; font-size: 1.6em; }
+      .modal-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1.2em 1.1em; }
+      .modal-footer { flex: none; padding: .8em 1.1em calc(.8em + env(safe-area-inset-bottom, 0px)); background: var(--white); }
+      .modal-footer .btn { min-height: 46px; font-size: .9em; padding-inline: 1em; }
+      .modal-footer .btn-primary { flex: 1; }
+      .section-header .save-fab { position: fixed; left: 12px; right: 12px; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); z-index: 80; min-height: 48px; font-size: .95em; box-shadow: 0 10px 24px -8px rgba(0,0,0,.45); }
+      .admin-main { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+      .mob-tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; background: rgba(255,255,255,.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 4px 4px env(safe-area-inset-bottom, 0px); }
+      .mob-tab { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; padding: 8px 2px 7px; min-height: 58px; font-family: var(--fs); font-size: 10.5px; font-weight: 500; color: #8a867e; cursor: pointer; }
+      .mob-tab.on { color: var(--text); }
+      .mob-tab.on svg { color: #a8864a; }
+      .mob-tab__badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--danger); color: #fff; font-style: normal; font-size: 10px; line-height: 17px; text-align: center; }
+      .mob-tab__badge:empty { display: none; }
+      .sidebar { z-index: 120; }
+      .sidebar-overlay { z-index: 110; }
+    }
   </style>
 </head>
 <body>
@@ -742,6 +777,12 @@
 <!-- ─── ADMIN APP ── -->
 <div id="adminApp">
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileNav()"></div>
+  <nav class="mob-tabbar" aria-label="Hızlı geçiş">
+    <button type="button" class="mob-tab on" data-s="dashboard" onclick="showSection(document.querySelector('.nav-item[data-section=dashboard]'),'dashboard')"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>Genel Bakış</span></button>
+    <button type="button" class="mob-tab" data-s="food drinks" onclick="showSection(document.querySelector('.nav-item[data-section=food]'),'food')"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Menü</span></button>
+    <button type="button" class="mob-tab" data-s="messages" onclick="showSection(document.querySelector('.nav-item[data-section=messages]'),'messages')"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg><span>Mesajlar</span><i class="mob-tab__badge" id="mobMsgBadge"></i></button>
+    <button type="button" class="mob-tab" data-s="subscribers" onclick="showSection(document.querySelector('.nav-item[data-section=subscribers]'),'subscribers')"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.3.2 4 1.8 4.5 4.8"/></svg><span>Aboneler</span></button>
+  </nav>
   <div class="admin-layout">
 
     <!-- SIDEBAR -->
@@ -1816,6 +1857,7 @@
       <div class="form-group"><label>Sıra</label><input id="itemOrder" type="number" placeholder="1" min="1"></div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-ghost btn-sm" id="itemDeleteBtn" style="color:var(--danger);margin-right:auto" onclick="deleteItemFromModal()">Ürünü Sil</button>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('itemModal')">İptal</button>
       <button class="btn btn-primary btn-sm" onclick="saveItem()">Kaydet</button>
     </div>
@@ -2051,6 +2093,8 @@ function showSection(btn, id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   if (btn) btn.classList.add('active');
   document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.toggle('on', (t.dataset.s || '').split(' ').includes(id)));
+  if (window.matchMedia('(max-width: 768px)').matches) window.scrollTo(0, 0);
   document.getElementById('topbarTitle').textContent = topbarTitles[id] || id;
   if (id === 'messages')    loadMessages();
   if (id === 'subscribers') loadSubscribers();
@@ -2486,8 +2530,9 @@ function renderItemRow(doc) {
   ITEM_CACHE[doc.id] = d;
   const enMissing = !enVal(d, 'name', POD_EN_MAP.items, doc.id);
   const hasImg = !!d.imageUrl;
+  const soldOn = d.soldOutDate === istDate(0);
   return `
-    <div class="item-row">
+    <div class="item-row${soldOn ? ' is-soldout' : ''}" onclick="if(window.matchMedia('(max-width: 768px)').matches&&!event.target.closest('button'))this.querySelector('.btn-edit').click()">
       ${hasImg ? `<img src="${escHtml(d.imageUrl)}" style="width:2.5em;height:2.5em;border-radius:.3em;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : `<div style="width:2.5em;height:2.5em;border-radius:.3em;background:var(--bg);flex-shrink:0;border:1px dashed var(--border)"></div>`}
       <div class="item-row__info">
         <div class="item-row__name">${escHtml(d.name)}</div>
@@ -2496,11 +2541,32 @@ function renderItemRow(doc) {
       </div>
       <span class="item-row__price">${(d.priceText || d.price) ? escHtml(String(d.priceText || d.price)) + ' ₺' : ''}${d.pinLast ? ' <span title="En sona sabit" style="opacity:.5">⤓</span>' : ''}</span>
       <div class="item-row__actions">
-        <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick='openItemModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.categoryId||""))},${escHtml(JSON.stringify(d.name||""))},${d.price||0},${escHtml(JSON.stringify(d.desc||""))},${d.order||1},${escHtml(JSON.stringify(d.imageUrl||""))},${escHtml(JSON.stringify(d.priceText||""))},${d.pinLast?'true':'false'})'>✎</button>
-        <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--danger)" title="Sil" onclick='confirmDelete("Ürün silinsin mi?",${escHtml(JSON.stringify((d.name||"") + " kalıcı olarak silinecek."))},()=>deleteItem(${escHtml(JSON.stringify(doc.id))}))'>×</button>
+        <button type="button" class="soldout-chip${soldOn ? ' on' : ''}" title="Bugün menüde 'yok' olarak göster (gece kendiliğinden geri gelir)" onclick='toggleSoldOut(${escHtml(JSON.stringify(doc.id))}, this)'>Bugün yok</button>
+        <button class="btn btn-ghost btn-sm btn-icon btn-edit" title="Düzenle" onclick='openItemModal(${escHtml(JSON.stringify(doc.id))},${escHtml(JSON.stringify(d.categoryId||""))},${escHtml(JSON.stringify(d.name||""))},${d.price||0},${escHtml(JSON.stringify(d.desc||""))},${d.order||1},${escHtml(JSON.stringify(d.imageUrl||""))},${escHtml(JSON.stringify(d.priceText||""))},${d.pinLast?'true':'false'})'>✎</button>
+        <button class="btn btn-ghost btn-sm btn-icon btn-del" style="color:var(--danger)" title="Sil" onclick='confirmDelete("Ürün silinsin mi?",${escHtml(JSON.stringify((d.name||"") + " kalıcı olarak silinecek."))},()=>deleteItem(${escHtml(JSON.stringify(doc.id))}))'>×</button>
       </div>
     </div>
   `;
+}
+
+/* ── Bugün yok: o günün tarihiyle işaretlenir, ertesi gün kendiliğinden geri gelir ── */
+async function toggleSoldOut(id, el) {
+  const d = ITEM_CACHE[id] || {};
+  const on = d.soldOutDate === istDate(0);
+  el.disabled = true;
+  try {
+    await db.collection('menuItems').doc(id).update({ soldOutDate: on ? firebase.firestore.FieldValue.delete() : istDate(0) });
+    if (on) delete d.soldOutDate; else d.soldOutDate = istDate(0);
+    el.classList.toggle('on', !on);
+    el.closest('.item-row').classList.toggle('is-soldout', !on);
+    showToast(on ? (d.name || 'Ürün') + ' tekrar menüde' : (d.name || 'Ürün') + ' bugün menüde "yok" görünüyor', 'success');
+  } catch (e) { showToast('Kaydedilemedi: ' + e.message, 'error'); }
+  el.disabled = false;
+}
+function deleteItemFromModal() {
+  const id = document.getElementById('itemId').value; if (!id) return;
+  const name = (ITEM_CACHE[id] || {}).name || '';
+  confirmDelete('Ürün silinsin mi?', name + ' kalıcı olarak silinecek.', () => { closeModal('itemModal'); deleteItem(id); });
 }
 
 /* ── Category CRUD ── */
@@ -2548,6 +2614,7 @@ async function deleteCat(id) {
 /* ── Item CRUD ── */
 function openItemModal(id, catId, name='', price=0, desc='', order=1, imageUrl='', priceText='', pinLast=false) {
   document.getElementById('itemModalTitle').textContent = id ? 'Ürün Düzenle' : 'Ürün Ekle';
+  document.getElementById('itemDeleteBtn').style.display = id ? '' : 'none';
   document.getElementById('itemId').value       = id || '';
   document.getElementById('itemCatId').value    = catId;
   document.getElementById('itemName').value     = name;
@@ -3451,6 +3518,15 @@ async function saveSpacepage() {
 ════════════════════════════════════════ */
 function openModal(id)  { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* Telefonda: sayfa kaydet düğmeleri ekranın altında sabit durur; mesaj rozeti alt çubuğa da yansır */
+document.querySelectorAll('.section-header .btn-primary').forEach(b => { if (/Kaydet/.test(b.textContent)) b.classList.add('save-fab'); });
+(function () {
+  const src = document.getElementById('msgBadge'), dst = document.getElementById('mobMsgBadge');
+  if (!src || !dst) return;
+  const sync = () => { const n = src.style.display === 'none' ? '' : src.textContent.trim(); dst.textContent = n; dst.style.display = n ? '' : 'none'; };
+  new MutationObserver(sync).observe(src, { attributes: true, childList: true, characterData: true, subtree: true }); sync();
+})();
 
 document.querySelectorAll('.modal-backdrop').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });

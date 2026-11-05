@@ -594,6 +594,7 @@ window.POD_EN = {
   "addons": "Optional add-ons",
   "tapHint": "View photo",
   "seasonal": "Seasonal",
+  "soldOut": "Not available today",
   "loading": "Loading…",
   "empty": "Nothing here yet.",
   "open": "Open",

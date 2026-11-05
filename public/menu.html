@@ -417,6 +417,8 @@
     .menu-item.is-peeking .menu-item__price { color: #aaa; }
     .menu-item__row { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; margin-bottom: 0.3em; }
     .menu-item__name { font-family: var(--font-secondary); font-size: 0.9375em; font-weight: 500; }
+    .menu-item.is-soldout .menu-item__name, .menu-item.is-soldout .menu-item__price, .menu-item.is-soldout .menu-item__desc { opacity: .45; }
+    .menu-item__soldout { display: inline-block; margin-left: .6em; padding: .15em .55em .1em; border: 1px solid rgba(3,9,13,.18); border-radius: 999px; font-size: .62em; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; vertical-align: .15em; opacity: 1; }
     .menu-item__price { font-family: var(--font-primary); font-size: 0.8125em; font-weight: 500; letter-spacing: 0.04em; color: #666; flex-shrink: 0; }
     .menu-item__desc { font-family: var(--font-secondary); font-size: 0.8125em; color: #999; line-height: 1.55; }
     /* Mobile image hint */
@@ -678,14 +680,14 @@
     </div>
   </div>
   <script>
-    /* Açılış ekranını kapat: menü çizilince ya da en geç 8 sn sonra (bağlantı yavaşsa sayfa yine açılır) */
+    /* Açılış ekranını kapat: menü çizilince ya da en geç 16 sn sonra (bağlantı yavaşsa sayfa yine açılır) */
     window.podLoaderDone = function () {
       var el = document.getElementById('podLoader');
       if (!el || el.classList.contains('is-done')) return;
       el.classList.add('is-done');
       setTimeout(function () { el.remove(); }, 600);
     };
-    setTimeout(window.podLoaderDone, 8000);
+    setTimeout(window.podLoaderDone, 16000);
     window.addEventListener('error', function () { setTimeout(window.podLoaderDone, 300); });
   </script>
 
@@ -878,7 +880,7 @@
   ════════════════════════════════════════ */
   let LANG = window.POD_LANG === 'en' ? 'en' : 'tr';
   const ENX = Object.assign({ cats:{}, items:{}, addons:{}, extras:{}, ui:{} }, window.POD_EN || {});
-  const UI_TR = { pageTitle:'Menü', food:'Yiyecek', drinks:'İçecek', extras:'Ekstralar', addons:'İsteğe Göre Ekle', tapHint:'Görseli Gör', seasonal:'Sezonluk', loading:'Yükleniyor…', empty:'İçerik bulunamadı.', open:'Açık', closed:'Kapalı' };
+  const UI_TR = { pageTitle:'Menü', food:'Yiyecek', drinks:'İçecek', extras:'Ekstralar', addons:'İsteğe Göre Ekle', tapHint:'Görseli Gör', seasonal:'Sezonluk', soldOut:'Bugün yok', loading:'Yükleniyor…', empty:'İçerik bulunamadı.', open:'Açık', closed:'Kapalı' };
   function L(k) { return (LANG === 'en' && ENX.ui[k]) || UI_TR[k] || ''; }
   function tx(obj, field, map) {
     if (LANG !== 'en' || !obj) return obj ? obj[field] : '';
@@ -1106,24 +1108,42 @@
     return { apiKey:"AIzaSyDPoxXVyr-2glvUYzfFSL20aCl8jXH6_yQ", authDomain:"podcoffee-b35f5.firebaseapp.com", projectId:"podcoffee-b35f5", storageBucket:"podcoffee-b35f5.firebasestorage.app", messagingSenderId:"1069984181263", appId:"1:1069984181263:web:ea37bd075b5764ecc0077a" };
   }
 
+  const MENU_CACHE_KEY = 'pod_menu_v1';
+  function readMenuCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem(MENU_CACHE_KEY) || 'null');
+      return c && c.d && Array.isArray(c.d.yiyecek) && c.d.yiyecek.length ? c.d : null;
+    } catch (e) { return null; }
+  }
+  function writeMenuCache(d) {
+    try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify({ t: Date.now(), d })); } catch (e) {}
+  }
+
   async function fetchFromFirestore() {
     const cfg = getConfig();
     try {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
       try { const _k='pod_v_menu_'+new Date().toDateString(); if(!sessionStorage.getItem(_k)&&localStorage.getItem('pod_noTrack')!=='1'){sessionStorage.setItem(_k,'1');const _t=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Istanbul'});const _inc={menu:firebase.firestore.FieldValue.increment(1)};db.collection('analytics').doc(_t.slice(0,10)).set(_inc,{merge:true});db.collection('analyticsHourly').doc(_t.slice(0,13).replace(' ','-')).set(_inc,{merge:true});} (function(){var f=function(){if(window.podTrackSource)podTrackSource(db);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',f):f();})(); } catch(e){}
-      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 7000));
-      const [catSnap, itemSnap, addonSnap] = await Promise.race([
-        Promise.all([
-          db.collection('menuCategories').get(),
-          db.collection('menuItems').get(),
-          db.collection('addons').get()
-        ]),
-        timeout
+      // Zaman aşımı yok: yavaş bağlantıda da sonunda gelen gerçek menü ekrana basılır (init'e bakın)
+      const [catSnap, itemSnap, addonSnap] = await Promise.all([
+        db.collection('menuCategories').get(),
+        db.collection('menuItems').get(),
+        db.collection('addons').get()
       ]);
       const cats  = catSnap.docs.map(d => ({ id:d.id, ...d.data() }));
       const items = itemSnap.docs.map(d => ({ id:d.id, ...d.data() }));
       const addons= addonSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+      const result = shapeMenu(cats, items, addons);
+      console.log('[POD] Firestore:', result.yiyecek.length, 'yiyecek cat,', result.icecek.length, 'icecek cat');
+      return result;
+    } catch(e) {
+      console.info('[POD] Firebase kütüphanesi kullanılamadı, yedek bağlantı (REST) deneniyor:', e && e.message);
+      return null;
+    }
+  }
+
+  function shapeMenu(cats, items, addons) {
 
       // Ürünler kategori içinde fiyata göre artan sıralanır; fiyatı aynı/olmayanlar admin sırasını korur
       const priceOf = x => { const n = parseFloat(String(x.price ?? '').replace(',', '.')); return n > 0 ? n : Infinity; };
@@ -1137,13 +1157,59 @@
           items: items.filter(i => i.categoryId === cat.id).sort(byPrice)
         }));
 
-      const result = { yiyecek: buildTab('yiyecek'), icecek: buildTab('icecek'), addons };
-      console.log('[POD] Firestore:', result.yiyecek.length, 'yiyecek cat,', result.icecek.length, 'icecek cat');
-      return result;
-    } catch(e) {
-      console.warn('[POD] Firestore hatası, statik veri kullanılıyor:', e);
+      return { yiyecek: buildTab('yiyecek'), icecek: buildTab('icecek'), addons };
+  }
+
+  /* Yedek yol: Firebase kütüphanesi (gstatic.com) yüklenemezse ya da yavaşsa
+     aynı veriler Firestore'un herkese açık REST adresinden düz fetch ile okunur. */
+  async function fetchFromRest() {
+    try {
+      const cfg = getConfig();
+      const base = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/`;
+      const val = v => {
+        if ('stringValue' in v) return v.stringValue;
+        if ('integerValue' in v) return Number(v.integerValue);
+        if ('doubleValue' in v) return v.doubleValue;
+        if ('booleanValue' in v) return v.booleanValue;
+        if ('timestampValue' in v) return v.timestampValue;
+        if ('arrayValue' in v) return (v.arrayValue.values || []).map(val);
+        if ('mapValue' in v) return fields(v.mapValue.fields);
+        return null;
+      };
+      const fields = f => { const o = {}; for (const k in (f || {})) o[k] = val(f[k]); return o; };
+      const list = async col => {
+        const out = []; let token = '';
+        do {
+          const r = await fetch(`${base}${col}?pageSize=300&key=${cfg.apiKey}${token ? '&pageToken=' + encodeURIComponent(token) : ''}`);
+          if (!r.ok) throw new Error('REST ' + r.status);
+          const j = await r.json();
+          (j.documents || []).forEach(d => out.push({ id: d.name.split('/').pop(), ...fields(d.fields) }));
+          token = j.nextPageToken || '';
+        } while (token);
+        return out;
+      };
+      const [cats, items, addons] = await Promise.all([list('menuCategories'), list('menuItems'), list('addons')]);
+      if (!cats.length) throw new Error('REST boş');
+      console.log('[POD] Menü REST ile yüklendi');
+      return shapeMenu(cats, items, addons);
+    } catch (e) {
+      console.warn('[POD] REST de başarısız:', e && e.message);
       return null;
     }
+  }
+
+  /* Önce Firebase kütüphanesi; 3 sn'de gelmezse ya da kütüphane hiç yüklenmediyse
+     REST de devreye girer — hangisi önce gelirse o kullanılır. */
+  async function fetchMenu() {
+    const sdk = fetchFromFirestore();
+    const quick = await Promise.race([sdk, new Promise(r => setTimeout(() => r(undefined), 3000))]);
+    if (quick) return quick;
+    return new Promise(resolve => {
+      let left = quick === null ? 1 : 2;
+      const fin = r => { if (r) resolve(r); else if (--left === 0) resolve(null); };
+      fetchFromRest().then(fin);
+      if (quick === undefined) sdk.then(fin);
+    });
   }
 
   /* ════════════════════════════════════════
@@ -1184,15 +1250,17 @@
     const subtitleHtml = catSub  ? `<span class="cat-subtitle">${esc(catSub)}</span>` : '';
     const noteHtml     = catNote ? `<div class="cat-note">${esc(catNote)}</div>` : '';
 
+    const todayIst = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
     const itemsHtml = (cat.items || []).map(item => {
-      const hasImg = !!item.imageUrl;
+      const soldOut = item.soldOutDate === todayIst;   // "Bugün yok": yalnızca işaretlendiği gün geçerli
+      const hasImg = !!item.imageUrl && !soldOut;
       return `
-        <li class="menu-item${hasImg ? ' has-image':''}"
+        <li class="menu-item${hasImg ? ' has-image':''}${soldOut ? ' is-soldout':''}"
             data-cat-id="${cat.id}"
             data-item-id="${esc(item.id || '')}"
-            data-img="${esc(item.imageUrl || '')}">
+            data-img="${hasImg ? esc(item.imageUrl) : ''}">
           <div class="menu-item__row">
-            <span class="menu-item__name">${esc(tx(item,'name',ENX.items))}</span>
+            <span class="menu-item__name">${esc(tx(item,'name',ENX.items))}${soldOut ? `<span class="menu-item__soldout">${L('soldOut')}</span>` : ''}</span>
             ${(item.priceText || item.price) ? `<span class="menu-item__price">${esc(String(item.priceText || item.price))} ₺</span>` : ''}
           </div>
           ${tx(item,'desc',ENX.items) ? `<p class="menu-item__desc">${esc(tx(item,'desc',ENX.items))}</p>` : ''}
@@ -1525,9 +1593,30 @@
     // Reveal page immediately — loading state is already visible in HTML
     document.body.style.opacity = '1';
 
-    let data = await fetchFromFirestore();
+    /* Açılış ekranı (loader) güncel menü gelene kadar bekler.
+       - Telefonda daha önce saklanmış gerçek menü varsa en fazla 2,5 sn beklenir,
+         gelmezse saklı menü gösterilir, güncel hali gelince yerinde yenilenir.
+       - Saklı menü yoksa 15 sn'ye kadar beklenir; yine de gelmezse geçici yedek
+         gösterilir ve gerçek menü (görselleriyle) geldiği an onun yerine geçer. */
+    const live = fetchMenu();
+    const cached = readMenuCache();
+    const wait = ms => new Promise(r => setTimeout(() => r(null), ms));
+    let data = await Promise.race([live, wait(cached ? 2500 : 15000)]) || cached;
     if (!data) data = STATIC;
     MENU_DATA = data;
+    live.then(fresh => {
+      if (!fresh) return;
+      const plain = JSON.parse(JSON.stringify(fresh));
+      writeMenuCache(plain);
+      const stable = o => JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((m, x) => (m[x] = v[x], m), {}) : v);
+      if (MENU_DATA === fresh || stable(MENU_DATA) === stable(plain)) return;
+      MENU_DATA = plain;
+      hidePeek();
+      renderTab('yiyecek', plain.yiyecek, plain.addons);
+      renderTab('icecek',  plain.icecek,  plain.addons);
+      document.querySelectorAll('.menu-content [data-reveal]').forEach(el => el.classList.add('is-visible'));
+      requestAnimationFrame(() => window.dispatchEvent(new Event('scroll')));
+    });
     applyLangTexts();
 
     renderTab('yiyecek', data.yiyecek, data.addons);
